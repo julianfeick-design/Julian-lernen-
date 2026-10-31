@@ -1033,7 +1033,15 @@
     const seen = list.filter(c => state.mc[c.key]).length;
     return { total: list.length, safe, seen, pct: list.length ? Math.round(safe / list.length * 100) : 0 };
   }
+  let lastCorrectPos = -1;
   function mcOptions(c) {
+    const data = (window.MC_DATA || {})[c.key];
+    if (data && data.length >= 3) {
+      let options, correct, tries = 0;
+      do { options = shuffle(data); correct = options.indexOf(data[0]); tries++; } while (correct === lastCorrectPos && tries < 10);
+      lastCorrectPos = correct;
+      return { options, correct };
+    }
     const same = (list) => list.filter(o => !Array.isArray(o.steps) && o.a !== c.a).map(o => o.a);
     let pool = same(cardsInScope(`deck:${c.folder.id}:${c.deck.id}`));
     if (pool.length < 3) pool = pool.concat(same(cardsInScope(`folder:${c.folder.id}`)));
