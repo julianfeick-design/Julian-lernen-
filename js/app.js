@@ -627,7 +627,7 @@
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Combo!` : ""}</div>
         <div class="flash-wrap">
           <div class="flash" id="flash">
-            <div class="side front"><span class="tag">Frage · ${esc(c.deck.name)}</span><div class="content">${esc(c.q)}</div>
+            <div class="side front"><span class="tag">Frage · ${esc(c.deck.name)}</span>${c.important ? `<span class="imp">⭐ Prüfungsrelevant</span>` : ""}<div class="content">${esc(c.q)}</div>
               ${c.hint ? `<button class="btn-ghost small" id="hintBtn" style="margin-top:14px">💡 Tipp anzeigen</button><div id="hint" class="hidden muted" style="margin-top:6px">${esc(c.hint)}</div>` : ""}
               <span class="tap">Tippen zum Umdrehen</span></div>
             <div class="side back"><span class="tag">Antwort</span><div class="content">${esc(c.a)}</div></div>

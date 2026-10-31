@@ -335,3 +335,6 @@ th { color: var(--muted); font-weight: 700; font-size: .78rem; text-transform: u
 
 .card-edit { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: start; margin-bottom: 8px; }
 @media (max-width: 640px) { .card-edit { grid-template-columns: 1fr; } }
+
+.flash .side .imp { position: absolute; top: 12px; right: 14px; font-size: .72rem; font-weight: 800; color: var(--warn); background: var(--warn-soft); padding: 2px 8px; border-radius: 99px; }
+.flash .side.front { padding-top: 44px; }
