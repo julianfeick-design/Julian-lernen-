@@ -192,6 +192,9 @@
     ["none", "🛋️ Kein Training"], ["kraft", "🏋️ Kraft"], ["laufen", "🏃 Laufen"], ["rad", "🚴 Rad"],
     ["schwimmen", "🏊 Schwimmen"], ["team", "⚽ Teamsport"], ["yoga", "🧘 Yoga/Mobility"], ["anderes", "✨ Anderes"]
   ];
+  // Schlafqualität als Prozent-Spanne (z. B. Schlaf-Score der Uhr/App)
+  const SLEEP_RANGES = ["", "0–30 %", "30–50 %", "50–70 %", "70–80 %", "80–100 %"];
+  const SLEEP_MID = [0, 15, 40, 60, 75, 90];
   const trainingLabel = (t) => (TRAININGS.find(x => x[0] === t) || ["", "–"])[1];
 
   function evaluate(c) {
@@ -199,10 +202,12 @@
     // Schlaf
     const h = c.sleepHours;
     let hs = h >= 7 && h <= 9 ? 100 : h >= 6 ? 70 : h >= 5 ? 45 : h > 9 ? 80 : 20;
-    const sleep = hs * 0.6 + ((c.sleepQuality - 1) / 4) * 100 * 0.4;
+    const sleep = hs * 0.6 + (SLEEP_MID[c.sleepQuality] || 50) * 0.4;
     if (h < 6) fb.push(["bad", `😴 Nur ${fmtNum(h)} h Schlaf – heute lieber kürzere Lerneinheiten mit mehr Pausen und heute Abend früher ins Bett.`]);
     else if (h < 7) fb.push(["warn", `😴 ${fmtNum(h)} h Schlaf ist etwas knapp. Ein Powernap (max. 20 Min) kann helfen.`]);
     else fb.push(["good", `😴 ${fmtNum(h)} h Schlaf – super Basis fürs Gedächtnis!`]);
+    if (c.sleepQuality <= 2) fb.push(["warn", `🌙 Schlafqualität nur ${SLEEP_RANGES[c.sleepQuality]} – du bist evtl. weniger erholt, als die Stunden vermuten lassen. Plane mehr Pausen ein.`]);
+    else if (c.sleepQuality >= 5) fb.push(["good", `🌙 Schlafqualität ${SLEEP_RANGES[c.sleepQuality]} – top erholt!`]);
     // Training
     const tr = c.trainingType === "none" ? 45 : c.trainingMin >= 30 ? 100 : 70;
     if (c.trainingType === "none") fb.push(["warn", "🏃 Noch kein Sport heute – schon 10 Min Spaziergang in der Lernpause pusht die Konzentration."]);
@@ -310,12 +315,13 @@
       breakfast: "", lunch: "", dinner: "", snacks: "", foodHealth: 0, water: 0.5,
       mood: 0, energy: 0, stress: 0, goal: "", studyMin: 60
     };
-    const scale = (field, items) => `<div class="scale" data-field="${field}">${items.map((it, i) =>
+    const scale = (field, items, variant = "") => `<div class="scale ${variant}" data-field="${field}">${items.map((it, i) =>
       `<button type="button" data-v="${i + 1}" class="${d[field] === i + 1 ? "active" : ""}"><span class="e">${it[0]}</span><span class="t">${it[1]}</span></button>`).join("")}</div>`;
 
     const steps = [
-      { emoji: "🌙", title: "Wie hast du heute geschlafen?", valid: () => d.sleepQuality > 0,
-        html: () => scale("sleepQuality", [["😫", "Mies"], ["😪", "Schlecht"], ["😐", "Okay"], ["🙂", "Gut"], ["🤩", "Mega"]]) },
+      { emoji: "🌙", title: "Wie gut hast du geschlafen?", valid: () => d.sleepQuality > 0,
+        html: () => `<p class="center muted small" style="margin-top:-6px">Schlafqualität in Prozent – z. B. dein Schlaf-Score von Uhr oder App</p>` +
+          scale("sleepQuality", [["0–30", "%"], ["30–50", "%"], ["50–70", "%"], ["70–80", "%"], ["80–100", "%"]], "pct") },
       { emoji: "⏰", title: "Wie viele Stunden hast du geschlafen?", valid: () => true,
         html: () => `<div class="big-number" id="sleepOut">${fmtNum(d.sleepHours)} h</div>
           <input type="range" min="0" max="12" step="0.5" value="${d.sleepHours}" data-range="sleepHours">
@@ -489,7 +495,7 @@
             <div class="score" style="--p:${ev.score};--ring:${ev.score >= 75 ? "var(--good)" : ev.score >= 50 ? "var(--warn)" : "var(--bad)"};width:84px;height:84px;margin:0">
               <div style="width:66px;height:66px;font-size:1.3rem">${ev.score}</div></div>
             <div class="small" style="flex:1;min-width:150px">
-              😴 ${fmtNum(c.sleepHours)} h Schlaf · ${["", "😫", "😪", "😐", "🙂", "🤩"][c.sleepQuality]}<br>
+              😴 ${fmtNum(c.sleepHours)} h Schlaf · ${SLEEP_RANGES[c.sleepQuality]}<br>
               🏋️ ${c.trainingType === "none" ? "Kein Training" : `${c.trainingMin} Min ${esc(trainingLabel(c.trainingType).replace(/^\S+\s/, ""))}`}<br>
               🍽️ ${["", "🍟", "🍕", "🥪", "🍛", "🥗"][c.foodHealth]} · 🧠 ${["", "😞", "🙁", "😐", "🙂", "😄"][c.mood]} · Stress ${c.stress}/5
             </div>
@@ -1075,7 +1081,7 @@
             const ev = c ? evaluate(c) : null;
             return `<tr><td>${fmtDay(k)}</td>
               <td>${ev ? `<b style="color:${ev.score >= 75 ? "var(--good)" : ev.score >= 50 ? "var(--warn)" : "var(--bad)"}">${ev.score}</b>` : "–"}</td>
-              <td>${c ? fmtNum(c.sleepHours) + " h " + ["", "😫", "😪", "😐", "🙂", "🤩"][c.sleepQuality] : "–"}</td>
+              <td>${c ? fmtNum(c.sleepHours) + " h · " + SLEEP_RANGES[c.sleepQuality] : "–"}</td>
               <td>${c ? (c.trainingType === "none" ? "–" : c.trainingMin + " Min") : "–"}</td>
               <td>${c ? fmtNum(c.water, 2) + " L" : "–"}</td>
               <td>${c ? ["", "😞", "🙁", "😐", "🙂", "😄"][c.mood] : "–"}</td>
@@ -1186,7 +1192,7 @@
       `Stand: Level ${li.level} (${li.title}), ${state.points} Punkte, Streak ${streak()} Tage.`;
     if (c) {
       const ev = evaluate(c);
-      s += `\n\nTages-Check-in von heute (Score ${ev.score}/100): Schlaf ${c.sleepHours} h (Qualität ${c.sleepQuality}/5), ` +
+      s += `\n\nTages-Check-in von heute (Score ${ev.score}/100): Schlaf ${c.sleepHours} h (Schlafqualität ${SLEEP_RANGES[c.sleepQuality]}), ` +
         `Training: ${c.trainingType === "none" ? "keins" : c.trainingMin + " Min " + trainingLabel(c.trainingType) + " (" + c.trainingIntensity + ")"}, ` +
         `Essen: ${[c.breakfast, c.lunch, c.dinner, c.snacks].filter(Boolean).join(", ") || "noch nichts angegeben"} (Gesundheit ${c.foodHealth}/5), ` +
         `Wasser ${c.water} L von ${state.settings.waterGoal} L Ziel, Stimmung ${c.mood}/5, Energie ${c.energy}/5, Stress ${c.stress}/5` +
