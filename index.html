@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Julian lernt</title>
+  <meta name="theme-color" content="#7c5cff">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <a href="#/" class="brand">🧠 <span>Julian lernt</span></a>
+    <div class="topstats" id="topstats"></div>
+  </header>
+
+  <main id="app" class="container"></main>
+
+  <nav class="tabbar" id="tabbar">
+    <a href="#/" data-tab="home"><span>🏠</span>Start</a>
+    <a href="#/ordner" data-tab="ordner"><span>🗂️</span>Ordner</a>
+    <a href="#/neu" data-tab="neu"><span>➕</span>Neu</a>
+    <a href="#/verlauf" data-tab="verlauf"><span>📈</span>Verlauf</a>
+    <a href="#/einstellungen" data-tab="einstellungen"><span>⚙️</span>Mehr</a>
+  </nav>
+
+  <!-- Claude-Chat: immer verfügbar -->
+  <button class="chat-fab" id="chatFab" aria-label="Claude fragen">💬 <span>Claude</span></button>
+  <aside class="chat" id="chat" aria-hidden="true">
+    <div class="chat-head">
+      <strong>💬 Claude</strong>
+      <div>
+        <button class="btn-ghost small" id="chatClear" title="Verlauf leeren">🧹</button>
+        <button class="btn-ghost small" id="chatClose" aria-label="Schließen">✕</button>
+      </div>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <form class="chat-input" id="chatForm">
+      <textarea id="chatText" rows="1" placeholder="Frag mich etwas…"></textarea>
+      <button class="btn" type="submit">➤</button>
+    </form>
+  </aside>
+
+  <div class="toast-wrap" id="toasts"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/claude.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
