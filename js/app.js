@@ -28,7 +28,8 @@
     points: 0,
     log: {},
     achievements: {},
-    chat: []
+    chat: [],
+    mc: {}
   };
   let state = load();
 
@@ -298,6 +299,7 @@
       case "ordner": setTab("ordner"); return rest[0] ? viewFolder(rest[0]) : viewFolders();
       case "lernen": setTab("ordner"); return viewLearn(rest.join("/"));
       case "quiz": setTab("ordner"); return viewQuiz(rest.join("/"));
+      case "mc": setTab(""); return viewMC(rest.join("/"));
       case "neu": setTab("neu"); return viewNew(rest[0]);
       case "verlauf": setTab("verlauf"); return viewHistory();
       case "einstellungen": setTab("einstellungen"); return viewSettings();
@@ -489,6 +491,7 @@
       </div>
 
       ${examSection(folders)}
+      ${mcSection(folders)}
 
       <div class="grid grid-2">
         <div class="card">
@@ -618,7 +621,8 @@
           <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p>
           ${f.examDate && daysUntil(f.examDate) >= 0 ? `<p class="small" style="margin:6px 0 0"><span class="badge due">📅 Prüfung ${new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" })} · noch ${daysUntil(f.examDate)} Tage</span></p>` : ""}</div>
           <div class="row">
-            <a class="btn small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Ganzen Ordner lernen"}</a>
+            ${f.type === "math" ? "" : `<a class="btn small" href="#/mc/folder:${encodeURIComponent(fid)}">🧩 Multiple Choice</a>`}
+            <a class="btn ${f.type === "math" ? "" : "secondary "}small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Karteikarten"}</a>
             ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>`}
           </div>
         </div>
@@ -634,12 +638,14 @@
                 <span class="badge">${st.total} ${f.type === "math" ? "Aufgaben" : "Karten"}</span>
                 ${st.fresh ? `<span class="badge new">${st.fresh} neu</span>` : ""}
                 ${st.due ? `<span class="badge due">${st.due} fällig</span>` : ""}
-                <span class="badge">${st.pct}% Fortschritt</span>
+                ${f.type === "math" ? "" : `<span class="badge new">🧩 ${mcStats(cardsInScope(`deck:${fid}:${d.id}`)).pct}% MC-sicher</span>`}
+                <span class="badge">${st.pct}% Karteikarten</span>
               </div>
               <div class="bar"><div style="width:${st.pct}%"></div></div>
             </div>
             <div class="actions">
-              <a class="btn small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : "Lernen"}</a>
+              ${f.type === "math" ? "" : `<a class="btn small" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">🧩 MC</a>`}
+              <a class="btn ${f.type === "math" ? "" : "secondary "}small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : "Karten"}</a>
               ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">Quiz</a>`}
               ${!d.builtin ? `<button class="btn-ghost small" data-del-deck="${esc(d.id)}" title="Stapel löschen">🗑️</button>` : ""}
             </div>
@@ -866,6 +872,141 @@
       qs.push({ q: c.q, options: opts, correct: opts.indexOf(c.a), explain: c.hint ? "💡 " + c.hint : "" });
     }
     return shuffle(qs);
+  }
+
+  // =========================================================
+  //  Multiple-Choice-Training (eigener Bereich, eigener Fortschritt)
+  // =========================================================
+  const MC_SAFE = 2; // so oft hintereinander richtig = „MC-sicher“
+  const mcOf = (key) => state.mc[key] || { r: 0, w: 0, s: 0 };
+  function mcStats(cards) {
+    const list = cards.filter(c => !Array.isArray(c.steps));
+    const safe = list.filter(c => mcOf(c.key).s >= MC_SAFE).length;
+    const seen = list.filter(c => state.mc[c.key]).length;
+    return { total: list.length, safe, seen, pct: list.length ? Math.round(safe / list.length * 100) : 0 };
+  }
+  function mcOptions(c) {
+    const same = (list) => list.filter(o => !Array.isArray(o.steps) && o.a !== c.a).map(o => o.a);
+    let pool = same(cardsInScope(`deck:${c.folder.id}:${c.deck.id}`));
+    if (pool.length < 3) pool = pool.concat(same(cardsInScope(`folder:${c.folder.id}`)));
+    pool = Array.from(new Set(pool));
+    if (pool.length < 2) return null;
+    const options = shuffle([c.a, ...shuffle(pool).slice(0, 3)]);
+    return { options, correct: options.indexOf(c.a) };
+  }
+  function mcSection(folders) {
+    const fs = folders.filter(f => f.type !== "math");
+    if (!fs.length) return "";
+    const all = mcStats(cardsInScope("all"));
+    return `<div class="card mc-card">
+      <div class="row between">
+        <div><h2 style="margin:0">🧩 Multiple-Choice-Training</h2>
+        <p class="muted small" style="margin:4px 0 0">Erst mal reinkommen: alle Karten als Multiple Choice – so oft du willst. Die Karteikarten kommen später.</p></div>
+        <a class="btn" href="#/mc/all">🧩 20 Fragen – alle Fächer</a>
+      </div>
+      <div class="mc-subjects">${fs.map(f => {
+        const st = mcStats(cardsInScope("folder:" + f.id));
+        return `<a class="mc-subject" href="#/mc/folder:${encodeURIComponent(f.id)}" style="--fc:${esc(f.color || "#6c4cf5")}">
+          <span class="emoji">${esc(f.emoji || "📁")}</span>
+          <span class="info"><b>${esc(f.name)}</b><span class="small muted">${st.safe} / ${st.total} MC-sicher</span>
+          <span class="bar"><span style="width:${st.pct}%"></span></span></span>
+          <span class="pct">${st.pct}%</span>
+        </a>`;
+      }).join("")}</div>
+      <p class="small muted" style="margin:12px 0 0">MC-sicher = ${MC_SAFE}× hintereinander richtig. Insgesamt: ${all.safe} von ${all.total} Karten (${all.pct}%).</p>
+    </div>`;
+  }
+
+  function viewMC(scope) {
+    const cards = cardsInScope(scope === "all" ? "all" : scope).filter(c => !Array.isArray(c.steps));
+    if (cards.length < 3) {
+      app().innerHTML = `<div class="card empty"><div class="e">🧩</div><p>Hier gibt es zu wenige Karten für Multiple Choice.</p><a class="btn" href="#/">Zur Startseite</a></div>`;
+      return;
+    }
+    // Schwächste Karten zuerst: nicht sicher, dann oft falsch, dann zufällig
+    const ranked = shuffle(cards).sort((a, b) => {
+      const A = mcOf(a.key), B = mcOf(b.key);
+      return (Math.min(A.s, MC_SAFE) - Math.min(B.s, MC_SAFE)) || (B.w - A.w);
+    });
+    const queue = ranked.slice(0, state.settings.sessionSize || 20);
+    const back = scope.startsWith("folder:") || scope.startsWith("deck:") ? "#/ordner/" + encodeURIComponent(scope.split(":")[1]) : "#/";
+    const session = { i: 0, right: 0, wrong: [], points: 0, combo: 0, best: 0, requeued: new Set() };
+
+    function render() {
+      if (session.i >= queue.length) return finish();
+      const c = queue[session.i];
+      const mc = mcOptions(c);
+      if (!mc) { session.i++; return render(); }
+      const m = mcOf(c.key);
+      window.chatContext = `Ich übe Multiple Choice. Frage: ${c.q}\nRichtige Antwort: ${c.a}`;
+      app().innerHTML = `
+        <div class="row between">
+          <a href="${back}" class="small">← Beenden</a>
+          <span class="small muted">🧩 ${esc(scopeName(scope))}</span>
+        </div>
+        <div class="progress" style="margin-top:10px"><div style="width:${session.i / queue.length * 100}%"></div></div>
+        <div class="row between small muted"><span>Frage ${session.i + 1} / ${queue.length}</span><span>✅ ${session.right} · ⭐ ${session.points}</span></div>
+        <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
+        <div class="card task">
+          <div class="row between"><span class="tag">🧩 ${esc(c.deck.name)}</span>
+            <span class="row" style="gap:6px">${c.important ? `<span class="badge due">⭐ Prüfungsrelevant</span>` : ""}${m.s >= MC_SAFE ? `<span class="badge new">✓ sicher</span>` : state.mc[c.key] ? "" : `<span class="badge">neu</span>`}</span></div>
+          <h2 style="margin:12px 0 16px">${esc(c.q)}</h2>
+          <div class="options">${mc.options.map((o, k) => `<button class="option" data-k="${k}">${String.fromCharCode(65 + k)}) ${esc(o)}</button>`).join("")}</div>
+          <div id="after"></div>
+        </div>`;
+      $$(".option").forEach(b => b.addEventListener("click", e => {
+        const k = Number(b.dataset.k), ok = k === mc.correct;
+        $$(".option").forEach((x, j) => { x.disabled = true; if (j === mc.correct) x.classList.add("correct"); });
+        const rec = { ...mcOf(c.key) };
+        if (ok) {
+          rec.r++; rec.s++; session.right++; session.combo++; session.best = Math.max(session.best, session.combo);
+          const pts = 5 + Math.min(session.combo - 1, 5); session.points += pts; addPoints(pts, e);
+        } else {
+          b.classList.add("wrong"); rec.w++; rec.s = 0; session.combo = 0;
+          if (!session.wrong.includes(c)) session.wrong.push(c);
+          if (!session.requeued.has(c.key)) { session.requeued.add(c.key); queue.push(c); }
+          session.points += 1; addPoints(1);
+        }
+        state.mc[c.key] = rec;
+        const tl = todayLog(); tl.quizTotal++; if (ok) tl.quizCorrect++;
+        save();
+        $("#after").innerHTML = `
+          <div class="explain">${ok ? (rec.s === MC_SAFE ? "✅ <b>Richtig!</b> Diese Karte ist jetzt MC-sicher 🎉" : "✅ <b>Richtig!</b>") : "❌ <b>Leider falsch.</b> Die Frage kommt am Ende dieser Runde nochmal."}
+          ${c.hint ? `<br><span class="small">💡 ${esc(c.hint)}</span>` : ""}</div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="nextQ">${session.i === queue.length - 1 ? "Ergebnis ansehen" : "Weiter →"}</button>
+            ${!ok ? `<button class="btn-ghost small" id="why">💬 Claude erklärt</button>` : ""}
+          </div>`;
+        $("#nextQ").addEventListener("click", () => { session.i++; render(); });
+        $("#nextQ").scrollIntoView({ behavior: "smooth", block: "center" });
+        $("#why")?.addEventListener("click", () => openChat(`Ich hatte diese Multiple-Choice-Frage falsch. Erklär mir kurz die richtige Antwort mit einer Eselsbrücke:\nFrage: ${c.q}\nRichtig: ${c.a}`));
+      }));
+    }
+
+    function finish() {
+      window.chatContext = null;
+      const total = session.right + session.wrong.length;
+      const firstTry = queue.length - session.requeued.size;
+      if (session.wrong.length === 0 && total >= 5) { addPoints(20); unlock("perfect_quiz"); }
+      checkAchievements();
+      const st = mcStats(cards);
+      app().innerHTML = `
+        <div class="card center">
+          <div style="font-size:3rem">${session.wrong.length === 0 ? "🎯" : session.wrong.length <= 3 ? "💪" : "📖"}</div>
+          <h1>Runde geschafft!</h1>
+          <p class="muted">${firstTry} Fragen · ${session.wrong.length} beim ersten Versuch falsch${session.best >= 3 ? ` · beste Serie ${session.best} 🔥` : ""}</p>
+          <div class="score" style="--p:${st.pct};--ring:var(--good)"><div>${st.pct}%</div></div>
+          <p class="small muted">${st.safe} von ${st.total} Karten in „${esc(scopeName(scope))}“ sind MC-sicher · ⭐ ${session.points}</p>
+        </div>
+        ${session.wrong.length ? `<div class="card"><h3>Das solltest du dir nochmal anschauen</h3><ul class="feedback">${session.wrong.map(c => `<li class="warn"><b>${esc(c.q)}</b><br>${esc(c.a)}</li>`).join("")}</ul></div>` : ""}
+        <div class="row">
+          <a class="btn" href="#/mc/${encodeURIComponent(scope)}" id="again">🔁 Nächste Runde</a>
+          <a class="btn secondary" href="${back}">Fertig</a>
+        </div>`;
+      $("#again").addEventListener("click", e => { e.preventDefault(); viewMC(scope); });
+      if (session.wrong.length === 0) confetti();
+    }
+    render();
   }
 
   function viewQuiz(scope) {

@@ -467,3 +467,20 @@ th { color: var(--muted); font-weight: 700; font-size: .7rem; text-transform: up
 .exam .info { flex: 1; min-width: 0; }
 .exam .name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .exam .bar { margin-top: 6px; }
+
+/* ---------- Multiple-Choice-Training ---------- */
+.mc-card { background: linear-gradient(160deg, var(--surface) 0%, color-mix(in srgb, var(--primary) 7%, var(--surface)) 100%); }
+.mc-subjects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+@media (max-width: 640px) { .mc-subjects { grid-template-columns: minmax(0, 1fr); } }
+.mc-subject {
+  display: flex; align-items: center; gap: 12px; min-width: 0; color: var(--text); font-weight: 400;
+  padding: 12px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); transition: transform .15s;
+}
+.mc-subject:active { transform: scale(.98); }
+.mc-subject .emoji { flex: 0 0 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; font-size: 1.3rem; background: color-mix(in srgb, var(--fc) 14%, transparent); }
+.mc-subject .info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.mc-subject .info b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .95rem; }
+.mc-subject .bar { display: block; margin-top: 6px; }
+.mc-subject .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); border-radius: 99px; }
+.mc-subject .pct { font-weight: 800; font-size: 1.05rem; color: var(--primary); font-variant-numeric: tabular-nums; }
