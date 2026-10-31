@@ -320,10 +320,10 @@ Stelle die Formel der unterjährigen Verzinsung $K_n = K_0 \cdot \left(1 + \frac
             hint: R`Durch den Klammer-Ausdruck teilen.`,
             steps: [
               R`$K_0 = \frac{K_n}{\left(1 + \frac{p}{m \cdot 100}\right)^{m \cdot n}}$`,
-              R`$\left(1 + \frac{2{,}4}{1200}\right)^{120} = 1{,}002^{120} \approx 1{,}27084$`,
-              R`$K_0 = \frac{25.000}{1{,}27084}$`
+              R`$\left(1 + \frac{2{,}4}{1200}\right)^{120} = 1{,}002^{120} \approx 1{,}27094$`,
+              R`$K_0 = \frac{25.000}{1{,}27094}$`
             ],
-            a: R`$K_0 = \frac{K_n}{(1+\frac{p}{100m})^{mn}} \approx 19.672$ €`
+            a: R`$K_0 = \frac{K_n}{(1+\frac{p}{100m})^{mn}} \approx 19.670{,}41$ €`
           },
           {
             id: "ns01",
