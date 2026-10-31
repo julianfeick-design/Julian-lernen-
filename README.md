@@ -15,6 +15,21 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann Karteikart
 6. **Karten erstellen**: PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
 7. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
 
+## Aktuelle Inhalte
+
+| Ordner | Inhalt |
+|---|---|
+| 🚚 VBL 1 – Verkehrsbetriebslehre | 7 Stapel, 171 Karten, 41 Quizfragen |
+| 💼 Grundlagen der BWL | BWL + Marketing, 104 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
+| 📦 Grundlagen & Funktionen der Logistik | 5 Stapel, 68 Karten, 20 Quizfragen |
+| 🧮 Mathematik & Statistik | **Aufgabenmodus**: 29 Aufgaben mit komplettem Lösungsweg |
+
+Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
+
+## Mathe-Aufgabenmodus
+
+Mathe-Ordner (`type: "math"` in `js/decks/mathe.js`) zeigen statt Karteikarten Aufgaben: selbst rechnen → „Lösungsweg zeigen“ → Schritt-für-Schritt-Lösung mit Formeln (KaTeX, lokal in `vendor/katex`) → bewerten (Falsch / Teilweise / Richtig).
+
 ## Lernzettel / Folien einbauen
 
 **Variante A: an Claude Code schicken (empfohlen)**

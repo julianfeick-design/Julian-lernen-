@@ -142,6 +142,8 @@
     const out = [];
     for (const f of getFolders()) {
       if ((type === "folder" || type === "deck") && f.id !== fid) continue;
+      if ((type === "all" || type === "due") && f.type === "math") continue;
+      if (type === "math" && f.type !== "math") continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
         for (const c of d.cards || []) out.push({ ...c, key: cardKey(f.id, d.id, c.id), folder: f, deck: d });
@@ -154,6 +156,7 @@
     const out = [];
     for (const f of getFolders()) {
       if ((type === "folder" || type === "deck") && f.id !== fid) continue;
+      if ((type === "all" || type === "due") && f.type === "math") continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
         for (const q of d.quiz || []) out.push({ ...q, deck: d });
@@ -164,6 +167,7 @@
   function scopeName(scope) {
     const [type, fid, did] = scope.split(":");
     if (type === "due" || type === "all") return "Alle Ordner";
+    if (type === "math") return "🧮 Mathe-Training";
     const f = getFolders().find(x => x.id === fid);
     if (!f) return "?";
     if (type === "folder") return `${f.emoji || "📁"} ${f.name}`;
@@ -263,6 +267,16 @@
   }
   function setTab(name) { $$("#tabbar a").forEach(a => a.classList.toggle("active", a.dataset.tab === name)); }
   const app = () => $("#app");
+  function renderMath(el) {
+    if (!el || typeof window.renderMathInElement !== "function") return;
+    try {
+      window.renderMathInElement(el, {
+        delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }],
+        throwOnError: false
+      });
+    } catch { /* KaTeX nicht verfügbar – Rohtext bleibt sichtbar */ }
+  }
+  window.addEventListener("load", () => renderMath(app()));
 
   // ---------- Router ----------
   function route() {
@@ -504,7 +518,8 @@
       </div>
 
       <div class="row between"><h2 style="margin:8px 0 12px">Deine Ordner</h2><a href="#/ordner" class="small">alle anzeigen</a></div>
-      ${folders.length ? `<div class="grid grid-3">${folders.map(folderTile).join("")}</div>` : emptyFolders()}
+      ${folders.filter(f => f.type !== "math").length ? `<div class="grid grid-3">${folders.filter(f => f.type !== "math").map(folderTile).join("")}</div>` : emptyFolders()}
+      ${mathSection(folders)}
     `;
     $$("[data-water]").forEach(b => b.addEventListener("click", () => {
       c.water = clamp(Math.round((c.water + Number(b.dataset.water)) * 100) / 100, 0, 8);
@@ -513,13 +528,27 @@
     $("#askClaude").addEventListener("click", () => claudeQuiz(all));
   }
 
+  function mathSection(folders) {
+    const mf = folders.filter(f => f.type === "math");
+    if (!mf.length) return "";
+    const st = stats(cardsInScope("math"));
+    return `<div class="card math-card" style="margin-top:16px">
+      <div class="row between">
+        <div><h2 style="margin:0">🧮 Mathe-Training</h2>
+        <p class="muted small" style="margin:4px 0 0">Aufgaben selbst rechnen, dann den kompletten Lösungsweg aufdecken.</p></div>
+        <a class="btn" href="#/lernen/math">✏️ ${st.due ? Math.min(st.due, state.settings.sessionSize) + " Aufgaben rechnen" : "Aufgaben üben"}</a>
+      </div>
+      <div class="grid grid-3" style="margin-top:14px">${mf.map(folderTile).join("")}</div>
+    </div>`;
+  }
+
   function folderTile(f) {
     const cards = cardsInScope("folder:" + f.id);
     const st = stats(cards);
     return `<a class="folder" href="#/ordner/${encodeURIComponent(f.id)}" style="--fc:${esc(f.color || "#6d4dff")}">
       <div class="emoji">${esc(f.emoji || "📁")}</div>
       <div class="name">${esc(f.name)}</div>
-      <div class="meta">${f.decks.length} Stapel · ${st.total} Karten</div>
+      <div class="meta">${f.decks.length} ${f.type === "math" ? "Themen" : "Stapel"} · ${st.total} ${f.type === "math" ? "Aufgaben" : "Karten"}</div>
       <div class="row" style="margin-top:6px;gap:6px">${st.due ? `<span class="badge due">${st.due} fällig</span>` : `<span class="badge">✓ erledigt</span>`}</div>
       <div class="bar"><div style="width:${st.pct}%"></div></div>
     </a>`;
@@ -533,7 +562,8 @@
     const folders = getFolders();
     app().innerHTML = `
       <div class="row between"><h1>🗂️ Ordner</h1><a class="btn small" href="#/neu">➕ Neu</a></div>
-      ${folders.length ? `<div class="grid grid-3">${folders.map(folderTile).join("")}</div>` : emptyFolders()}`;
+      ${folders.filter(f => f.type !== "math").length ? `<div class="grid grid-3">${folders.filter(f => f.type !== "math").map(folderTile).join("")}</div>` : emptyFolders()}
+      ${mathSection(folders)}`;
   }
 
   function viewFolder(fid) {
@@ -548,8 +578,8 @@
           <div><h1 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h1>
           <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p></div>
           <div class="row">
-            <a class="btn small" href="#/lernen/folder:${encodeURIComponent(fid)}">📚 Ganzen Ordner lernen</a>
-            <a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>
+            <a class="btn small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Ganzen Ordner lernen"}</a>
+            ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>`}
           </div>
         </div>
       </div>
@@ -561,7 +591,7 @@
               <h3 style="margin:0">${esc(d.name)}</h3>
               ${d.description ? `<p class="small muted" style="margin:2px 0 4px">${esc(d.description)}</p>` : ""}
               <div class="row" style="gap:6px">
-                <span class="badge">${st.total} Karten</span>
+                <span class="badge">${st.total} ${f.type === "math" ? "Aufgaben" : "Karten"}</span>
                 ${st.fresh ? `<span class="badge new">${st.fresh} neu</span>` : ""}
                 ${st.due ? `<span class="badge due">${st.due} fällig</span>` : ""}
                 <span class="badge">${st.pct}% Fortschritt</span>
@@ -569,8 +599,8 @@
               <div class="bar"><div style="width:${st.pct}%"></div></div>
             </div>
             <div class="actions">
-              <a class="btn small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">Lernen</a>
-              <a class="btn secondary small" href="#/quiz/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">Quiz</a>
+              <a class="btn small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : "Lernen"}</a>
+              ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">Quiz</a>`}
               ${!d.builtin ? `<button class="btn-ghost small" data-del-deck="${esc(d.id)}" title="Stapel löschen">🗑️</button>` : ""}
             </div>
           </div>`;
@@ -580,6 +610,7 @@
         <a class="btn secondary" href="#/neu/${encodeURIComponent(fid)}">➕ Stapel hinzufügen</a>
         ${userFolder && !f.builtin ? `<button class="btn-ghost" id="delFolder">🗑️ Ordner löschen</button>` : ""}
       </div>`;
+    renderMath(app());
     $$("[data-del-deck]").forEach(b => b.addEventListener("click", () => {
       if (!confirm("Stapel wirklich löschen?")) return;
       const uf = state.userFolders.find(x => x.id === fid);
@@ -615,6 +646,7 @@
     function render() {
       if (idx >= queue.length) return finish();
       const c = queue[idx];
+      if (Array.isArray(c.steps)) return renderTask(c);
       const p = state.progress[c.key];
       window.chatContext = `Ich lerne gerade die Karteikarte aus "${c.deck.name}":\nFrage: ${c.q}\nAntwort: ${c.a}`;
       app().innerHTML = `
@@ -655,6 +687,50 @@
       $("#flipBtn").addEventListener("click", flip);
       $("#hintBtn")?.addEventListener("click", e => { e.stopPropagation(); $("#hint").classList.remove("hidden"); e.target.remove(); });
       $("#explain").addEventListener("click", () => openChat(`Erklär mir bitte diese Karteikarte ausführlicher, mit einem Beispiel und einer Eselsbrücke:\nFrage: ${c.q}\nAntwort: ${c.a}`));
+    }
+
+    function renderTask(c) {
+      const p = state.progress[c.key];
+      window.chatContext = `Ich rechne gerade diese Mathe-Aufgabe aus "${c.deck.name}":\n${c.q}\nLösungsweg:\n${c.steps.join("\n")}\nErgebnis: ${c.a}`;
+      app().innerHTML = `
+        <div class="row between">
+          <a href="${scope.startsWith("deck") || scope.startsWith("folder") ? "#/ordner/" + encodeURIComponent(c.folder.id) : "#/"}" class="small">← Beenden</a>
+          <span class="small muted">${esc(scopeName(scope))}${practice ? " · Freies Üben" : ""}</span>
+        </div>
+        <div class="progress" style="margin-top:10px"><div style="width:${idx / queue.length * 100}%"></div></div>
+        <div class="row between small muted"><span>Aufgabe ${idx + 1} / ${queue.length}</span><span>${p ? `Fach ${p.box} von 5` : "🆕 Neue Aufgabe"} · ⭐ ${session.points}</span></div>
+        <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
+        <div class="card task">
+          <div class="row between"><span class="tag">✏️ Aufgabe · ${esc(c.deck.name)}</span>${c.important ? `<span class="badge due">⭐ Klausurrelevant</span>` : ""}</div>
+          <div class="task-q">${esc(c.q)}</div>
+          ${c.hint ? `<button class="btn-ghost small" id="hintBtn">💡 Tipp / Formel anzeigen</button><div id="hint" class="hidden explain">${esc(c.hint)}</div>` : ""}
+          <p class="small muted" style="margin:14px 0 0">📝 Rechne die Aufgabe auf Papier – dann deck den Lösungsweg auf.</p>
+        </div>
+        <div id="solution" class="card task-solution hidden">
+          <span class="tag">✅ Lösungsweg</span>
+          <ol class="steps">${c.steps.map(st => `<li>${esc(st)}</li>`).join("")}</ol>
+          <div class="result"><b>Ergebnis:</b> ${esc(c.a)}</div>
+        </div>
+        <div id="controls"><button class="btn block" id="flipBtn">Lösungsweg zeigen 👀</button></div>
+        <div class="row" style="justify-content:center;margin-top:12px">
+          <button class="btn-ghost small" id="explain">💬 Claude erklärt mir den Weg</button>
+          <button class="btn-ghost small" id="similar">🔁 Ähnliche Aufgabe von Claude</button>
+        </div>`;
+      renderMath(app());
+      $("#hintBtn")?.addEventListener("click", e => { $("#hint").classList.remove("hidden"); e.target.remove(); });
+      $("#flipBtn").addEventListener("click", () => {
+        $("#solution").classList.remove("hidden");
+        $("#solution").scrollIntoView({ behavior: "smooth", block: "start" });
+        $("#controls").innerHTML = `<p class="center small muted" style="margin:0 0 8px">Wie lief's?</p>
+          <div class="rate">
+            <button class="btn bad" data-r="again">😵 Falsch<small>+2 ⭐</small></button>
+            <button class="btn warn" data-r="hard">🤔 Teilweise<small>+5 ⭐</small></button>
+            <button class="btn good" data-r="good">😎 Richtig<small>+10 ⭐</small></button>
+          </div>`;
+        $$("[data-r]").forEach(b => b.addEventListener("click", e => rate(c, b.dataset.r, e)));
+      });
+      $("#explain").addEventListener("click", () => openChat(`Erklär mir bitte den Lösungsweg dieser Aufgabe Schritt für Schritt und so, dass ich ihn verstehe (nicht nur vorrechnen):\n${c.q}\nLösungsweg:\n${c.steps.join("\n")}\nErgebnis: ${c.a}`));
+      $("#similar").addEventListener("click", () => openChat(`Gib mir bitte eine ähnliche Übungsaufgabe mit anderen Zahlen zu dieser Aufgabe. Zeig die Lösung erst, wenn ich dir mein Ergebnis schicke:\n${c.q}`));
     }
 
     function rate(c, r, evt) {
@@ -716,6 +792,13 @@
         </div>
         <div class="row"><a class="btn secondary" href="#/lernen/${encodeURIComponent(scope)}">🔁 Weiterlernen</a><a class="btn-ghost" href="#/">Zur Startseite</a></div>`;
       confetti(rate >= 80 ? 100 : 40);
+      if (session.done.every(c => Array.isArray(c.steps))) {
+        $("#startQuiz").textContent = "🔁 Noch eine Runde rechnen";
+        $("#startQuiz").addEventListener("click", () => viewLearn(scope));
+        $("#claudeQ").textContent = "💬 Claude gibt mir neue Aufgaben";
+        $("#claudeQ").addEventListener("click", () => openChat(`Gib mir bitte 3 neue Übungsaufgaben (eine nach der anderen) zu diesen Themen und kontrolliere meine Ergebnisse:\n${session.done.slice(0, 8).map(c => "- " + c.q).join("\n")}`));
+        return;
+      }
       $("#startQuiz").addEventListener("click", () => runQuiz(buildQuiz(scope, session.done), scope));
       $("#claudeQ").addEventListener("click", () => claudeQuiz(session.done));
     }
@@ -728,7 +811,7 @@
   // =========================================================
   function buildQuiz(scope, focusCards) {
     const scopeCards = cardsInScope(scope === "due" ? "all" : scope);
-    const pool = scopeCards.length >= 4 ? scopeCards : cardsInScope("all");
+    const pool = (scopeCards.length >= 4 ? scopeCards : cardsInScope("all")).filter(c => !Array.isArray(c.steps));
     const focusDecks = focusCards ? new Set(focusCards.map(c => c.deck.id)) : null;
     let explicit = quizInScope(scope === "due" ? "all" : scope);
     if (focusDecks) explicit = explicit.filter(q => focusDecks.has(q.deck.id));
@@ -736,6 +819,7 @@
     const src = shuffle(focusCards && focusCards.length ? focusCards : scopeCards);
     for (const c of src) {
       if (qs.length >= 8) break;
+      if (Array.isArray(c.steps)) continue;
       const others = shuffle(pool.filter(o => o.a !== c.a)).slice(0, 3).map(o => o.a);
       if (others.length < 2) continue;
       const opts = shuffle([c.a, ...others]);

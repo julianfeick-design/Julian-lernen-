@@ -338,3 +338,16 @@ th { color: var(--muted); font-weight: 700; font-size: .78rem; text-transform: u
 
 .flash .side .imp { position: absolute; top: 12px; right: 14px; font-size: .72rem; font-weight: 800; color: var(--warn); background: var(--warn-soft); padding: 2px 8px; border-radius: 99px; }
 .flash .side.front { padding-top: 44px; }
+
+/* Mathe-Aufgaben */
+.card .tag { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.task-q { font-size: 1.15rem; font-weight: 600; margin: 12px 0; white-space: pre-wrap; line-height: 1.6; }
+.task-solution { border-color: var(--good); }
+.steps { margin: 10px 0 0; padding-left: 22px; }
+.steps li { padding: 6px 0; border-bottom: 1px dashed var(--border); white-space: pre-wrap; line-height: 1.6; }
+.steps li:last-child { border-bottom: 0; }
+.result { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--good-soft); white-space: pre-wrap; }
+.math-card { border: 2px solid var(--primary-soft); }
+.katex { font-size: 1.05em; }
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.folder .name { overflow-wrap: anywhere; hyphens: auto; }
