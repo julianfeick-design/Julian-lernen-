@@ -253,7 +253,7 @@
   }
   function confetti(n = 80) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const colors = ["#6d4dff", "#ff5c8a", "#ffb648", "#4cd192", "#3fb6ff"];
+    const colors = ["#5b4ff5", "#8b80ff", "#c7c2ff", "#14131f", "#a5a3b8"];
     for (let i = 0; i < n; i++) {
       const c = document.createElement("div"); c.className = "confetti";
       c.style.left = Math.random() * 100 + "vw";
@@ -508,7 +508,7 @@
         </div>
         <div class="card">
           <h3>💧 Wasser: ${fmtNum(c.water, 2)} / ${fmtNum(state.settings.waterGoal)} L</h3>
-          <div class="bar" style="height:12px"><div style="width:${waterPct}%;background:#3fb6ff"></div></div>
+          <div class="bar" style="height:12px"><div style="width:${waterPct}%;background:var(--primary)"></div></div>
           <div class="row" style="margin-top:12px">
             <button class="btn secondary small" data-water="0.25">+ Glas</button>
             <button class="btn secondary small" data-water="0.5">+ Flasche</button>
@@ -615,7 +615,7 @@
     const userFolder = state.userFolders.find(x => x.id === fid);
     app().innerHTML = `
       <a href="#/ordner" class="small">← Alle Ordner</a>
-      <div class="card" style="margin-top:10px;border-left:6px solid ${esc(f.color || "#6d4dff")}">
+      <div class="card" style="margin-top:10px">
         <div class="row between">
           <div><h1 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h1>
           <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p>
@@ -731,7 +731,7 @@
       };
       flash.addEventListener("click", e => { if (e.target.closest("#hintBtn")) return; flip(); });
       $("#flipBtn").addEventListener("click", flip);
-      $("#hintBtn")?.addEventListener("click", e => { e.stopPropagation(); $("#hint").classList.remove("hidden"); e.target.remove(); });
+      $("#hintBtn")?.addEventListener("click", e => { e.stopPropagation(); $("#hint").classList.remove("hidden"); e.currentTarget.remove(); });
       $("#explain").addEventListener("click", () => openChat(`Erklär mir bitte diese Karteikarte ausführlicher, mit einem Beispiel und einer Eselsbrücke:\nFrage: ${c.q}\nAntwort: ${c.a}`));
     }
 
@@ -763,7 +763,7 @@
           <button class="btn-ghost small" id="similar">🔁 Ähnliche Aufgabe von Claude</button>
         </div>`;
       renderMath(app());
-      $("#hintBtn")?.addEventListener("click", e => { $("#hint").classList.remove("hidden"); e.target.remove(); });
+      $("#hintBtn")?.addEventListener("click", e => { $("#hint").classList.remove("hidden"); e.currentTarget.remove(); });
       $("#flipBtn").addEventListener("click", () => {
         $("#solution").classList.remove("hidden");
         $("#solution").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1322,7 +1322,7 @@
     $("#sSave").addEventListener("click", () => { collect(); save(); applyTheme(); renderTopStats(); toast("✅ Gespeichert"); });
     $("#testKey").addEventListener("click", async (e) => {
       collect(); save();
-      const b = e.target; b.disabled = true; b.textContent = "⏳ Teste…";
+      const b = e.currentTarget; b.disabled = true; b.textContent = "Teste…";
       try { const r = await Claude.send({ apiKey: s.apiKey, model: s.model, maxTokens: 200, messages: [{ role: "user", content: "Sag in einem kurzen Satz Hallo zu Julian." }] }); toast("✅ " + r.text, 4000); }
       catch (err) { toast("⚠️ " + err.message, 5000); }
       finally { b.disabled = false; b.textContent = "Verbindung testen"; }
