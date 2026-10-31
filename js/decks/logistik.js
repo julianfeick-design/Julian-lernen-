@@ -6,6 +6,7 @@ window.BUILTIN_FOLDERS.push({
   id: "logistik",
   name: "Grundlagen & Funktionen der Logistik",
   emoji: "📦",
+  examDate: "2027-01-07",
   color: "#f2a900",
   decks: [
     // ------------------------------------------------------------------

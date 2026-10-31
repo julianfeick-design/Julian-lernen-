@@ -445,3 +445,25 @@ th { color: var(--muted); font-weight: 700; font-size: .7rem; text-transform: up
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- Prüfungs-Countdown ---------- */
+.exams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+@media (max-width: 640px) { .exams { grid-template-columns: minmax(0, 1fr); } }
+.exam { min-width: 0; }
+.exam {
+  display: flex; gap: 14px; align-items: center; color: var(--text); font-weight: 400;
+  padding: 12px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--border);
+  transition: transform .15s;
+}
+.exam:active { transform: scale(.98); }
+.exam .days {
+  flex: 0 0 64px; height: 64px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--fc) 16%, var(--surface)); color: var(--fc);
+}
+.exam .days b { font-size: 1.5rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.exam .days span { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.exam.soon .days { background: var(--warn-soft); color: var(--warn); }
+.exam.hot .days { background: var(--bad-soft); color: var(--bad); }
+.exam .info { flex: 1; min-width: 0; }
+.exam .name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exam .bar { margin-top: 6px; }

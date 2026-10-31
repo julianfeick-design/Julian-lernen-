@@ -7,6 +7,7 @@ window.BUILTIN_FOLDERS.push({
   id: "bwl",
   name: "Grundlagen der BWL",
   emoji: "💼",
+  examDate: "2027-01-11",
   color: "#1f9d63",
   decks: [
     // ------------------------------------------------------------------

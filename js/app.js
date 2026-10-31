@@ -488,6 +488,8 @@
         <div class="bar" style="background:rgba(255,255,255,.2);margin-top:14px"><div style="width:${li.pct}%;background:#fff"></div></div>
       </div>
 
+      ${examSection(folders)}
+
       <div class="grid grid-2">
         <div class="card">
           <div class="row between"><h3 style="margin:0">Tages-Check</h3><a href="#/checkin/edit" class="small">bearbeiten</a></div>
@@ -532,6 +534,37 @@
       save(); checkAchievements(); viewHome();
     }));
     $("#askClaude").addEventListener("click", () => claudeQuiz(all));
+  }
+
+  // ---------- Prüfungs-Countdown ----------
+  const daysUntil = (key) => Math.round((new Date(key + "T12:00:00") - new Date(dayKey() + "T12:00:00")) / 86400000);
+  function examInfo(f) {
+    if (!f.examDate) return null;
+    const days = daysUntil(f.examDate);
+    const cards = cardsInScope("folder:" + f.id);
+    const open = cards.filter(c => (state.progress[c.key]?.box || 0) < 4).length;
+    const perDay = days > 0 ? Math.ceil(open / days) : open;
+    return { days, open, perDay, total: cards.length, pct: cards.length ? Math.round((cards.length - open) / cards.length * 100) : 0 };
+  }
+  function examSection(folders) {
+    const list = folders.filter(f => f.examDate && daysUntil(f.examDate) >= 0).sort((a, b) => a.examDate.localeCompare(b.examDate));
+    if (!list.length) return "";
+    return `<div class="card">
+      <div class="row between"><h2 style="margin:0">📅 Prüfungs-Countdown</h2><span class="small muted">sicher = Karte in Fach 4–5</span></div>
+      <div class="exams">${list.map(f => {
+        const e = examInfo(f);
+        const cls = e.days <= 7 ? "hot" : e.days <= 21 ? "soon" : "";
+        const date = new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" });
+        return `<a class="exam ${cls}" href="#/ordner/${encodeURIComponent(f.id)}" style="--fc:${esc(f.color || "#6c4cf5")}">
+          <div class="days"><b>${e.days === 0 ? "Heute" : e.days}</b><span>${e.days === 0 ? "🍀" : e.days === 1 ? "Tag" : "Tage"}</span></div>
+          <div class="info">
+            <div class="name">${esc(f.emoji || "📁")} ${esc(f.name)}</div>
+            <div class="small muted">${date} · ${e.pct}% sicher · ${e.open ? `≈ ${e.perDay} ${f.type === "math" ? (e.perDay === 1 ? "Aufgabe" : "Aufgaben") : (e.perDay === 1 ? "Karte" : "Karten")}/Tag` : "alles sicher 🎉"}</div>
+            <div class="bar"><div style="width:${e.pct}%"></div></div>
+          </div>
+        </a>`;
+      }).join("")}</div>
+    </div>`;
   }
 
   function mathSection(folders) {
@@ -582,7 +615,8 @@
       <div class="card" style="margin-top:10px;border-left:6px solid ${esc(f.color || "#6d4dff")}">
         <div class="row between">
           <div><h1 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h1>
-          <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p></div>
+          <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p>
+          ${f.examDate && daysUntil(f.examDate) >= 0 ? `<p class="small" style="margin:6px 0 0"><span class="badge due">📅 Prüfung ${new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" })} · noch ${daysUntil(f.examDate)} Tage</span></p>` : ""}</div>
           <div class="row">
             <a class="btn small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Ganzen Ordner lernen"}</a>
             ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>`}
@@ -1199,6 +1233,8 @@
         (c.goal ? `, Tagesziel: "${c.goal}"` : "") + `. Berücksichtige das, wenn es passt (z. B. bei wenig Schlaf kürzere Einheiten vorschlagen), aber erwähne es nicht ständig.`;
     }
     const folders = getFolders();
+    const exams = folders.filter(f => f.examDate && daysUntil(f.examDate) >= 0);
+    if (exams.length) s += `\n\nAnstehende Prüfungen: ${exams.map(f => f.name + " am " + new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE") + " (noch " + daysUntil(f.examDate) + " Tage)").join("; ")}.`;
     if (folders.length) s += `\n\nVorhandene Lernordner: ${folders.map(f => f.name + " (" + f.decks.map(d => d.name).join(", ") + ")").join("; ")}.`;
     return s;
   }

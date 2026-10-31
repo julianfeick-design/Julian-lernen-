@@ -14,6 +14,7 @@
     type: "math",
     name: "Mathematik & Statistik",
     emoji: "🧮",
+    examDate: "2027-01-13",
     color: "#e4572e",
     decks: [
       // ------------------------------------------------------------------

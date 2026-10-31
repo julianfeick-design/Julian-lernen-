@@ -8,6 +8,7 @@ window.BUILTIN_FOLDERS.push({
   id: "vbl1",
   name: "VBL 1 – Verkehrsbetriebslehre",
   emoji: "🚚",
+  examDate: "2027-01-15",
   color: "#2f6fe4",
   decks: [
     // ------------------------------------------------------------------
