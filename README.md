@@ -22,7 +22,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann Karteikart
 | 🚚 VBL 1 – Verkehrsbetriebslehre | 7 Stapel, 171 Karten, 41 Quizfragen |
 | 💼 Grundlagen der BWL | BWL + Marketing, 104 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
 | 📦 Grundlagen & Funktionen der Logistik | 5 Stapel, 68 Karten, 20 Quizfragen |
-| 🧮 Mathematik & Statistik | **Aufgabenmodus**: 29 Aufgaben mit komplettem Lösungsweg |
+| 🧮 Mathematik & Statistik | **Aufgabenmodus**: 26 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg |
 
 Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
 
