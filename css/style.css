@@ -505,3 +505,40 @@ h1 .ic, h2 .ic, h3 .ic { color: var(--primary); }
 .empty .e { color: var(--primary); }
 .exam .name .ic, .mc-subject b .ic { color: var(--muted); }
 .flash .side .tag .ic, .card .tag .ic { color: var(--primary); }
+
+/* ---------- Essens-Tracker ---------- */
+.pill-btn { cursor: pointer; font: inherit; color: var(--text); font-size: .95rem; padding: 5px 10px; }
+.pill-btn .ic { color: var(--primary); }
+.food-list { list-style: none; padding: 0; margin: 12px 0 0; }
+.food-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); font-size: .92rem; }
+.food-list .t { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .8rem; width: 40px; flex: none; }
+.food-list .n { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.food-list .k { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sheet-wrap { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+.sheet-wrap.open { pointer-events: auto; }
+.sheet-bg { position: absolute; inset: 0; background: rgba(10, 10, 20, .35); opacity: 0; transition: opacity .25s; backdrop-filter: blur(2px); }
+.sheet-wrap.open .sheet-bg { opacity: 1; }
+.sheet {
+  position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 100%);
+  width: min(560px, 100%); max-height: 85vh; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 28px 28px 0 0;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom)); box-shadow: var(--shadow-lg);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.sheet-wrap.open .sheet { transform: translate(-50%, 0); }
+@media (min-width: 700px) {
+  .sheet { bottom: auto; top: 50%; border-radius: 28px; transform: translate(-50%, -40%); opacity: 0; transition: transform .25s, opacity .25s; }
+  .sheet-wrap.open .sheet { transform: translate(-50%, -50%); opacity: 1; }
+}
+.food-results { display: grid; gap: 8px; }
+.food-hit {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: inherit;
+  padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: background .15s, border-color .15s;
+}
+.food-hit:hover { border-color: var(--primary); background: var(--primary-soft); }
+.food-hit .k { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--primary); }
+.food-hit.ai { background: var(--surface); border-style: dashed; }
+.food-hit.ai .k { color: var(--muted); font-weight: 500; font-size: .8rem; }
+.food-manual { margin-top: 14px; }
+.food-manual summary { cursor: pointer; color: var(--muted); font-weight: 600; }

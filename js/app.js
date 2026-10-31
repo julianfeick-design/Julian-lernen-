@@ -21,7 +21,7 @@
   const DEFAULT_STATE = {
     version: 1,
     profile: { name: "Julian" },
-    settings: { apiKey: "", model: "claude-opus-5-5", sessionSize: 20, waterGoal: 2.5, sleepGoal: 8, theme: "auto" },
+    settings: { apiKey: "", model: "claude-opus-5-5", sessionSize: 20, waterGoal: 2.5, sleepGoal: 8, theme: "auto", kcalGoal: 2500 },
     checkins: {},
     userFolders: [],
     progress: {},
@@ -29,7 +29,8 @@
     log: {},
     achievements: {},
     chat: [],
-    mc: {}
+    mc: {},
+    food: {}
   };
   let state = load();
 
@@ -213,12 +214,24 @@
     const tr = c.trainingType === "none" ? 45 : c.trainingMin >= 30 ? 100 : 70;
     if (c.trainingType === "none") fb.push(["warn", "🏃 Noch kein Sport heute – schon 10 Min Spaziergang in der Lernpause pusht die Konzentration."]);
     else fb.push(["good", `🏃 ${c.trainingMin} Min ${trainingLabel(c.trainingType).replace(/^\S+\s/, "")} – stark!`]);
-    // Essen
-    const ate = [c.breakfast, c.lunch, c.dinner, c.snacks].some(x => x && x.trim());
-    const food = ate ? ((c.foodHealth - 1) / 4) * 100 : 30;
-    if (!ate) fb.push(["warn", "🍽️ Noch nichts gegessen? Ohne Energie lernt es sich schlecht – iss etwas Vernünftiges."]);
-    else if (c.foodHealth <= 2) fb.push(["warn", "🍽️ Essen war eher ungesund – vielleicht Obst, Nüsse oder Gemüse als Lernsnack?"]);
-    else fb.push(["good", "🍽️ Ernährung sieht gut aus!"]);
+    // Essen (aus dem Essens-Tracker des Tages)
+    const cKey = c.time ? dayKey(new Date(c.time)) : dayKey();
+    const isToday = cKey === dayKey();
+    const kcal = foodTotal(cKey);
+    const nowH = isToday ? new Date().getHours() : 23;
+    const kcalExp = state.settings.kcalGoal * clamp((nowH - 7) / 13, 0.15, 1);
+    let food;
+    if (!foodLog(cKey).length && c.foodHealth) food = ((c.foodHealth - 1) / 4) * 100; // alte Check-ins
+    else if (!kcal) {
+      food = nowH >= 12 ? 40 : 70;
+      if (nowH >= 12) fb.push(["warn", "🍽️ Noch kein Essen eingetragen – ohne Energie lernt es sich schlecht. Trag dein Essen oben über das Besteck-Symbol ein."]);
+    } else {
+      const r = kcal / kcalExp;
+      food = r < 0.5 ? 55 : r <= 1.25 ? 100 : 75;
+      if (r < 0.5) fb.push(["warn", `🍽️ Erst ${kcal} kcal bisher – denk an eine richtige Mahlzeit, dein Gehirn braucht Energie.`]);
+      else if (r > 1.25) fb.push(["warn", `🍽️ ${kcal} kcal – schon über dem Plan für diese Uhrzeit. Lieber leichte Snacks beim Lernen.`]);
+      else fb.push(["good", `🍽️ ${kcal} kcal bisher – passt gut zur Tageszeit.`]);
+    }
     // Wasser (erwartete Menge abhängig von der Uhrzeit)
     const hour = new Date(c.time || Date.now()).getHours();
     const expected = state.settings.waterGoal * clamp((hour - 7) / 14, 0.25, 1);
@@ -289,6 +302,7 @@
     const hash = location.hash.replace(/^#\/?/, "");
     const [page, ...rest] = hash.split("/").map(decodeURIComponent);
     window.chatContext = null;
+    foodRefreshers = [];
     const hasCheckin = !!state.checkins[dayKey()];
     const free = ["checkin", "einstellungen"];
     if (!hasCheckin && !free.includes(page)) { location.replace("#/checkin"); return; }
@@ -336,14 +350,6 @@
             <span class="muted small">Intensität</span>
             <div class="chips" data-chips="trainingIntensity" style="margin-top:6px">${["leicht", "mittel", "hart"].map(x => `<button type="button" class="chip ${d.trainingIntensity === x ? "active" : ""}" data-v="${x}">${x}</button>`).join("")}</div>
           </div>` },
-      { emoji: "🍽️", title: "Was hast du heute gegessen?", valid: () => d.foodHealth > 0,
-        html: () => `
-          <label class="field"><span>🥐 Frühstück</span><input type="text" data-text="breakfast" value="${esc(d.breakfast)}" placeholder="z. B. Haferflocken mit Banane"></label>
-          <label class="field"><span>🍝 Mittag</span><input type="text" data-text="lunch" value="${esc(d.lunch)}" placeholder="noch nichts? einfach leer lassen"></label>
-          <label class="field"><span>🍲 Abend</span><input type="text" data-text="dinner" value="${esc(d.dinner)}"></label>
-          <label class="field"><span>🍫 Snacks</span><input type="text" data-text="snacks" value="${esc(d.snacks)}"></label>
-          <p class="small muted" style="margin-top:8px">Wie gesund war's bisher?</p>
-          ${scale("foodHealth", [["🍟", "Fastfood"], ["🍕", "Eher nicht"], ["🥪", "Okay"], ["🍛", "Gut"], ["🥗", "Top"]])}` },
       { emoji: "💧", title: "Wie viel hast du bisher getrunken?", valid: () => true,
         html: () => `<div class="big-number" id="waterOut">${fmtNum(d.water, 2)} L</div>
           <div class="water-glasses" id="glasses"></div>
@@ -502,7 +508,7 @@
             <div class="small" style="flex:1;min-width:150px">
               😴 ${fmtNum(c.sleepHours)} h Schlaf · ${SLEEP_RANGES[c.sleepQuality]}<br>
               🏋️ ${c.trainingType === "none" ? "Kein Training" : `${c.trainingMin} Min ${esc(trainingLabel(c.trainingType).replace(/^\S+\s/, ""))}`}<br>
-              🍽️ ${["", "🍟", "🍕", "🥪", "🍛", "🥗"][c.foodHealth]} · 🧠 ${["", "😞", "🙁", "😐", "🙂", "😄"][c.mood]} · Stress ${c.stress}/5
+              🧠 Stimmung ${c.mood}/5 · Energie ${c.energy}/5 · Stress ${c.stress}/5
             </div>
           </div>
         </div>
@@ -517,6 +523,8 @@
           ${c.goal ? `<p class="small muted" style="margin:10px 0 0">🎯 ${esc(c.goal)}</p>` : ""}
         </div>
       </div>
+
+      ${foodCard()}
 
       <div class="card">
         <div class="row between"><h2 style="margin:0">Jetzt lernen</h2></div>
@@ -537,6 +545,146 @@
       save(); checkAchievements(); viewHome();
     }));
     $("#askClaude").addEventListener("click", () => claudeQuiz(all));
+    bindFoodCard(viewHome);
+  }
+
+  // ---------- Essens-Tracker ----------
+  function foodLog(key = dayKey()) { return state.food[key] || []; }
+  function foodTotal(key = dayKey()) { return Math.round(foodLog(key).reduce((t, e) => t + (Number(e.kcal) || 0), 0)); }
+  function addFood(entry) {
+    const k = dayKey();
+    if (!state.food[k]) state.food[k] = [];
+    state.food[k].push({ id: uid(), time: new Date().toTimeString().slice(0, 5), ...entry, kcal: Math.round(entry.kcal) });
+    save();
+    toast(`🍽️ ${entry.name} · ${Math.round(entry.kcal)} kcal`);
+    refreshFoodViews();
+  }
+  function removeFood(id) {
+    const k = dayKey();
+    state.food[k] = foodLog(k).filter(e => e.id !== id);
+    save(); refreshFoodViews();
+  }
+  let foodRefreshers = [];
+  function refreshFoodViews() { foodRefreshers.forEach(fn => { try { fn(); } catch { /* ignorieren */ } }); renderTopStats(); }
+
+  function foodCard() {
+    const list = foodLog();
+    const total = foodTotal();
+    const goal = state.settings.kcalGoal;
+    return `<div class="card" id="foodCard">
+      <div class="row between">
+        <h3 style="margin:0">🍽️ Essen heute: ${total} / ${goal} kcal</h3>
+        <button class="btn small" data-open-food>+ Essen</button>
+      </div>
+      <div class="bar" style="height:12px;margin-top:12px"><div style="width:${clamp(total / goal * 100, 0, 100)}%"></div></div>
+      ${list.length ? `<ul class="food-list">${list.slice().reverse().map(e => `
+        <li><span class="t">${esc(e.time)}</span><span class="n">${esc(e.name)}${e.portion ? ` <span class="muted small">· ${esc(e.portion)}</span>` : ""}</span>
+        <span class="k">${e.kcal} kcal</span><button class="btn-ghost small" data-del-food="${esc(e.id)}" aria-label="Löschen">✕</button></li>`).join("")}</ul>`
+        : `<p class="small muted" style="margin:10px 0 0">Noch nichts eingetragen. Über <b>+ Essen</b> oder das Besteck oben kannst du jederzeit etwas hinzufügen – auch mitten in einer Lernsession.</p>`}
+    </div>`;
+  }
+  function bindFoodCard(rerender) {
+    foodRefreshers = [() => { const el = $("#foodCard"); if (el) { el.outerHTML = foodCard(); bindFoodCard(rerender); } }];
+    $$("[data-open-food]").forEach(b => b.addEventListener("click", openFoodSheet));
+    $$("[data-del-food]").forEach(b => b.addEventListener("click", () => removeFood(b.dataset.delFood)));
+  }
+
+  function searchFood(q) {
+    const words = q.toLowerCase().replace(/[0-9.,x×]+/g, " ").split(/\s+/).filter(w => w.length > 1);
+    if (!words.length) return [];
+    return (window.FOOD_DB || []).map(([name, portion, kcal, keys]) => {
+      const hay = (name + " " + keys).toLowerCase();
+      let score = 0;
+      for (const w of words) { if (hay.includes(w)) score += w.length; else if (w.length > 3 && hay.includes(w.slice(0, -1))) score += w.length - 1; }
+      if (name.toLowerCase().startsWith(words[0])) score += 3;
+      return { name, portion, kcal, score };
+    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+  }
+  function parseQty(q) {
+    const m = q.trim().match(/^(\d+(?:[.,]\d+)?)\s*(?:x|×|stück|stk\.?)?\s+/i);
+    return m ? Number(m[1].replace(",", ".")) : 1;
+  }
+
+  function openFoodSheet() {
+    let sheet = $("#foodSheet");
+    if (!sheet) {
+      sheet = document.createElement("div");
+      sheet.id = "foodSheet"; sheet.className = "sheet-wrap";
+      document.body.appendChild(sheet);
+    }
+    const c = state.checkins[dayKey()];
+    sheet.innerHTML = `<div class="sheet-bg" data-close></div>
+      <div class="sheet" role="dialog" aria-label="Essen & Trinken">
+        <div class="row between"><h2 style="margin:0">🍽️ Essen & Trinken</h2><button class="btn-ghost" data-close aria-label="Schließen">✕</button></div>
+        <p class="small muted" style="margin:4px 0 14px">Heute: <b id="fsTotal">${foodTotal()}</b> / ${state.settings.kcalGoal} kcal${c ? ` · 💧 <b id="fsWater">${fmtNum(c.water, 2)}</b> L` : ""}</p>
+        ${c ? `<div class="row" style="margin-bottom:14px">
+          <button class="btn secondary small" data-w="0.25">💧 + Glas</button>
+          <button class="btn secondary small" data-w="0.5">💧 + Flasche</button>
+        </div>` : ""}
+        <label class="field" style="margin-bottom:8px"><span>Was hast du gegessen?</span>
+          <input type="text" id="fsQuery" placeholder="z. B. Müsliriegel, 2 Brötchen, Döner …" autocomplete="off"></label>
+        <div id="fsResults" class="food-results"></div>
+        <details class="food-manual">
+          <summary class="small">Selbst eintragen</summary>
+          <div class="grid" style="grid-template-columns:2fr 1fr auto;gap:8px;margin-top:8px">
+            <input type="text" id="fsName" placeholder="Name">
+            <input type="number" id="fsKcal" placeholder="kcal" inputmode="numeric">
+            <button class="btn small" id="fsAdd">+</button>
+          </div>
+        </details>
+      </div>`;
+    requestAnimationFrame(() => sheet.classList.add("open"));
+    const close = () => { sheet.classList.remove("open"); setTimeout(() => { sheet.innerHTML = ""; }, 250); };
+    $$("[data-close]", sheet).forEach(b => b.addEventListener("click", close));
+    const q = $("#fsQuery", sheet);
+    setTimeout(() => q.focus(), 200);
+    const updateTotals = () => { const t = $("#fsTotal", sheet); if (t) t.textContent = foodTotal(); const w = $("#fsWater", sheet); if (w && c) w.textContent = fmtNum(c.water, 2); };
+    $$("[data-w]", sheet).forEach(b => b.addEventListener("click", () => {
+      c.water = clamp(Math.round((c.water + Number(b.dataset.w)) * 100) / 100, 0, 8);
+      save(); checkAchievements(); updateTotals(); toast(`💧 ${fmtNum(c.water, 2)} L getrunken`);
+      if (location.hash === "#/" || location.hash === "") route();
+    }));
+    const renderResults = () => {
+      const text = q.value.trim();
+      const box = $("#fsResults", sheet);
+      if (!text) { box.innerHTML = `<p class="small muted">Tipp: Anzahl davor schreiben, z. B. „2 Banane“.</p>`; return; }
+      const qty = parseQty(text);
+      const hits = searchFood(text);
+      box.innerHTML = hits.map((h, i) => `<button class="food-hit" data-i="${i}">
+          <span><b>${qty !== 1 ? fmtNum(qty) + " × " : ""}${esc(h.name)}</b><span class="small muted"> · ${esc(h.portion)}</span></span>
+          <span class="k">${Math.round(h.kcal * qty)} kcal</span></button>`).join("") +
+        `<button class="food-hit ai" id="fsClaude"><span>✨ <b>„${esc(text)}“</b> von Claude schätzen lassen</span><span class="k">${state.settings.apiKey ? "" : "API-Key nötig"}</span></button>`;
+      $$(".food-hit[data-i]", box).forEach(b => b.addEventListener("click", () => {
+        const h = hits[Number(b.dataset.i)];
+        addFood({ name: (qty !== 1 ? fmtNum(qty) + " × " : "") + h.name, portion: h.portion, kcal: h.kcal * qty });
+        q.value = ""; renderResults(); updateTotals();
+      }));
+      $("#fsClaude", box).addEventListener("click", async (e) => {
+        if (!state.settings.apiKey) { toast("Für Claude-Schätzungen brauchst du einen API-Key (⚙️ Mehr). Du kannst die kcal aber selbst eintragen."); return; }
+        const btn = e.currentTarget; btn.disabled = true; btn.innerHTML = "<span>Claude schätzt …</span>";
+        try {
+          const res = await Claude.send({
+            apiKey: state.settings.apiKey, model: state.settings.model, maxTokens: 2000,
+            system: "Du schätzt Kalorien von Lebensmitteln realistisch (deutsche Durchschnittsportionen).",
+            messages: [{ role: "user", content: `Schätze die Kalorien für: "${text}". Wenn keine Menge angegeben ist, nimm eine übliche Portion an.` }],
+            format: { type: "json_schema", schema: { type: "object", additionalProperties: false, required: ["name", "portion", "kcal"], properties: { name: { type: "string" }, portion: { type: "string" }, kcal: { type: "integer" } } } }
+          });
+          const m = res.text.match(/\{[\s\S]*\}/);
+          const r = JSON.parse(m[0]);
+          addFood({ name: r.name, portion: r.portion + " (Claude)", kcal: r.kcal });
+          q.value = ""; renderResults(); updateTotals();
+        } catch (err) { toast("⚠️ " + err.message); btn.disabled = false; }
+      });
+    };
+    q.addEventListener("input", renderResults);
+    q.addEventListener("keydown", e => { if (e.key === "Enter") { const first = $(".food-hit[data-i]", sheet); if (first) first.click(); } });
+    renderResults();
+    $("#fsAdd", sheet).addEventListener("click", () => {
+      const name = $("#fsName", sheet).value.trim(), kcal = Number($("#fsKcal", sheet).value);
+      if (!name || !(kcal >= 0)) { toast("Bitte Name und kcal eintragen"); return; }
+      addFood({ name, portion: "", kcal });
+      $("#fsName", sheet).value = ""; $("#fsKcal", sheet).value = ""; updateTotals();
+    });
   }
 
   // ---------- Prüfungs-Countdown ----------
@@ -1249,16 +1397,17 @@
       <div class="card" style="margin-top:16px">
         <h2>Letzte 14 Tage</h2>
         <div class="table-scroll"><table>
-          <thead><tr><th>Tag</th><th>Check</th><th>Schlaf</th><th>Training</th><th>Wasser</th><th>Stimmung</th><th>Karten</th><th>⭐</th></tr></thead>
+          <thead><tr><th>Tag</th><th>Check</th><th>Schlaf</th><th>Training</th><th>Wasser</th><th>Essen</th><th>Stimmung</th><th>Karten</th><th>⭐</th></tr></thead>
           <tbody>${days.map(k => {
             const c = state.checkins[k], l = state.log[k];
-            if (!c && !l) return `<tr class="muted"><td>${fmtDay(k)}</td><td colspan="7">–</td></tr>`;
+            if (!c && !l && !foodLog(k).length) return `<tr class="muted"><td>${fmtDay(k)}</td><td colspan="8">–</td></tr>`;
             const ev = c ? evaluate(c) : null;
             return `<tr><td>${fmtDay(k)}</td>
               <td>${ev ? `<b style="color:${ev.score >= 75 ? "var(--good)" : ev.score >= 50 ? "var(--warn)" : "var(--bad)"}">${ev.score}</b>` : "–"}</td>
               <td>${c ? fmtNum(c.sleepHours) + " h · " + SLEEP_RANGES[c.sleepQuality] : "–"}</td>
               <td>${c ? (c.trainingType === "none" ? "–" : c.trainingMin + " Min") : "–"}</td>
               <td>${c ? fmtNum(c.water, 2) + " L" : "–"}</td>
+              <td>${foodTotal(k) ? foodTotal(k) + " kcal" : "–"}</td>
               <td>${c ? ["", "😞", "🙁", "😐", "🙂", "😄"][c.mood] : "–"}</td>
               <td>${l ? l.reviewed : 0}</td><td>${l ? l.points : 0}</td></tr>`;
           }).join("")}</tbody>
@@ -1279,10 +1428,11 @@
       <h1>⚙️ Einstellungen</h1>
       <div class="card">
         <label class="field"><span>Dein Name</span><input type="text" id="sName" value="${esc(state.profile.name)}"></label>
-        <div class="grid grid-3">
+        <div class="grid grid-2">
           <label class="field"><span>Karten pro Session</span><input type="number" id="sSize" min="5" max="100" value="${s.sessionSize}"></label>
           <label class="field"><span>Wasserziel (L)</span><input type="number" id="sWater" min="0.5" max="6" step="0.25" value="${s.waterGoal}"></label>
           <label class="field"><span>Schlafziel (h)</span><input type="number" id="sSleep" min="4" max="12" step="0.5" value="${s.sleepGoal}"></label>
+          <label class="field"><span>Kalorienziel (kcal)</span><input type="number" id="sKcal" min="1000" max="6000" step="50" value="${s.kcalGoal || 2500}"></label>
         </div>
         <label class="field"><span>Design</span><select id="sTheme">
           <option value="auto" ${s.theme === "auto" ? "selected" : ""}>Automatisch</option>
@@ -1316,6 +1466,7 @@
       s.waterGoal = clamp(Number($("#sWater").value) || 2.5, 0.5, 6);
       s.sleepGoal = clamp(Number($("#sSleep").value) || 8, 4, 12);
       s.theme = $("#sTheme").value;
+      s.kcalGoal = clamp(Number($("#sKcal").value) || 2500, 1000, 6000);
       s.apiKey = $("#sKey").value.trim();
       s.model = $("#sModel").value;
     };
@@ -1369,7 +1520,7 @@
       const ev = evaluate(c);
       s += `\n\nTages-Check-in von heute (Score ${ev.score}/100): Schlaf ${c.sleepHours} h (Schlafqualität ${SLEEP_RANGES[c.sleepQuality]}), ` +
         `Training: ${c.trainingType === "none" ? "keins" : c.trainingMin + " Min " + trainingLabel(c.trainingType) + " (" + c.trainingIntensity + ")"}, ` +
-        `Essen: ${[c.breakfast, c.lunch, c.dinner, c.snacks].filter(Boolean).join(", ") || "noch nichts angegeben"} (Gesundheit ${c.foodHealth}/5), ` +
+        `Essen heute: ${foodLog().map(e => e.name + " (" + e.kcal + " kcal)").join(", ") || "noch nichts eingetragen"} – insgesamt ${foodTotal()} von ${state.settings.kcalGoal} kcal Ziel, ` +
         `Wasser ${c.water} L von ${state.settings.waterGoal} L Ziel, Stimmung ${c.mood}/5, Energie ${c.energy}/5, Stress ${c.stress}/5` +
         (c.goal ? `, Tagesziel: "${c.goal}"` : "") + `. Berücksichtige das, wenn es passt (z. B. bei wenig Schlaf kürzere Einheiten vorschlagen), aber erwähne es nicht ständig.`;
     }
@@ -1435,6 +1586,7 @@ ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter �
   $("#chatText").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px"; });
 
   // ---------- Start ----------
+  $("#foodBtn").addEventListener("click", openFoodSheet);
   applyTheme();
   renderTopStats();
   window.addEventListener("hashchange", route);
