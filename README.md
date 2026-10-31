@@ -24,6 +24,9 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann Karteikart
 | 📦 Grundlagen & Funktionen der Logistik | 5 Stapel, 68 Karten, 20 Quizfragen |
 | 🧮 Mathematik & Statistik | **Aufgabenmodus**: 25 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg |
 
+| 🎓 Studienwissen BWL-STL | Fachbegriffe, Incoterms 2020, BWL-Basics, Verkehrsgeografie, Klausur-Technik (61 Karten) |
+
+Zusätzlich hat jedes Prüfungsfach einen Stapel **📝 Klausuraufgaben** (DHBW-Stil mit Punkten und Musterlösung/Erwartungshorizont, `js/decks/klausur.js`).
 Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
 
 ## Mathe-Aufgabenmodus

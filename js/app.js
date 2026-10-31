@@ -144,7 +144,7 @@
     const out = [];
     for (const f of getFolders()) {
       if ((type === "folder" || type === "deck") && f.id !== fid) continue;
-      if ((type === "all" || type === "due") && f.type === "math") continue;
+      if ((type === "all" || type === "due") && (f.type === "math" || f.type === "general")) continue;
       if (type === "math" && f.type !== "math") continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
@@ -158,7 +158,7 @@
     const out = [];
     for (const f of getFolders()) {
       if ((type === "folder" || type === "deck") && f.id !== fid) continue;
-      if ((type === "all" || type === "due") && f.type === "math") continue;
+      if ((type === "all" || type === "due") && (f.type === "math" || f.type === "general")) continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
         for (const q of d.quiz || []) out.push({ ...q, deck: d });
@@ -497,6 +497,7 @@
       </div>
 
       ${examSection(folders)}
+      ${dailySection(folders)}
       ${mcSection(folders)}
 
       <div class="grid grid-2">
@@ -546,6 +547,7 @@
     }));
     $("#askClaude").addEventListener("click", () => claudeQuiz(all));
     bindFoodCard(viewHome);
+    $("#dailyBtn")?.addEventListener("click", e => { $("#dailyA").classList.remove("hidden"); e.currentTarget.remove(); });
   }
 
   // ---------- Essens-Tracker ----------
@@ -715,6 +717,27 @@
           </div>
         </a>`;
       }).join("")}</div>
+      ${list.some(f => f.decks.some(d => d.id === "klausur")) ? `<div class="row" style="margin-top:14px;gap:8px">
+        <span class="small muted" style="font-weight:600">📝 Klausuraufgaben üben:</span>
+        ${list.filter(f => f.decks.some(d => d.id === "klausur")).map(f => `<a class="chip" href="#/lernen/deck:${encodeURIComponent(f.id)}:klausur">${esc(f.emoji || "📁")} ${esc(f.short || f.name)}</a>`).join("")}
+      </div>` : ""}
+    </div>`;
+  }
+
+  // ---------- Wissen des Tages ----------
+  function dailySection(folders) {
+    const gen = folders.filter(f => f.type === "general");
+    if (!gen.length) return "";
+    const cards = gen.flatMap(f => cardsInScope("folder:" + f.id));
+    if (!cards.length) return "";
+    const n = Math.floor(new Date(dayKey() + "T12:00:00").getTime() / 86400000);
+    const c = cards[n % cards.length];
+    return `<div class="card daily">
+      <div class="row between"><span class="tag">🎓 Wissen des Tages · ${esc(c.deck.name)}</span>
+        <a class="small" href="#/mc/folder:${encodeURIComponent(c.folder.id)}">Studienwissen üben →</a></div>
+      <h3 style="margin:10px 0 0">${esc(c.q)}</h3>
+      <div id="dailyA" class="explain hidden">${esc(c.a)}</div>
+      <button class="btn secondary small" id="dailyBtn" style="margin-top:12px">Antwort zeigen</button>
     </div>`;
   }
 
@@ -885,6 +908,7 @@
 
     function renderTask(c) {
       const p = state.progress[c.key];
+      const isMath = c.folder.type === "math";
       window.chatContext = `Ich rechne gerade diese Mathe-Aufgabe aus "${c.deck.name}":\n${c.q}\nLösungsweg:\n${c.steps.join("\n")}\nErgebnis: ${c.a}`;
       app().innerHTML = `
         <div class="row between">
@@ -895,17 +919,17 @@
         <div class="row between small muted"><span>Aufgabe ${idx + 1} / ${queue.length}</span><span>${p ? `Fach ${p.box} von 5` : "🆕 Neue Aufgabe"} · ⭐ ${session.points}</span></div>
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
         <div class="card task">
-          <div class="row between"><span class="tag">✏️ Aufgabe · ${esc(c.deck.name)}</span>${c.important ? `<span class="badge due">⭐ Klausurrelevant</span>` : ""}</div>
+          <div class="row between"><span class="tag">${isMath ? "✏️ Aufgabe" : "📝 Klausuraufgabe"} · ${esc(c.deck.name)}</span>${c.important ? `<span class="badge due">⭐ Klausurrelevant</span>` : ""}</div>
           <div class="task-q">${esc(c.q)}</div>
-          ${c.hint ? `<button class="btn-ghost small" id="hintBtn">💡 Tipp / Formel anzeigen</button><div id="hint" class="hidden explain">${esc(c.hint)}</div>` : ""}
-          <p class="small muted" style="margin:14px 0 0">📝 Rechne die Aufgabe auf Papier – dann deck den Lösungsweg auf.</p>
+          ${c.hint ? `<button class="btn-ghost small" id="hintBtn">💡 ${isMath ? "Tipp / Formel" : "Tipp / Was wird erwartet?"} anzeigen</button><div id="hint" class="hidden explain">${esc(c.hint)}</div>` : ""}
+          <p class="small muted" style="margin:14px 0 0">${isMath ? "📝 Rechne die Aufgabe auf Papier – dann deck den Lösungsweg auf." : "📝 Schreib deine Antwort in Stichpunkten auf (wie in der Klausur) – dann vergleiche mit der Musterlösung und zähl deine Punkte."}</p>
         </div>
         <div id="solution" class="card task-solution hidden">
-          <span class="tag">✅ Lösungsweg</span>
+          <span class="tag">✅ ${isMath ? "Lösungsweg" : "Musterlösung / Erwartungshorizont"}</span>
           <ol class="steps">${c.steps.map(st => `<li>${esc(st)}</li>`).join("")}</ol>
-          <div class="result"><b>Ergebnis:</b> ${esc(c.a)}</div>
+          <div class="result"><b>${isMath ? "Ergebnis" : "Kurzfassung"}:</b> ${esc(c.a)}</div>
         </div>
-        <div id="controls"><button class="btn block" id="flipBtn">Lösungsweg zeigen 👀</button></div>
+        <div id="controls"><button class="btn block" id="flipBtn">${isMath ? "Lösungsweg" : "Musterlösung"} zeigen 👀</button></div>
         <div class="row" style="justify-content:center;margin-top:12px">
           <button class="btn-ghost small" id="explain">💬 Claude erklärt mir den Weg</button>
           <button class="btn-ghost small" id="similar">🔁 Ähnliche Aufgabe von Claude</button>
