@@ -31,6 +31,9 @@
     chat: [],
     mc: {},
     lessons: {},
+    priming: {},
+    feynman: {},
+    feynmanDraft: {},
     food: {}
   };
   let state = load();
@@ -103,6 +106,9 @@
     { id: "creator", e: "✍️", n: "Kartenbauer", d: "Eigenen Stapel erstellt" },
     { id: "first_lesson", e: "📖", n: "Verstanden", d: "Erste Lektion abgeschlossen" },
     { id: "lessons_10", e: "🎓", n: "Wissensdurst", d: "10 Lektionen abgeschlossen" },
+    { id: "first_priming", e: "🧲", n: "Neugierig", d: "Zum ersten Mal vor dem Lesen geprimt" },
+    { id: "first_feynman", e: "🗣️", n: "Erklärbär", d: "Zum ersten Mal mit der Feynman-Methode erklärt" },
+    { id: "feynman_10", e: "🧠", n: "Feynman-Profi", d: "10 Erklärungen geschafft" },
     { id: "level_5", e: "⭐", n: "Level 5", d: "Level 5 erreicht" }
   ];
   function unlock(id) {
@@ -320,6 +326,8 @@
       case "mc": setTab(""); return viewMC(rest.join("/"));
       case "lektionen": setTab("lektionen"); return viewLessons();
       case "lektion": setTab("lektionen"); return viewLesson(rest[0], rest[1]);
+      case "primen": setTab("lektionen"); return viewPriming(rest[0], rest[1]);
+      case "erklaeren": setTab("lektionen"); return viewFeynman(rest[0], rest[1]);
       case "neu": setTab("neu"); return viewNew(rest[0]);
       case "verlauf": setTab("verlauf"); return viewHistory();
       case "einstellungen": setTab("einstellungen"); return viewSettings();
@@ -810,7 +818,7 @@
       <div class="card">
         ${f.decks.length ? f.decks.map(d => {
           const st = stats(cardsInScope(`deck:${fid}:${d.id}`));
-          const lk = lessonKey(fid, d.id), hasL = !!lessonsAll()[lk], doneL = lessonDone(lk);
+          const lk = lessonKey(fid, d.id), hasL = !!lessonsAll()[lk], stL = hasL ? lessonStage(lk) : -1, dueL = hasL && feynDue(lk);
           const onlyTasks = d.cards.length && d.cards.every(c => Array.isArray(c.steps));
           return `<div class="deck">
             <div class="info">
@@ -820,15 +828,15 @@
                 <span class="badge">${st.total} ${f.type === "math" ? "Aufgaben" : "Karten"}</span>
                 ${st.fresh ? `<span class="badge new">${st.fresh} neu</span>` : ""}
                 ${st.due ? `<span class="badge due">${st.due} fällig</span>` : ""}
-                ${hasL ? `<span class="badge ${doneL ? "new" : ""}">${doneL ? "📖 verstanden" : "📖 Lektion offen"}</span>` : ""}
+                ${hasL ? `<span class="badge ${stL === 3 ? "new" : ""}">${["📖 Lektion offen", "🧲 geprimt", "📖 gelesen", "🗣️ erklärt"][stL]}</span>${dueL ? `<span class="badge due">🔁 Erklären fällig</span>` : ""}` : ""}
                 ${f.type === "math" || onlyTasks ? "" : `<span class="badge new">🧩 ${mcStats(cardsInScope(`deck:${fid}:${d.id}`)).pct}% MC-sicher</span>`}
                 <span class="badge">${st.pct}% Karteikarten</span>
               </div>
               <div class="bar"><div style="width:${st.pct}%"></div></div>
             </div>
             <div class="actions">
-              ${hasL ? `<a class="btn ${doneL ? "secondary " : ""}small" href="#/lektion/${encodeURIComponent(fid)}/${encodeURIComponent(d.id)}">${doneL ? "✓ Lektion" : "📖 Lektion"}</a>` : ""}
-              ${f.type === "math" || onlyTasks ? "" : `<a class="btn ${hasL && !doneL ? "secondary " : ""}small" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">🧩 MC</a>`}
+              ${hasL ? `<a class="btn ${stL === 3 && !dueL ? "secondary " : ""}small" href="${lessonHref(lk, stL === 3 ? (dueL ? 2 : 1) : stL)}">${stL === 0 ? "🧲 Primen" : stL === 1 ? "📖 Lektion" : stL === 2 || dueL ? "🗣️ Erklären" : "✓ Lektion"}</a>` : ""}
+              ${f.type === "math" || onlyTasks ? "" : `<a class="btn ${hasL && stL < 3 ? "secondary " : ""}small" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">🧩 MC</a>`}
               <a class="btn ${f.type === "math" || onlyTasks ? "" : "secondary "}small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : onlyTasks ? "📝 Aufgaben lösen" : "Karten"}</a>
               ${!d.builtin ? `<button class="btn-ghost small" data-del-deck="${esc(d.id)}" title="Stapel löschen">🗑️</button>` : ""}
             </div>
@@ -1222,17 +1230,19 @@
     const n = ++svgSeq;
     return svg.replace("{{defs}}", SVG_DEFS).replace(/id="([\w-]+)"/g, `id="$1-${n}"`).replace(/url\(#([\w-]+)\)/g, `url(#$1-${n})`);
   }
-  const STEPS4 = [["📖", "Verstehen", "Lektion"], ["🧩", "Wiedererkennen", "Multiple Choice"], ["🧠", "Erinnern", "Karteikarten"], ["📝", "Anwenden", "Klausuraufgaben"]];
-  const STEPS_MATH = [["📖", "Verstehen", "Lektion mit Formeln"], ["✏️", "Rechnen", "Aufgaben + Lösungsweg"], ["📝", "Anwenden", "Klausur-Mix"]];
+  const STEPS5 = [["🧲", "Primen", "Vorwissen & Fragen"], ["📖", "Verstehen", "Lektion"], ["🗣️", "Erklären", "Feynman-Methode"], ["🧩", "Abrufen", "MC & Karteikarten"], ["📝", "Anwenden", "Klausuraufgaben"]];
+  const STEPS_MATH = [["🧲", "Primen", "Vorwissen & Fragen"], ["📖", "Verstehen", "Lektion mit Formeln"], ["🗣️", "Erklären", "Rechenweg erklären"], ["✏️", "Rechnen", "Aufgaben + Lösungsweg"], ["📝", "Anwenden", "Klausur-Mix"]];
   function pathStrip(active, math) {
-    return `<div class="path">${(math ? STEPS_MATH : STEPS4).map(([i, t, s], k) => `${k ? `<span class="path-arrow" aria-hidden="true"></span>` : ""}<span class="path-step ${k === active ? "on" : ""} ${k < active ? "done" : ""}"><b>${k + 1}</b><span>${i} ${t}</span><small>${s}</small></span>`).join("")}</div>`;
+    return `<div class="path">${(math ? STEPS_MATH : STEPS5).map(([i, t, s], k) => `${k ? `<span class="path-arrow" aria-hidden="true"></span>` : ""}<span class="path-step ${k === active ? "on" : ""} ${k < active ? "done" : ""}"><b>${k + 1}</b><span>${i} ${t}</span><small>${s}</small></span>`).join("")}</div>`;
   }
   function lessonHint(scope) {
     const [type, fid, did] = scope.split(":");
     if (type !== "deck") return "";
     const k = lessonKey(fid, did), L = lessonsAll()[k];
     if (!L || lessonDone(k)) return "";
-    return `<a class="lesson-hint" href="#/lektion/${encodeURIComponent(fid)}/${encodeURIComponent(did)}">📖 <span><b>Tipp:</b> Lies zuerst die Lektion „${esc(L.title)}“ (${L.min} Min) – dann verstehst du die Zusammenhänge hinter den Fragen.</span></a>`;
+    return primed(k)
+      ? `<a class="lesson-hint" href="${lessonHref(k, 1)}">📖 <span><b>Tipp:</b> Lies zuerst die Lektion „${esc(L.title)}“ (${L.min} Min) – deine Fragen aus dem Priming warten schon.</span></a>`
+      : `<a class="lesson-hint" href="${lessonHref(k, 0)}">🧲 <span><b>Tipp:</b> Starte mit 5 Minuten Priming und der Lektion „${esc(L.title)}“ – dann verstehst du die Zusammenhänge hinter den Fragen.</span></a>`;
   }
 
   function lessonSection(sec) {
@@ -1272,6 +1282,14 @@
     const checks = L.s.filter(x => x.t === "check").length;
     const diagrams = L.s.filter(x => ["svg", "flow", "matrix", "pyr", "tree", "stairs", "bal"].includes(x.t)).length;
     window.chatContext = `Ich lese gerade die Lektion „${L.title}“ im Fach ${f.name}. Lernziele: ${L.goals.join("; ")}. Erklär mir bitte verständlich und mit Beispielen, wenn ich frage.`;
+    const P = primed(key) ? prOf(key) : null;
+    const math = f.type === "math";
+    const prBox = P ? `<div class="card pr-recap">
+        <span class="tag">🧲 Aus deinem Priming</span>
+        ${P.questions.length ? `<p style="margin:10px 0 6px"><b>Deine offenen Fragen – such beim Lesen die Antworten:</b></p><ul class="q-list ro">${P.questions.map(q => `<li>${q.a ? "✓" : "❓"} ${esc(q.q)}</li>`).join("")}</ul>` : ""}
+        ${P.newTerms.length ? `<p class="small" style="margin:12px 0 0"><b>Neue Begriffe</b> (im Text markiert): ${P.newTerms.map(t => `<span class="badge">${mdx(t)}</span>`).join(" ")}</p>` : ""}
+        ${!P.questions.length && !P.newTerms.length ? `<p class="small muted" style="margin:8px 0 0">Vorwissen ist aktiviert – jetzt lesen!</p>` : ""}
+      </div>` : !lessonDone(key) ? `<div class="lesson-hint" style="margin:0 0 16px">🧲 <span><b>Erst primen?</b> 5–10 Minuten Vorwissen sammeln und Fragen notieren – dann bleibt beim Lesen deutlich mehr hängen. <a href="${lessonHref(key, 0)}">Jetzt primen →</a></span></div>` : "";
     app().innerHTML = `
       <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · Lektion ${pos + 1} von ${all.length}</span></div>
       <div class="card ls-hero">
@@ -1280,24 +1298,45 @@
         <p class="ls-meta">⏱ ${L.min} Min · 🗺 ${diagrams} Schaubilder · ✅ ${checks} Kurz-Checks${lessonDone(key) ? " · ✓ schon verstanden" : ""}</p>
         <div class="ls-goals"><b>Nach dieser Lektion kannst du …</b><ul>${L.goals.map(g => `<li>${mdx(g)}</li>`).join("")}</ul></div>
       </div>
+      ${prBox}
       ${L.s.map(lessonSection).join("")}
       <div class="card ls-done" id="lsDoneBox">
         <h2>Alles klar?</h2>
-        <p class="muted" id="lsScore">Beantworte die Kurz-Checks oben – dann schließ die Lektion ab und geh zum Üben.</p>
+        <p class="muted" id="lsScore">Beantworte die Kurz-Checks oben – dann schließ die Lektion ab und erklär das Thema in eigenen Worten.</p>
+        ${P && P.questions.length ? `<div class="pr-check"><b>Kannst du deine Fragen aus dem Priming jetzt beantworten?</b><ul class="q-list" id="prCheck">${P.questions.map((q, i) => `<li class="${q.a ? "ok" : ""}"><span>${esc(q.q)}</span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn-ghost small" data-qa="${i}">${q.a ? "✓ Ja" : "Ja?"}</button><button type="button" class="btn-ghost small" data-qc="${i}" title="Claude fragen">💬</button></span></li>`).join("")}</ul></div>` : ""}
         <div class="row">
           <button class="btn" id="lsDone">✓ Lektion abschließen</button>
           <button class="btn-ghost small" id="lsAsk">💬 Claude: Erklär mir das nochmal anders</button>
         </div>
         <div id="lsNext" class="hidden" style="margin-top:14px">
-          ${pathStrip(1, f.type === "math")}
-          <div class="row" style="margin-top:14px">
-            ${f.type === "math" ? "" : `<a class="btn" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">🧩 Jetzt Multiple Choice üben</a>`}
-            <a class="btn ${f.type === "math" ? "" : "secondary"}" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">${f.type === "math" ? "✏️ Jetzt Aufgaben rechnen" : "🧠 Karteikarten"}</a>
+          ${pathStrip(2, math)}
+          <p class="small muted" style="margin:12px 0 0">Nächster Schritt: Erklär das Thema in eigenen Worten (Feynman-Methode). Wo du stockst, steckt eine Lücke – genau die findest du so, bevor sie in der Klausur auffällt.</p>
+          <div class="row" style="margin-top:12px">
+            <a class="btn" href="${lessonHref(key, 2)}">🗣️ Jetzt erklären (5–10 Min)</a>
+            ${math ? "" : `<a class="btn secondary" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">🧩 Multiple Choice</a>`}
+            <a class="btn secondary" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">${math ? "✏️ Aufgaben rechnen" : "🧠 Karteikarten"}</a>
             ${nextKey ? `<a class="btn secondary" href="#/lektion/${nextKey.split("/").map(encodeURIComponent).join("/")}">Nächste Lektion →</a>` : ""}
           </div>
         </div>
       </div>`;
     renderMath(app());
+    if (P && P.newTerms.length) {
+      const norm = (t) => plainTxt(t).toLowerCase().replace(/\s+/g, " ");
+      const terms = P.newTerms.map(norm).filter(Boolean);
+      $$("#app section.card.ls b, #app .ls-box b, #app .ls-intro b").forEach(b => {
+        if (b.closest(".katex")) return;
+        const t = norm(b.textContent);
+        if (t.length > 2 && terms.some(x => t === x || (x.length > 3 && t.includes(x)) || (t.length >= 5 && x.includes(t)))) b.classList.add("ls-hl");
+      });
+    }
+    $$("#prCheck [data-qa]").forEach(b => b.addEventListener("click", () => {
+      const q = P.questions[+b.dataset.qa]; q.a = !q.a; save();
+      b.textContent = q.a ? "✓ Ja" : "Ja?"; b.closest("li").classList.toggle("ok", q.a);
+    }));
+    $$("#prCheck [data-qc]").forEach(b => b.addEventListener("click", () => {
+      const q = P.questions[+b.dataset.qc];
+      openChat(`Nach der Lektion „${L.title}“ (${f.name}) ist diese Frage bei mir noch offen: ${q.q}\nGib mir bitte erst einen Denkanstoß – die Lösung nur, wenn ich nicht weiterkomme.`);
+    }));
     let right = 0, answered = 0;
     $$(".ls-check").forEach(box => {
       $$(".option", box).forEach(b => b.addEventListener("click", () => {
@@ -1334,25 +1373,48 @@
     const L = lessonsAll();
     const folders = getFolders().filter(f => f.decks.some(d => L[lessonKey(f.id, d.id)]))
       .sort((a, b) => (a.examDate || "9999").localeCompare(b.examDate || "9999"));
-    const total = Object.keys(L).length, done = Object.keys(L).filter(lessonDone).length;
+    const keys = Object.keys(L);
+    const done = keys.filter(lessonDone).length, expl = keys.filter(feynDone).length;
+    const due = folders.flatMap(f => f.decks.map(d => lessonKey(f.id, d.id))).filter(k => L[k] && feynDue(k));
     app().innerHTML = `
       <h1>📖 Lernen & Verstehen</h1>
-      <p class="muted">Jedes Thema in vier Schritten – erst verstehen, dann üben. ${done} von ${total} Lektionen verstanden.</p>
-      <div class="card">${pathStrip(0)}<p class="small muted" style="margin:12px 0 0">Tipp: Lies pro Lerntag 1–2 Lektionen und übe direkt danach das gleiche Thema mit Multiple Choice. So bleibt es hängen.</p></div>
+      <p class="muted">Jedes Thema in fünf Schritten. ${done} von ${keys.length} Lektionen gelesen · ${expl} in eigenen Worten erklärt.</p>
+      ${due.length ? `<div class="card next-step">
+        <span class="tag">🔁 Heute wiederholen</span>
+        <p class="small muted" style="margin:8px 0 0">Diese Themen solltest du heute nochmal in eigenen Worten erklären – so wandern sie ins Langzeitgedächtnis.</p>
+        <div class="lesson-list">${due.map(k => `<a class="lesson-item" href="${lessonHref(k, 2)}"><span class="li-n">🗣️</span><span class="li-t"><b>${esc(L[k].title)}</b><span class="small muted">zuletzt erklärt ${fmtAgo(fyOf(k).d)}</span></span><span class="li-go">Erklären →</span></a>`).join("")}</div>
+      </div>` : ""}
+      <div class="card">
+        ${pathStrip(-1)}
+        <details class="method">
+          <summary>So lernst du am effektivsten – warum diese 5 Schritte?</summary>
+          <div class="method-list">
+            <p><b>🧲 1. Primen (5–10 Min):</b> Vorwissen sammeln, nur die Überschriften überfliegen und Fragen notieren. Dein Gehirn baut „Haken“, an denen Neues hängen bleibt – und du liest danach mit Neugier statt nur mit den Augen.</p>
+            <p><b>📖 2. Verstehen:</b> Lektion lesen, Schaubilder anschauen und dabei die Antworten auf deine Fragen suchen.</p>
+            <p><b>🗣️ 3. Erklären (Feynman):</b> Das Thema in eigenen Worten erklären, als würdest du es einem Freund beibringen. Wo du stockst, steckt eine Lücke – genau die liest du nach und erklärst sie neu, am besten mit einer Analogie.</p>
+            <p><b>🧩 4. Abrufen:</b> Multiple Choice und Karteikarten – aktiv aus dem Kopf holen statt nochmal lesen. Wiederholt wird in wachsenden Abständen, auch das Erklären. Das ist der stärkste Hebel gegen das Vergessen.</p>
+            <p><b>📝 5. Anwenden:</b> Klausuraufgaben wie in der Prüfung – erst selbst lösen, dann mit dem Erwartungshorizont vergleichen.</p>
+          </div>
+        </details>
+      </div>
       ${folders.map(f => {
         const ls = f.decks.filter(d => L[lessonKey(f.id, d.id)]);
         const dn = ls.filter(d => lessonDone(lessonKey(f.id, d.id))).length;
+        const ex = ls.filter(d => feynDone(lessonKey(f.id, d.id))).length;
         const exam = f.examDate && daysUntil(f.examDate) >= 0 ? ` · Prüfung ${new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" })} (noch ${daysUntil(f.examDate)} Tage)` : "";
         return `<div class="card">
-          <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h2><span class="badge ${dn === ls.length ? "new" : ""}">${dn}/${ls.length} verstanden</span></div>
+          <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h2><span class="badge ${ex === ls.length ? "new" : ""}">${dn}/${ls.length} gelesen · ${ex} erklärt</span></div>
           <p class="small muted" style="margin:4px 0 0">${ls.reduce((t, d) => t + L[lessonKey(f.id, d.id)].min, 0)} Min Lesezeit${exam}</p>
-          <div class="bar"><div style="width:${dn / ls.length * 100}%"></div></div>
+          <div class="bar"><div style="width:${(dn + ex) / (2 * ls.length) * 100}%"></div></div>
           <div class="lesson-list">${ls.map((d, i) => {
-            const k = lessonKey(f.id, d.id), isDone = lessonDone(k), LL = L[k];
-            return `<a class="lesson-item ${isDone ? "done" : ""}" href="#/lektion/${encodeURIComponent(f.id)}/${encodeURIComponent(d.id)}">
-              <span class="li-n">${isDone ? "✓" : i + 1}</span>
-              <span class="li-t"><b>${esc(LL.title)}</b><span class="small muted">${LL.min} Min · ${esc(d.name)}</span></span>
-              <span class="li-go">${isDone ? "Wiederholen" : "Starten"} →</span></a>`;
+            const k = lessonKey(f.id, d.id), LL = L[k], st = lessonStage(k), isDue = feynDue(k);
+            const go = st === 0 ? "Primen" : st === 1 ? "Lesen" : st === 2 ? "Erklären" : isDue ? "Wiederholen" : "Ansehen";
+            const href = st === 3 ? lessonHref(k, isDue ? 2 : 1) : lessonHref(k, st);
+            return `<a class="lesson-item ${st === 3 ? "done" : ""}" href="${href}">
+              <span class="li-n">${st === 3 ? "✓" : i + 1}</span>
+              <span class="li-t"><b>${esc(LL.title)}</b><span class="small muted">${LL.min} Min · ${esc(d.name)}</span>
+                <span class="li-steps" aria-label="Fortschritt">${[["🧲", primed(k), "geprimt"], ["📖", lessonDone(k), "gelesen"], ["🗣️", feynDone(k), "erklärt"]].map(([e, ok, t]) => `<span class="${ok ? "ok" : ""}" title="${t}">${e}</span>`).join("")}</span></span>
+              <span class="li-go">${go} →</span></a>`;
           }).join("")}</div>
         </div>`;
       }).join("")}`;
@@ -1362,31 +1424,451 @@
     const L = lessonsAll();
     const exams = folders.filter(f => f.examDate && daysUntil(f.examDate) >= 0).sort((a, b) => a.examDate.localeCompare(b.examDate));
     let rec = null;
+    // 1) Fällige Erklär-Wiederholungen zuerst (Wiederholung in wachsenden Abständen)
     for (const f of exams) {
-      const d = f.decks.find(x => L[lessonKey(f.id, x.id)] && !lessonDone(lessonKey(f.id, x.id)));
-      if (d) { rec = { step: 0, f, d, L: L[lessonKey(f.id, d.id)] }; break; }
+      const d = f.decks.find(x => L[lessonKey(f.id, x.id)] && feynDue(lessonKey(f.id, x.id)));
+      if (d) { rec = { step: 2, f, d, L: L[lessonKey(f.id, d.id)], repeat: true }; break; }
     }
-    if (!rec) {
-      for (const f of exams) {
-        if (f.type === "math") continue;
-        const d = f.decks.find(x => x.id !== "klausur" && mcStats(cardsInScope(`deck:${f.id}:${x.id}`)).total && mcStats(cardsInScope(`deck:${f.id}:${x.id}`)).pct < 80);
-        if (d) { rec = { step: 1, f, d }; break; }
+    // 2) Thema für Thema: primen → verstehen → erklären → abrufen
+    if (!rec) for (const f of exams) {
+      for (const d of f.decks) {
+        const k = lessonKey(f.id, d.id);
+        if (!L[k]) continue;
+        const st = lessonStage(k);
+        if (st < 3) { rec = { step: st, f, d, L: L[k] }; break; }
+        if (f.type === "math") {
+          const ts = stats(cardsInScope(`deck:${f.id}:${d.id}`));
+          if (ts.fresh > 0) { rec = { step: 3, f, d, L: L[k], fresh: ts.fresh }; break; }
+        } else {
+          const ms = mcStats(cardsInScope(`deck:${f.id}:${d.id}`));
+          if (ms.total && ms.pct < 60) { rec = { step: 3, f, d, L: L[k], pct: ms.pct }; break; }
+        }
       }
+      if (rec) break;
     }
-    if (!rec && exams.length) rec = { step: 3, f: exams[0], d: exams[0].decks.find(x => x.id === "klausur") };
+    // 3) Alles durchgearbeitet → wie in der Klausur anwenden
+    if (!rec && exams.length) { const f = exams[0], d = f.decks.find(x => x.id === "klausur"); if (d) rec = { step: 4, f, d }; }
     if (!rec || !rec.d) return "";
-    const { f, d } = rec;
-    const href = rec.step === 0 ? `#/lektion/${encodeURIComponent(f.id)}/${encodeURIComponent(d.id)}` : rec.step === 1 ? `#/mc/deck:${encodeURIComponent(f.id)}:${encodeURIComponent(d.id)}` : `#/lernen/deck:${encodeURIComponent(f.id)}:${encodeURIComponent(d.id)}`;
-    const title = rec.step === 0 ? rec.L.title : rec.step === 1 ? `Multiple Choice: ${d.name}` : `Klausuraufgaben ${f.short || f.name}`;
-    const sub = rec.step === 0 ? `Lektion · ${rec.L.min} Min · ${f.short || f.name} ist deine nächste Prüfung` : rec.step === 1 ? `Alle Lektionen von ${f.short || f.name} gelesen – jetzt festigen, bis 80 % MC-sicher sind` : `Alles verstanden und geübt – jetzt wie in der Klausur anwenden`;
-    const btn = rec.step === 0 ? "📖 Lektion starten" : rec.step === 1 ? "🧩 Üben" : "📝 Aufgaben lösen";
+    const { f, d } = rec, math = f.type === "math", k = lessonKey(f.id, d.id);
+    const fidE = encodeURIComponent(f.id), didE = encodeURIComponent(d.id);
+    const who = `${f.short || f.name} ist deine nächste Prüfung`;
+    const C = [
+      { href: lessonHref(k, 0), title: rec.L && rec.L.title, sub: `🧲 Primen · 5–10 Min Vorwissen und Fragen sammeln, dann lesen · ${who}`, btn: "🧲 Primen starten", alt: [lessonHref(k, 1), "Direkt lesen"] },
+      { href: lessonHref(k, 1), title: rec.L && rec.L.title, sub: `📖 Lektion · ${rec.L && rec.L.min} Min${primed(k) ? " · deine Fragen aus dem Priming warten" : ""} · ${who}` , btn: "📖 Lektion lesen" },
+      { href: lessonHref(k, 2), title: rec.L && rec.L.title, sub: rec.repeat ? `🔁 Wiederholung fällig – erklär es nochmal in eigenen Worten (5 Min)` : `🗣️ Gelesen – jetzt in eigenen Worten erklären (Feynman, 5–10 Min)`, btn: "🗣️ Erklären" },
+      { href: math ? `#/lernen/deck:${fidE}:${didE}` : `#/mc/deck:${fidE}:${didE}`, title: math ? `Aufgaben: ${d.name}` : `Multiple Choice: ${d.name}`, sub: math ? `✏️ Verstanden und erklärt – jetzt selbst rechnen (${rec.fresh} Aufgaben neu)` : `🧩 Verstanden und erklärt – jetzt aktiv abrufen, bis 60 % sicher sind (aktuell ${rec.pct} %)`, btn: math ? "✏️ Rechnen" : "🧩 Üben" },
+      { href: `#/lernen/deck:${fidE}:${didE}`, title: `Klausuraufgaben ${f.short || f.name}`, sub: "📝 Alle Themen durchgearbeitet – jetzt wie in der Klausur anwenden", btn: "📝 Aufgaben lösen" }
+    ][rec.step];
     return `<div class="card next-step">
       <div class="row between" style="align-items:flex-start">
-        <div style="flex:1;min-width:220px"><span class="tag">🎯 Dein nächster Schritt</span><h2 style="margin:8px 0 2px">${esc(title)}</h2><p class="muted small" style="margin:0">${esc(sub)}</p></div>
-        <div class="row"><a class="btn" href="${href}">${btn}</a><a class="btn secondary small" href="#/lektionen">Alle Lektionen</a></div>
+        <div style="flex:1;min-width:220px"><span class="tag">🎯 Dein nächster Schritt</span><h2 style="margin:8px 0 2px">${esc(C.title)}</h2><p class="muted small" style="margin:0">${esc(C.sub)}</p></div>
+        <div class="row"><a class="btn" href="${C.href}">${C.btn}</a>${C.alt ? `<a class="btn secondary small" href="${C.alt[0]}">${C.alt[1]}</a>` : `<a class="btn secondary small" href="#/lektionen">Alle Lektionen</a>`}</div>
       </div>
-      <div style="margin-top:14px">${f.type === "math" ? pathStrip(rec.step === 3 ? 2 : rec.step, true) : pathStrip(rec.step)}</div>
+      <div style="margin-top:14px">${pathStrip(rec.step, math)}</div>
     </div>`;
+  }
+
+  // =========================================================
+  //  Lernmethoden: Priming (vor dem Lesen) & Feynman (Erklären)
+  // =========================================================
+  const plainTxt = (t) => String(t ?? "").replace(/\*\*/g, "").replace(/­/g, "").trim();
+  const prOf = (key) => (state.priming || {})[key];
+  const primed = (key) => !!(prOf(key) && prOf(key).done);
+  const fyOf = (key) => (state.feynman || {})[key];
+  const feynDone = (key) => !!(fyOf(key) && fyOf(key).n);
+  const feynDue = (key) => { const x = fyOf(key); return !!(x && x.due && x.due <= dayKey()); };
+  // 0 = primen, 1 = lesen, 2 = erklären, 3 = abrufen/üben
+  function lessonStage(key) {
+    if (!lessonDone(key)) return primed(key) ? 1 : 0;
+    return feynDone(key) ? 3 : 2;
+  }
+  function lessonHref(key, step) {
+    const [fid, did] = key.split("/").map(encodeURIComponent);
+    return step === 0 ? `#/primen/${fid}/${did}` : step === 2 ? `#/erklaeren/${fid}/${did}` : `#/lektion/${fid}/${did}`;
+  }
+  function fmtAgo(k) {
+    const n = -daysUntil(k);
+    return n <= 0 ? "heute" : n === 1 ? "gestern" : `vor ${n} Tagen`;
+  }
+  const fmtLong = (k) => new Date(k + "T12:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" });
+
+  // Überschriften + Schlüsselbegriffe einer Lektion („Fischernetz“: erst grob, dann eine Ebene tiefer)
+  function lessonNet(L) {
+    const net = [];
+    L.s.forEach((sec, i) => {
+      if (!sec.h || ["check", "intro", "ex", "merke"].includes(sec.t)) return;
+      let terms = [];
+      if (sec.t === "cards") terms = sec.items.map(x => x[1]);
+      else if (sec.t === "flow") terms = sec.steps.map(x => x[0]);
+      else if (sec.t === "table") terms = sec.rows.map(r => r[0]);
+      else if (sec.t === "matrix") {
+        const cells = sec.rows.flatMap(([, ...c]) => c.map(x => plainTxt(x[0])));
+        terms = new Set(cells).size === cells.length ? cells : sec.rows.map(r => r[0]);
+      }
+      else if (sec.t === "bal") terms = [sec.l[0], sec.r[0]];
+      else if (sec.t === "tree") terms = sec.kids.map(x => x[0]);
+      else if (sec.t === "pyr") terms = sec.levels.map(x => x[0]);
+      else if (sec.t === "stairs") terms = sec.steps.map(x => `${x[0]} – ${x[1]}`);
+      const visible = (t) => t.replace(/\$|\\[a-zA-Z]+|[{}_^]/g, "").trim();
+      terms = [...new Set(terms.map(plainTxt))].filter(t => t && t.length <= 48 && visible(t).length >= 3 && !/^[≈~]/.test(t) && !/^\d+$/.test(t)).slice(0, 8);
+      net.push({ h: plainTxt(sec.h), i, terms });
+    });
+    return net;
+  }
+  const netText = (net) => net.map((n, i) => `${i + 1}. ${n.h}${n.terms.length ? " – " + n.terms.join(" · ") : ""}`).join("\n");
+
+  // Lektionsabschnitt als Klartext (Referenz für Claude)
+  function secPlain(sec) {
+    const s = plainTxt, out = [];
+    if (sec.h) out.push("## " + s(sec.h));
+    switch (sec.t) {
+      case "text": case "ex": case "merke": case "intro": out.push(s(sec.x)); break;
+      case "cards": sec.items.forEach(([, t, x]) => out.push(`- ${s(t)}: ${s(x)}`)); break;
+      case "flow": sec.steps.forEach(([t, x, tag], i) => out.push(`${i + 1}. ${s(t)}${x ? ": " + s(x) : ""}${tag ? " (" + s(tag) + ")" : ""}`)); break;
+      case "table": out.push(sec.head.map(s).join(" | ")); sec.rows.forEach(r => out.push(r.map(s).join(" | "))); break;
+      case "matrix": out.push("Spalten: " + sec.cols.map(s).join(" | ")); sec.rows.forEach(([lab, ...c]) => out.push(`${s(lab)}: ${c.map(([t, x]) => s(t) + (x ? " (" + s(x) + ")" : "")).join(" | ")}`)); break;
+      case "bal": out.push(`${s(sec.l[0])}: ${sec.l[1].map(s).join("; ")}`, `${s(sec.r[0])}: ${sec.r[1].map(s).join("; ")}`); break;
+      case "tree": out.push(s(sec.root)); sec.kids.forEach(([t, l]) => out.push(`- ${s(t)}: ${(l || []).map(s).join("; ")}`)); break;
+      case "pyr": sec.levels.forEach(([t, x]) => out.push(`- ${s(t)}${x ? ": " + s(x) : ""}`)); break;
+      case "stairs": sec.steps.forEach(([t, sub, x]) => out.push(`- ${s(t)} (${s(sub)}): ${s(x)}`)); break;
+      case "svg": { const m = /aria-label="([^"]+)"/.exec(sec.svg); if (m) out.push("Schaubild: " + m[1]); break; }
+      case "formula": out.push("Formel: " + sec.tex); (sec.items || []).forEach(i => out.push("- " + s(i))); break;
+    }
+    if (sec.cap) out.push(s(sec.cap));
+    return out.join("\n");
+  }
+  function topicMaterial(L, i) {
+    if (i < 0) return L.s.filter(x => x.t !== "check");
+    const out = [L.s[i]];
+    for (let j = i + 1; j < L.s.length && ["ex", "merke"].includes(L.s[j].t); j++) out.push(L.s[j]);
+    return out;
+  }
+
+  // Kleiner Countdown-Knopf
+  function timerBtn(btn, secs) {
+    if (!btn) return;
+    const label = btn.textContent;
+    let left = secs, iv = null;
+    const stop = () => { clearInterval(iv); iv = null; };
+    window.addEventListener("hashchange", stop, { once: true });
+    btn.addEventListener("click", () => {
+      if (iv) { stop(); btn.textContent = label; left = secs; return; }
+      const tick = () => {
+        if (left < 0) { stop(); btn.textContent = "⏰ Zeit um"; toast("⏰ Zeit um – weiter zum nächsten Schritt!"); left = secs; return; }
+        btn.textContent = `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+        left--;
+      };
+      tick(); iv = setInterval(tick, 1000);
+    });
+  }
+  const debounced = (fn, ms = 400) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  const saveSoon = debounced(save);
+
+  // ---------- Claude-Modus im Chat (eigener Verlauf je Sitzung) ----------
+  let chatMode = null;
+  function startMethodChat(title, system, first) {
+    chatMode = { title, system, id: Date.now() };
+    state.chat.push({ role: "divider", content: title, id: chatMode.id });
+    save();
+    toggleChat(true);
+    renderChatMode();
+    if (first) sendChat(first);
+  }
+  function endMethodChat() {
+    if (!chatMode) return;
+    chatMode = null;
+    renderChatMode();
+  }
+  function renderChatMode() {
+    const el = $("#chatMode"); if (!el) return;
+    el.classList.toggle("hidden", !chatMode);
+    el.innerHTML = chatMode ? `<span>${esc(chatMode.title)}</span><button type="button" class="btn-ghost small" id="chatModeEnd" title="Modus beenden" aria-label="Modus beenden">✕</button>` : "";
+    $("#chatModeEnd")?.addEventListener("click", () => { endMethodChat(); toast("Modus beendet – Claude ist wieder im normalen Chat"); });
+  }
+
+  function primingSystem(L, f, net) {
+    return `MODUS: PRIMING (5–10 Minuten) zur Lektion „${L.title}“ (${f.name}). ${state.profile.name} hat die Lektion noch NICHT gelesen.\n` +
+      `Ziel: Vorwissen aktivieren, Neugier wecken und ein grobes Gedanken-Netz bauen, damit er beim Lesen gezielt nach Antworten sucht.\n` +
+      `So moderierst du:\n- Du stellst Fragen, er denkt. Erkläre den Stoff nicht und lege keine fertigen Listen oder Zusammenfassungen vor. Erklären nur, wenn er feststeckt oder ausdrücklich darum bittet.\n- Immer nur EINE kurze Frage pro Nachricht, dann auf die Antwort warten.\n` +
+      `Ablauf:\n1. Brainstorming aus dem Kopf: Was weiß er schon, was verbindet er damit?\n2. Relevanz: Warum ist das wichtig? Wo begegnet es ihm im Alltag oder im Ausbildungsbetrieb (Spedition/Logistik)?\n3. Hypothese: Wie könnte es funktionieren? Eine falsche Vermutung ist ausdrücklich erlaubt.\n` +
+      `4. Kurzer Scan der Überschriften unten: Was ist neu, was überrascht, was fehlte im Brainstorming?\n5. Begriffe grob ordnen – von außen nach innen: erst Überbegriffe, dann eine Ebene tiefer. Nicht in ein einzelnes Detail abtauchen.\n` +
+      `6. Verknüpfungen zu anderen Themen und offene Fragen sammeln, die er beim Lesen beantworten will.\n7. Abschluss: kurze Zusammenfassung (was er schon weiß, welche Fragen offen sind), dann zur Lektion schicken.\n\n` +
+      `Überschriften und Schlüsselbegriffe der Lektion (nur für den Scan – nicht vorab erklären):\n${netText(net)}`;
+  }
+  const FY_LEVELS = [
+    ["basis", "🌱 Grundlagen", "wie einem 10-Jährigen – ohne Fachwörter, die du nicht erklären kannst"],
+    ["mittel", "🎓 Mittel", "wie einem Erstsemester – Fachbegriffe ja, aber die Zusammenhänge müssen stimmen"],
+    ["pruefung", "🏆 Prüfungsniveau", "wie einem Prüfer – präzise, vollständig, mit Transfer"]
+  ];
+  function feynmanSystem(L, f, topic, lvl, material) {
+    const lv = FY_LEVELS.find(x => x[0] === lvl) || FY_LEVELS[1];
+    return `MODUS: FEYNMAN-METHODE. ${state.profile.name} erklärt das Unterthema „${topic}“ aus der Lektion „${L.title}“ (${f.name}) auf dem Niveau „${lv[1].replace(/^\S+\s/, "")}“: ${lv[2]}.\n` +
+      `Deine Rolle: aufmerksamer, etwas naiver Zuhörer und Coach. Er denkt – du deckst Lücken auf.\n` +
+      `So gehst du vor:\n1. Seine erste Nachricht ist seine Erklärung. Antworte mit kurzem, ehrlichem Feedback: ✓ was korrekt ist, ✗ welche Lücken oder Fehler es gibt – klar benennen, nicht schönreden, aber freundlich. Typische Lücken: Floskeln ohne Inhalt („ist halt so“), Fachbegriffe ohne Erklärung, behauptete Zusammenhänge ohne Begründung, fehlende oder falsche Teile.\n` +
+      `2. Stelle dann EINE gezielte Vertiefungsfrage (z. B. einen Begriff ohne Fachwort erklären lassen, „Was passiert, wenn …?“, ein Alltagsbeispiel). Immer nur eine Frage pro Nachricht.\n` +
+      `3. Bei einer Lücke: Sag genau, welche Stelle er in der Lektion nachlesen soll, und lass ihn dann nur diesen Punkt neu erklären. Verrate die Antwort nicht vorher.\n` +
+      `4. Wenn die Erklärung steht: Bitte um eine Analogie oder ein Bild aus dem Alltag.\n` +
+      `5. Abschluss nach 3–5 Runden oder wenn er es möchte: kurze Auswertung (✓ sitzt, ✗ Lücken und wie sie geschlossen wurden, Empfehlung „prüfungsbereit“ oder „noch eine Runde“). Keine Punktzahl, außer er fragt danach. Erinnere ihn daran, auf der Seite „Wie gut sitzt es?“ anzuklicken.\n` +
+      (lvl === "pruefung" ? `Prüfungsniveau: Übernimm die Rolle eines Prüfers – präzise Folgefragen, Transferfragen und ruhig auch Querverbindungen zu anderen Themen des Fachs.\n` : "") +
+      `\nReferenzmaterial aus der Lektion (nur zum Abgleich – nicht vorab verraten oder zusammenfassen):\n${material}`;
+  }
+
+  // ---------- Schritt 1: Primen ----------
+  function viewPriming(fid, did) {
+    const f = getFolders().find(x => x.id === fid);
+    const d = f && f.decks.find(x => x.id === did);
+    const key = lessonKey(fid, did), L = lessonsAll()[key];
+    if (!f || !d || !L) { location.replace("#/lektionen"); return; }
+    if (!state.priming) state.priming = {};
+    const P = state.priming[key] || (state.priming[key] = { know: "", why: "", hyp: "", surprise: "", newTerms: [], questions: [] });
+    const net = lessonNet(L);
+    const math = f.type === "math";
+    window.chatContext = `Ich mache gerade Priming für die Lektion „${L.title}“ (${f.name}) – ich habe sie noch nicht gelesen. Erklär mir den Stoff noch nicht, sondern hilf mir mit Fragen beim Vorwissen-Sammeln.`;
+    const field = (k, label, rows, ph) => `<label class="pr-q"><span>${label}</span><textarea data-f="${k}" rows="${rows}" placeholder="${esc(ph || "")}">${esc(P[k] || "")}</textarea></label>`;
+    app().innerHTML = `
+      <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
+      <div class="card ls-hero">
+        <span class="tag">🧲 Schritt 1 von 5 · Primen</span>
+        <h1>${esc(L.title)}</h1>
+        <p class="ls-meta">⏱ 5–10 Min · danach liest du die Lektion (${L.min} Min)</p>
+        <div class="ls-goals"><b>Warum primen?</b><p style="margin:6px 0 0;line-height:1.6">Neues bleibt viel besser hängen, wenn dein Gehirn schon „Haken“ dafür hat: Vorwissen, Neugier und offene Fragen. Deshalb sammelst du zuerst, was du schon weißt, überfliegst dann nur die Überschriften und notierst Fragen, auf die du beim Lesen Antworten suchst. <b>Fischernetz statt Häkeln:</b> erst das grobe Netz, dann die Details.</p></div>
+        <div style="margin-top:14px">${pathStrip(0, math)}</div>
+      </div>
+      <section class="card pr-step">
+        <div class="row between"><h2><span class="pr-n">1</span>Aus dem Kopf</h2><button type="button" class="btn-ghost small" id="prT1">⏱ 2 Min Timer</button></div>
+        <p class="muted small" style="margin:0">Ohne Unterlagen, Stichworte reichen – falsch gibt es hier nicht.</p>
+        ${field("know", `Was weißt du schon über „${esc(L.title)}“? Was fällt dir dazu ein?`, 3, "Begriffe, Beispiele, Erinnerungen aus Vorlesung oder Betrieb …")}
+        ${field("why", "Warum ist das wichtig? Wo begegnet es dir – im Alltag oder in deinem Ausbildungsbetrieb?", 2, "")}
+        ${field("hyp", "Deine Vermutung: Wie könnte das funktionieren oder zusammenhängen?", 2, "Eine Hypothese darf ruhig falsch sein – genau das macht neugierig.")}
+        <button type="button" class="btn" id="prNext">Weiter zum Überblick →</button>
+      </section>
+      <section class="card pr-step ${P.scan ? "" : "hidden"}" id="prScan">
+        <div class="row between"><h2><span class="pr-n">2</span>Überblick scannen</h2><button type="button" class="btn-ghost small" id="prT2">⏱ 3 Min Timer</button></div>
+        <p class="muted small" style="margin:0">Nur überfliegen, nicht lesen! Tippe Begriffe an, die <b>neu</b> für dich sind oder die du nicht erklären könntest.</p>
+        <div class="net"><div class="net-root">${esc(L.title)}</div>
+          <ol class="net-list">${net.map(n => `<li><b>${mdx(n.h)}</b>${n.terms.length ? `<div class="chips net-terms">${n.terms.map(t => `<button type="button" class="chip tchip ${P.newTerms.includes(t) ? "active" : ""}" data-term="${esc(t)}">${mdx(t)}</button>`).join("")}</div>` : ""}</li>`).join("")}</ol>
+        </div>
+        ${field("surprise", "Was überrascht dich? Was hat in deinem Brainstorming gefehlt?", 2, "")}
+      </section>
+      <section class="card pr-step ${P.scan ? "" : "hidden"}" id="prOpen">
+        <h2><span class="pr-n">3</span>Deine offenen Fragen</h2>
+        <p class="muted small" style="margin:0 0 10px">Welche Fragen soll dir die Lektion beantworten? Offene Fragen machen neugierig – beim Lesen suchst du dann gezielt nach den Antworten.</p>
+        <div class="chips" id="prSug"></div>
+        <form class="row pr-add" id="prForm"><input type="text" id="prQ" placeholder="Deine Frage …" autocomplete="off"><button class="btn small" type="submit" aria-label="Frage hinzufügen">＋</button></form>
+        <ul class="q-list" id="prQs"></ul>
+        <div class="row" style="margin-top:16px">
+          <button type="button" class="btn" id="prDone">✓ Fertig – Lektion lesen</button>
+          <a class="btn secondary small" href="${lessonHref(key, 1)}">Ohne Fragen direkt lesen</a>
+        </div>
+      </section>
+      <div class="card">
+        <b>🤖 Lieber im Gespräch?</b>
+        <p class="small muted" style="margin:6px 0 10px">Claude stellt dir die Priming-Fragen nacheinander und hilft dir, die Begriffe zu ordnen – ohne dir den Stoff vorwegzunehmen. Kostet ein paar Cent (API-Key unter ⚙️ Mehr).</p>
+        <button type="button" class="btn secondary small" id="prClaude">💬 Mit Claude primen</button>
+      </div>`;
+    renderMath(app());
+    timerBtn($("#prT1"), 120);
+    timerBtn($("#prT2"), 180);
+    $$("textarea[data-f]").forEach(t => t.addEventListener("input", () => { P[t.dataset.f] = t.value; saveSoon(); }));
+    const renderQs = () => {
+      $("#prQs").innerHTML = P.questions.length ? P.questions.map((q, i) => `<li><span>❓ ${esc(q.q)}</span><button type="button" class="btn-ghost small" data-del="${i}" aria-label="Frage löschen">✕</button></li>`).join("") : `<li class="empty-q">Noch keine Fragen – mindestens eine lohnt sich!</li>`;
+      $$("[data-del]", $("#prQs")).forEach(b => b.addEventListener("click", () => { P.questions.splice(+b.dataset.del, 1); save(); renderQs(); renderSug(); }));
+    };
+    const renderSug = () => {
+      const have = new Set(P.questions.map(q => q.q));
+      const sug = P.newTerms.map(t => `Was bedeutet „${t}“ – und wozu braucht man das?`).filter(q => !have.has(q)).slice(0, 4);
+      $("#prSug").innerHTML = sug.map(q => `<button type="button" class="chip tchip" data-sug="${esc(q)}">＋ ${esc(q)}</button>`).join("");
+      $$("[data-sug]", $("#prSug")).forEach(b => b.addEventListener("click", () => { P.questions.push({ q: b.dataset.sug, a: false }); save(); renderQs(); renderSug(); }));
+      renderMath($("#prSug"));
+    };
+    renderQs(); renderSug();
+    $$(".tchip[data-term]").forEach(b => b.addEventListener("click", () => {
+      const t = b.dataset.term, i = P.newTerms.indexOf(t);
+      if (i >= 0) P.newTerms.splice(i, 1); else P.newTerms.push(t);
+      b.classList.toggle("active", i < 0);
+      save(); renderSug();
+    }));
+    $("#prNext").addEventListener("click", () => {
+      P.scan = true; save();
+      $("#prScan").classList.remove("hidden"); $("#prOpen").classList.remove("hidden");
+      $("#prScan").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $("#prForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const v = $("#prQ").value.trim(); if (!v) return;
+      P.questions.push({ q: v, a: false }); $("#prQ").value = ""; save(); renderQs(); renderSug();
+    });
+    $("#prDone").addEventListener("click", e => {
+      const v = $("#prQ").value.trim(); if (v) P.questions.push({ q: v, a: false });
+      const first = !P.done;
+      P.done = true; P.d = dayKey(); save();
+      if (first) { addPoints(10, e); toast("🧲 Priming geschafft! +10 ⭐ – jetzt mit Neugier lesen"); }
+      unlock("first_priming");
+      endMethodChat();
+      location.hash = lessonHref(key, 1);
+    });
+    $("#prClaude").addEventListener("click", () => {
+      if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key geht Priming einfach hier auf der Seite."); return; }
+      startMethodChat(`🧲 Priming · ${L.title}`, primingSystem(L, f, net), `Lass uns die Lektion „${L.title}“ primen. Ich habe sie noch nicht gelesen.`);
+    });
+  }
+
+  // ---------- Schritt 3: Erklären (Feynman) ----------
+  function viewFeynman(fid, did) {
+    const f = getFolders().find(x => x.id === fid);
+    const d = f && f.decks.find(x => x.id === did);
+    const key = lessonKey(fid, did), L = lessonsAll()[key];
+    if (!f || !d || !L) { location.replace("#/lektionen"); return; }
+    if (!state.feynman) state.feynman = {};
+    if (!state.feynmanDraft) state.feynmanDraft = {};
+    const math = f.type === "math";
+    const F = fyOf(key) || { topics: {} };
+    const net = lessonNet(L);
+    const topics = [...net.map(n => ({ id: String(n.i), h: n.h, i: n.i })), { id: "all", h: "Die ganze Lektion im Überblick", i: -1 }];
+    const tp = F.topics || {};
+    let sel = topics.find(t => !tp[t.h]) || topics.slice().sort((a, b) => (tp[a.h].r - tp[b.h].r) || tp[a.h].d.localeCompare(tp[b.h].d))[0];
+    let lvl = F.lvl || "mittel";
+    const due = feynDue(key);
+    window.chatContext = `Ich übe gerade die Feynman-Methode zur Lektion „${L.title}“ (${f.name}): Ich erkläre ein Unterthema in eigenen Worten. Nimm mir die Antworten nicht vorweg.`;
+    app().innerHTML = `
+      <div class="row between"><a href="${lessonHref(key, 1)}" class="small">← Zur Lektion</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
+      <div class="card ls-hero">
+        <span class="tag">🗣️ Schritt 3 von 5 · Erklären</span>
+        <h1>${esc(L.title)}</h1>
+        <p class="ls-meta">⏱ 5–10 Min · Feynman-Methode${due ? " · 🔁 Wiederholung ist heute dran" : ""}</p>
+        <div style="margin-top:6px">${pathStrip(2, math)}</div>
+      </div>
+      ${lessonSection({ t: "flow", h: "So funktioniert die Feynman-Methode", steps: [
+        ["Unterthema wählen", "klein und konkret – nicht die ganze Lektion auf einmal"],
+        ["Einfach erklären", "frei und ohne Spickzettel – als würdest du es einem Freund beibringen"],
+        ["Lücken finden", "Wo stockst du? Nur **diese** Stelle nachlesen"],
+        ["Vereinfachen", "nochmal erklären – mit einer **Analogie** aus dem Alltag"]
+      ], cap: "Wiederholen, bis es flüssig klappt. **Wenn du es nicht einfach erklären kannst, hast du es noch nicht ganz verstanden** – und genau das findest du hier heraus." })}
+      <section class="card fy">
+        <h2><span class="pr-n">1</span>Unterthema</h2>
+        <div class="chips" id="fyTopics">${topics.map(t => `<button type="button" class="chip tchip ${t.id === sel.id ? "active" : ""}" data-t="${t.id}">${tp[t.h] ? "✓ " : ""}${mdx(t.h)}</button>`).join("")}</div>
+        <h2 style="margin-top:18px"><span class="pr-n">2</span>Niveau</h2>
+        <div class="chips" id="fyLvls">${FY_LEVELS.map(([id, n]) => `<button type="button" class="chip ${id === lvl ? "active" : ""}" data-l="${id}">${n}</button>`).join("")}</div>
+        <p class="small muted" id="fyLvlTxt" style="margin:8px 0 0"></p>
+        <h2 style="margin-top:18px"><span class="pr-n">3</span>Jetzt erklären</h2>
+        <p class="small muted" style="margin:0 0 8px">🎤 Tipp: Tippe auf das Mikrofon deiner Tastatur und erkläre laut – das trainiert gleich fürs Mündliche. Nicht nachschauen!</p>
+        <textarea id="fyTxt" rows="7"></textarea>
+        <p class="small muted" id="fyCount" style="margin:6px 0 0"></p>
+        <div class="row" style="margin-top:12px">
+          <button type="button" class="btn" id="fySelf">☑️ Selbst prüfen</button>
+          <button type="button" class="btn secondary" id="fyClaude">🤖 Claude prüft & fragt nach</button>
+        </div>
+        <p class="small muted" style="margin:8px 0 0">Selbst prüfen ist kostenlos. Claude kostet ein paar Cent pro Nachricht (API-Key unter ⚙️ Mehr).</p>
+      </section>
+      <section class="card fy hidden" id="fyCheck">
+        <h2><span class="pr-n">4</span>Lücken finden</h2>
+        <details class="fy-mat" open><summary>📖 Material zum Vergleichen</summary><div id="fyMat"></div></details>
+        <p style="margin:16px 0 8px"><b>Ehrlich abhaken – was hat geklappt?</b></p>
+        <div class="fy-gaps">
+          <label class="fy-gap"><input type="checkbox"><span>Ich konnte jeden <b>Fachbegriff</b> auch ohne Fachwort erklären</span></label>
+          <label class="fy-gap"><input type="checkbox"><span>Keine <b>Floskeln</b> wie „ist halt so“ – alles begründet</span></label>
+          <label class="fy-gap"><input type="checkbox"><span><b>Zusammenhänge</b> gezeigt (weil …, dadurch …) – nicht nur behauptet</span></label>
+          <label class="fy-gap"><input type="checkbox"><span>Nichts Wichtiges <b>vergessen</b> oder falsch erklärt</span></label>
+        </div>
+        <p class="small muted" id="fyGapTxt" style="margin:10px 0 0">Jedes leere Kästchen ist eine Lücke: Lies genau diese Stelle nach und erkläre sie neu – oben im Textfeld.</p>
+        <h2 style="margin-top:18px"><span class="pr-n">5</span>Vereinfachen</h2>
+        <p class="small muted" style="margin:0 0 8px">Erklär es jetzt nochmal in ein, zwei Sätzen – mit einem Bild oder einer Analogie aus dem Alltag.</p>
+        <textarea id="fyAna" rows="3" placeholder="„… ist wie …, weil …“"></textarea>
+      </section>
+      <section class="card fy hidden" id="fyRate">
+        <h2>Wie gut sitzt es?</h2>
+        <p class="small muted" style="margin:0 0 12px">Danach plant die App automatisch, wann du es nochmal erklärst – in wachsenden Abständen.</p>
+        <div class="row">
+          <button type="button" class="btn secondary" data-r="0">😕 Noch Lücken</button>
+          <button type="button" class="btn secondary" data-r="1">🙂 Fast</button>
+          <button type="button" class="btn" data-r="2">💪 Sitzt!</button>
+        </div>
+        <div id="fyAfter" class="hidden" style="margin-top:16px"></div>
+      </section>
+      ${Object.keys(tp).length ? `<div class="card"><b>Schon erklärt</b><ul class="q-list ro">${Object.entries(tp).map(([h, t]) => `<li>${["😕", "🙂", "💪"][t.r] || ""} ${mdx(h)} <span class="small muted">· ${fmtAgo(t.d)}</span></li>`).join("")}</ul>${F.due ? `<p class="small muted" style="margin:10px 0 0">🔁 Nächste Wiederholung: ${fmtLong(F.due)}</p>` : ""}</div>` : ""}`;
+    renderMath(app());
+    const txt = $("#fyTxt");
+    const words = () => (txt.value.trim().match(/\S+/g) || []).length;
+    const setTopic = () => {
+      txt.placeholder = sel.i < 0 ? `Erklär die ganze Lektion „${L.title}“ im Überblick – worum geht es, und wie hängt alles zusammen?` : `Erklär „${sel.h}“ in deinen eigenen Worten …`;
+      txt.value = state.feynmanDraft[key + "|" + sel.h] || "";
+      $("#fyCount").textContent = "";
+      if (!$("#fyCheck").classList.contains("hidden")) showMaterial();
+    };
+    const setLvl = () => { $("#fyLvlTxt").textContent = "Erkläre es " + FY_LEVELS.find(x => x[0] === lvl)[2] + "."; };
+    const showMaterial = () => { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); };
+    setTopic(); setLvl();
+    $$("#fyTopics [data-t]").forEach(b => b.addEventListener("click", () => {
+      sel = topics.find(t => t.id === b.dataset.t);
+      $$("#fyTopics .chip").forEach(x => x.classList.toggle("active", x === b));
+      setTopic();
+    }));
+    $$("#fyLvls [data-l]").forEach(b => b.addEventListener("click", () => {
+      lvl = b.dataset.l;
+      $$("#fyLvls .chip").forEach(x => x.classList.toggle("active", x === b));
+      setLvl();
+    }));
+    txt.addEventListener("input", () => {
+      state.feynmanDraft[key + "|" + sel.h] = txt.value; saveSoon();
+      const n = words();
+      $("#fyCount").textContent = n ? `${n} Wörter` : "";
+    });
+    const enough = () => {
+      if (words() >= 12) return true;
+      toast("✍️ Erklär erst ein paar Sätze – mindestens 2–3, gern mehr.");
+      txt.focus(); return false;
+    };
+    $("#fySelf").addEventListener("click", () => {
+      if (!enough()) return;
+      showMaterial();
+      $("#fyCheck").classList.remove("hidden"); $("#fyRate").classList.remove("hidden");
+      $("#fyCheck").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $$(".fy-gap input").forEach(c => c.addEventListener("change", () => {
+      const open = $$(".fy-gap input").filter(x => !x.checked).length;
+      $("#fyGapTxt").innerHTML = open ? `<b>${open} ${open === 1 ? "Lücke" : "Lücken"}</b> gefunden – lies genau diese Stelle im Material nach und erkläre sie oben neu. Das ist kein Fehler, sondern genau der Sinn der Methode!` : "💪 Keine Lücke gefunden – jetzt noch vereinfachen und bewerten.";
+    }));
+    $("#fyClaude").addEventListener("click", () => {
+      if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key: „Selbst prüfen“."); return; }
+      if (!enough()) return;
+      const lv = FY_LEVELS.find(x => x[0] === lvl);
+      const material = [`Lernziele der Lektion: ${L.goals.map(plainTxt).join("; ")}`, ...topicMaterial(L, sel.i).map(secPlain)].join("\n\n");
+      startMethodChat(`🗣️ Feynman · ${sel.h}`, feynmanSystem(L, f, sel.h, lvl, material), `Unterthema: ${sel.h}\nNiveau: ${lv[1].replace(/^\S+\s/, "")}\n\nMeine Erklärung:\n${txt.value.trim()}`);
+      $("#fyRate").classList.remove("hidden");
+    });
+    $$("#fyRate [data-r]").forEach(b => b.addEventListener("click", e => {
+      if (!words()) { toast("✍️ Erst erklären, dann bewerten."); txt.focus(); return; }
+      const r = +b.dataset.r;
+      const X = state.feynman[key] || (state.feynman[key] = { topics: {}, n: 0, streak: 0 });
+      const first = !X.n;
+      X.n = (X.n || 0) + 1; X.d = dayKey(); X.lvl = lvl;
+      X.topics[sel.h] = { d: dayKey(), r, lvl, txt: txt.value.trim().slice(0, 3000), ana: $("#fyAna").value.trim().slice(0, 800) };
+      X.streak = r === 2 ? (X.streak || 0) + 1 : 0;
+      const gap = r === 0 ? 1 : r === 1 ? 3 : [7, 14, 30][Math.min(X.streak - 1, 2)];
+      X.due = addDays(dayKey(), gap);
+      delete state.feynmanDraft[key + "|" + sel.h];
+      save();
+      addPoints(first ? 15 : 5, e);
+      toast(first ? "🗣️ Erklärt! +15 ⭐" : "🗣️ Wieder erklärt! +5 ⭐");
+      if (r === 2) confetti(40);
+      unlock("first_feynman");
+      if (Object.values(state.feynman).reduce((t, x) => t + (x.n || 0), 0) >= 10) unlock("feynman_10");
+      endMethodChat();
+      $$("#fyRate [data-r]").forEach(x => { x.disabled = true; x.classList.toggle("active", x === b); });
+      const next = topics.find(t => !X.topics[t.h]);
+      const fidE = encodeURIComponent(fid), didE = encodeURIComponent(did);
+      $("#fyAfter").innerHTML = `
+        <p style="margin:0 0 12px">${r === 0 ? "Gut, dass du die Lücken gefunden hast – genau so lernt man." : r === 1 ? "Fast geschafft!" : "Stark!"} 🔁 Nächste Wiederholung: <b>${fmtLong(X.due)}</b> (in ${gap} ${gap === 1 ? "Tag" : "Tagen"}).</p>
+        ${pathStrip(3, math)}
+        <div class="row" style="margin-top:14px">
+          ${math ? `<a class="btn" href="#/lernen/deck:${fidE}:${didE}">✏️ Jetzt Aufgaben rechnen</a>` : `<a class="btn" href="#/mc/deck:${fidE}:${didE}">🧩 Jetzt Multiple Choice</a>`}
+          ${next ? `<button type="button" class="btn secondary" id="fyMore">🗣️ Nächstes Unterthema</button>` : ""}
+          ${math ? "" : `<a class="btn secondary" href="#/lernen/deck:${fidE}:${didE}">🧠 Karteikarten</a>`}
+        </div>`;
+      $("#fyAfter").classList.remove("hidden");
+      $("#fyMore")?.addEventListener("click", () => viewFeynman(fid, did));
+      $("#fyAfter").scrollIntoView({ behavior: "smooth", block: "center" });
+    }));
   }
 
   function viewQuiz(scope) {
@@ -1745,7 +2227,8 @@
     let s = `Du bist Claude, der persönliche Lern-Coach von ${state.profile.name}, der studiert. ` +
       `Du hilfst beim Verstehen von Studieninhalten, fragst ab, erklärst mit Beispielen und Eselsbrücken und motivierst. ` +
       `Antworte auf Deutsch, locker und freundlich, eher kurz (außer es wird eine ausführliche Erklärung gewünscht). ` +
-      `Wenn du abfragst, stell immer nur eine Frage auf einmal und warte auf die Antwort.\n\n` +
+      `Wenn du abfragst, stell immer nur eine Frage auf einmal und warte auf die Antwort. ` +
+      `Lernprinzip: ${state.profile.name} soll selbst denken – gib lieber einen Denkanstoß oder stell eine Rückfrage, bevor du die komplette Lösung verrätst, außer er bittet ausdrücklich um eine Erklärung. Feedback ehrlich und konkret, ohne Floskeln.\n\n` +
       `Heute ist ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}. ` +
       `Stand: Level ${li.level} (${li.title}), ${state.points} Punkte, Streak ${streak()} Tage.`;
     if (c) {
@@ -1768,7 +2251,7 @@
       chatBody.innerHTML = `<div class="msg system">Hi ${esc(state.profile.name)}! 👋 Ich bin immer für dich da – frag mich zu deinem Stoff, lass dich abfragen oder erzähl mir, wie's läuft.
 ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter ⚙️ Mehr."}</div>`;
     } else {
-      chatBody.innerHTML = state.chat.map(m => `<div class="msg ${m.role}">${esc(m.content)}</div>`).join("");
+      chatBody.innerHTML = state.chat.map(m => `<div class="msg ${m.role === "divider" ? "divider" : m.role}">${esc(m.content)}</div>`).join("");
     }
     if (chatBusy) chatBody.insertAdjacentHTML("beforeend", `<div class="msg assistant typing">Claude denkt nach</div>`);
     chatBody.scrollTop = chatBody.scrollHeight;
@@ -1788,8 +2271,13 @@ ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter �
     chatBusy = true; renderChat();
     try {
       let sys = systemPrompt();
-      if (window.chatContext) sys += `\n\nAktueller Kontext auf der Website:\n${window.chatContext}`;
-      const history = state.chat.slice(-30);
+      let pool = state.chat;
+      if (chatMode) {
+        sys += `\n\n${chatMode.system}`;
+        const i = state.chat.findIndex(m => m.id === chatMode.id);
+        if (i >= 0) pool = state.chat.slice(i + 1);
+      } else if (window.chatContext) sys += `\n\nAktueller Kontext auf der Website:\n${window.chatContext}`;
+      const history = pool.filter(m => m.role === "user" || m.role === "assistant").slice(-30);
       while (history.length && history[0].role !== "user") history.shift();
       const { text: reply } = await Claude.send({ apiKey: state.settings.apiKey, model: state.settings.model, system: sys, messages: history.map(m => ({ role: m.role, content: m.content })) });
       state.chat.push({ role: "assistant", content: reply || "(keine Antwort)" });
@@ -1812,7 +2300,7 @@ ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter �
 
   $("#chatFab").addEventListener("click", () => toggleChat(true));
   $("#chatClose").addEventListener("click", () => toggleChat(false));
-  $("#chatClear").addEventListener("click", () => { if (confirm("Chatverlauf leeren?")) { state.chat = []; save(); renderChat(); } });
+  $("#chatClear").addEventListener("click", () => { if (confirm("Chatverlauf leeren?")) { state.chat = []; endMethodChat(); save(); renderChat(); } });
   $("#chatForm").addEventListener("submit", e => { e.preventDefault(); const t = $("#chatText"); const v = t.value; t.value = ""; t.style.height = ""; sendChat(v); });
   $("#chatText").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#chatForm").requestSubmit(); } });
   $("#chatText").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px"; });

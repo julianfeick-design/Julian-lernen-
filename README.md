@@ -1,15 +1,21 @@
 # 🧠 Julian lernt
 
-Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in vier Schritten – **verstehen, wiedererkennen, erinnern, anwenden**. Claude ist als Chat immer dabei.
+Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in fünf Schritten – **primen, verstehen, erklären, abrufen, anwenden**. Claude ist als Chat immer dabei.
 
 ## Was die Website kann
 
 1. **Tages-Check-in** (kommt jeden Tag als Erstes):
    Schlafqualität (in %), Stunden Schlaf, Training, Wasser, Stimmung, Energie, Stress und dein Tagesziel.
    → Du bekommst einen **Tages-Score (0–100)**, Feedback und eine Empfehlung, wie du heute lernen solltest.
-2. **📖 Lernen (Lektionen)**: Jedes Thema als Lern-Seite mit Erklärungen, **Schaubildern**, Praxisbeispielen, „Merke“-Kästen und **Kurz-Checks**. Danach geht es direkt zum Üben weiter.
-3. **Lernweg pro Thema**: 📖 Verstehen (Lektion) → 🧩 Wiedererkennen (Multiple Choice) → 🧠 Erinnern (Karteikarten) → 📝 Anwenden (Klausuraufgaben).
-   Auf der Startseite zeigt **„Dein nächster Schritt“**, was als Nächstes dran ist – passend zur nächsten Prüfung.
+2. **📖 Lernen (Lektionen)**: Jedes Thema als Lern-Seite mit Erklärungen, **Schaubildern**, Praxisbeispielen, „Merke“-Kästen und **Kurz-Checks**.
+3. **Lernweg pro Thema – 5 Schritte**:
+   1. 🧲 **Primen** (5–10 Min, vor dem Lesen): Vorwissen sammeln, nur die Überschriften scannen, neue Begriffe antippen, offene Fragen notieren. In der Lektion sind die neuen Begriffe dann markiert und am Ende wird abgefragt, ob die Fragen beantwortet sind.
+   2. 📖 **Verstehen**: die Lektion lesen.
+   3. 🗣️ **Erklären (Feynman-Methode)**: Unterthema und Niveau wählen, in eigenen Worten erklären (gern per Diktierfunktion), dann **selbst prüfen** (Material zum Vergleich + Lücken-Check + Analogie) oder **Claude** prüfen lassen, der gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
+   4. 🧩 **Abrufen**: Multiple Choice und Karteikarten (bei Mathe: Aufgaben rechnen).
+   5. 📝 **Anwenden**: Klausuraufgaben.
+
+   Auf der Startseite zeigt **„Dein nächster Schritt“**, was dran ist: zuerst fällige Wiederholungen, dann Thema für Thema durch den Lernweg – passend zur nächsten Prüfung.
 4. **Karteikarten in Ordnern**: Ordner (Fach) → Stapel (Thema/Vorlesung) → Karten.
    Lernen nach dem **Leitner-System** (5 Fächer, Wiederholung nach 1/2/4/8/16 Tagen).
 5. **Multiple-Choice-Training** mit eigenem Fortschritt (sicher = 2× hintereinander richtig) und einer Erklärung nach jeder Antwort.
@@ -41,7 +47,12 @@ Die Lektionen liegen in `js/lessons/<fach>.js`. Jede Lektion gehört zu einem St
 - **Formeln:** `formula` (KaTeX)
 - **Üben:** `check` – Kurz-Check mit 4 Antworten (die erste ist die richtige, sie werden beim Anzeigen gemischt) und Erklärung
 
-Wer eine Lektion abschließt, bekommt +20 ⭐ und sieht direkt die nächsten Schritte (Multiple Choice, Karteikarten bzw. Aufgaben).
+Punkte: Priming +10 ⭐, Lektion +20 ⭐, erste Erklärung +15 ⭐ (Wiederholungen +5 ⭐).
+
+Zu jeder Lektion gibt es außerdem eine **Priming-Seite** (`#/primen/ordner/stapel`) und eine **Erklär-Seite** (`#/erklaeren/ordner/stapel`). Die Begriffe für den Überblick werden automatisch aus den Überschriften und Schaubildern der Lektion gebaut.
+Mit Claude laufen Priming und Feynman als eigener **Modus im Chat** (oben im Chat zu sehen, mit ✕ beendbar) – Claude stellt dann Fragen, statt den Stoff vorwegzunehmen.
+
+Die Methoden Priming und Feynman sind angelehnt an die öffentlichen „Lernskills“ von Studyacademy (github.com/study-academy/lernskills) und hier in eigenen Worten umgesetzt.
 
 ## Mathe-Aufgabenmodus
 
