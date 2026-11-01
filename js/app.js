@@ -21,7 +21,7 @@
   const DEFAULT_STATE = {
     version: 1,
     profile: { name: "Julian" },
-    settings: { apiKey: "", model: "claude-opus-5-5", sessionSize: 20, waterGoal: 2.5, sleepGoal: 8, theme: "auto", kcalGoal: 2500 },
+    settings: { apiKey: "", model: "claude-opus-5-5", sessionSize: 20, waterGoal: 2.5, sleepGoal: 8, theme: "auto", design: "mint", kcalGoal: 2500 },
     checkins: {},
     userFolders: [],
     progress: {},
@@ -57,11 +57,45 @@
   }
 
   // ---------- Theme ----------
-  function applyTheme() {
-    const t = state.settings.theme;
-    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
-    else document.documentElement.removeAttribute("data-theme");
+  // ---------- Designs (siehe css/designs.css) ----------
+  // pv = Vorschau: [Hintergrund, Karte, Akzent, Text, Karten-Extra, Knopf-Extra]
+  const DESIGNS = [
+    { id: "mint", name: "Mint", desc: "Frisches Mint mit Glas-Karten – dein bisheriges Design", ff: "Plus Jakarta Sans", pv: ["linear-gradient(135deg,#d9f7ee,#eef7f4)", "#ffffff", "linear-gradient(135deg,#14b8a6,#10b981)", "#0f2a26"], bar: ["#eaf7f3", "#0a1614"] },
+    { id: "aurora", name: "Aurora", mode: "dark", desc: "Dunkel mit leuchtenden Nordlicht-Verläufen und Milchglas", font: "Sora:wght@400;500;600;700;800", ff: "Sora", pv: ["radial-gradient(circle at 10% 10%,rgba(45,212,191,.65),transparent 55%),radial-gradient(circle at 95% 25%,rgba(99,102,241,.75),transparent 55%),radial-gradient(circle at 50% 120%,rgba(168,85,247,.6),transparent 60%),#070b16", "rgba(255,255,255,.12)", "linear-gradient(135deg,#14b8a6,#6366f1,#a855f7)", "#eef2ff", "border:1px solid rgba(255,255,255,.15)"], bar: ["#070b16", "#070b16"] },
+    { id: "clean", name: "Clean", desc: "Minimalistisch wie Apple & Notion: Weiß, Grau, ein schwarzer Akzent", font: "Inter:wght@400;500;600;700;800", ff: "Inter", pv: ["#f6f6f5", "#ffffff", "#111111", "#111111", "border:1px solid #e7e7e4"], bar: ["#f6f6f5", "#0b0b0b"] },
+    { id: "ozean", name: "Ozean", desc: "Frisches Blau bis Türkis – klar und luftig", font: "Manrope:wght@400;500;600;700;800", ff: "Manrope", pv: ["linear-gradient(135deg,#dbeafe,#eef5fc)", "#ffffff", "linear-gradient(135deg,#2563eb,#06b6d4)", "#0b2440"], bar: ["#eef5fc", "#06101f"] },
+    { id: "sunset", name: "Sunset", desc: "Warmes Pfirsich und Koralle – freundlich und motivierend", font: "Nunito:wght@400;600;700;800;900", ff: "Nunito", pv: ["linear-gradient(135deg,#ffe2d4,#fff4ee)", "#ffffff", "linear-gradient(135deg,#f43f5e,#fb923c)", "#3a1f16"], bar: ["#fff4ee", "#170b0a"] },
+    { id: "lavendel", name: "Lavendel", desc: "Sanftes Flieder und Violett – ruhig und edel", font: "Outfit:wght@400;500;600;700;800", ff: "Outfit", pv: ["linear-gradient(135deg,#ede9fe,#f6f3ff)", "#ffffff", "linear-gradient(135deg,#6d28d9,#a78bfa)", "#1e1638"], bar: ["#f6f3ff", "#0d0a1a"] },
+    { id: "glass", name: "Glass", desc: "Bunter Verlauf mit Milchglas-Karten – wie iOS-Widgets", font: "Inter:wght@400;500;600;700;800", ff: "Inter", pv: ["linear-gradient(140deg,#a5b4fc,#c4b5fd 35%,#f0abfc 70%,#fda4af)", "rgba(255,255,255,.55)", "linear-gradient(135deg,#4f46e5,#9333ea)", "#1c1533", "border:1px solid rgba(255,255,255,.7)"], bar: ["#c4b5fd", "#1e1b4b"] },
+    { id: "salbei", name: "Salbei", desc: "Creme und Salbeigrün mit Serifen – wie ein schönes Notizbuch", font: "Fraunces:wght@600;700|DM Sans:wght@400;500;600;700", ff: "Fraunces", pv: ["#f6f3ec", "#fffdf8", "#4f7a5a", "#2b2a24", "border:1px solid #e8e2d3"], bar: ["#f6f3ec", "#141512"] },
+    { id: "espresso", name: "Espresso", desc: "Warme Kaffee- und Sandtöne – gemütlich wie im Café", font: "DM Serif Display|DM Sans:wght@400;500;600;700", ff: "DM Serif Display", pv: ["#f3ece2", "#fbf7f1", "linear-gradient(135deg,#7c4a2d,#b07b4f)", "#2e2118", "border:1px solid #e7dccd"], bar: ["#f3ece2", "#15100c"] },
+    { id: "bubble", name: "Bubble", desc: "Verspielt: runde Formen und dicke 3D-Knöpfe wie in einem Spiel", font: "Fredoka:wght@500;600;700|Nunito:wght@400;600;700;800", ff: "Fredoka", pv: ["#f2fbff", "#ffffff", "#00c2a8", "#183244", "border:2px solid #e1edf3;box-shadow:0 3px 0 #d6e5ec", "box-shadow:0 3px 0 #00927f"], bar: ["#f2fbff", "#0f1a22"] },
+    { id: "brutal", name: "Brutal", mode: "light", desc: "Neo-Brutalismus: dicke Ränder, harte Schatten, Knallgelb", font: "Space Grotesk:wght@400;500;600;700", ff: "Space Grotesk", pv: ["#fdf5e2", "#ffffff", "#ffd23f", "#111111", "border:2px solid #111;box-shadow:3px 3px 0 #111", "border:2px solid #111"], bar: ["#fdf5e2", "#fdf5e2"] },
+    { id: "neon", name: "Neon", mode: "dark", desc: "Schwarz mit Neon-Limette und Mono-Schrift – Gaming-Look", font: "JetBrains Mono:wght@500;700|Space Grotesk:wght@400;500;600;700", ff: "JetBrains Mono", pv: ["linear-gradient(rgba(198,255,61,.09) 1px,transparent 1px) 0 0/12px 12px,linear-gradient(90deg,rgba(198,255,61,.09) 1px,transparent 1px) 0 0/12px 12px,#050605", "#0f120f", "#c6ff3d", "#f1f5ee", "border:1px solid rgba(198,255,61,.28)", "box-shadow:0 0 12px rgba(198,255,61,.7)"], bar: ["#050605", "#050605"] },
+    { id: "midnight", name: "Midnight", mode: "dark", desc: "Nachtblau mit Gold – edel und ruhig", font: "Playfair Display:wght@600;700|Outfit:wght@400;500;600;700", ff: "Playfair Display", pv: ["radial-gradient(circle at 90% 0%,rgba(242,193,78,.4),transparent 55%),#090d19", "#121829", "linear-gradient(135deg,#c99a2e,#f2c14e,#ffe29a)", "#f5f1e6", "border:1px solid rgba(242,193,78,.25)"], bar: ["#090d19", "#090d19"] }
+  ];
+  const loadedFonts = new Set();
+  function loadFont(spec) {
+    if (!spec || loadedFonts.has(spec)) return;
+    loadedFonts.add(spec);
+    const l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?" + spec.split("|").map(f => "family=" + f.trim().replace(/ /g, "+")).join("&") + "&display=swap";
+    document.head.appendChild(l);
   }
+  const designOf = () => DESIGNS.find(d => d.id === state.settings.design) || DESIGNS[0];
+  function applyTheme() {
+    const t = state.settings.theme, d = designOf(), root = document.documentElement;
+    const sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const mode = d.mode || (t === "light" || t === "dark" ? t : (sysDark ? "dark" : "light"));
+    root.setAttribute("data-design", d.id);
+    root.setAttribute("data-mode", mode);
+    if (d.mode || t === "light" || t === "dark") root.setAttribute("data-theme", mode);
+    else root.removeAttribute("data-theme");
+    loadFont(d.font);
+    $$('meta[name="theme-color"]').forEach(m => m.setAttribute("content", d.bar[mode === "dark" ? 1 : 0]));
+  }
+  try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch { /* ältere Browser */ }
 
   // ---------- Punkte, Level, Streak, Erfolge ----------
   const LEVEL_TITLES = ["Ersti", "Lernanfänger", "Fleißbiene", "Wissenssammler", "Bücherwurm", "Prüfungsprofi", "Streber-Legende", "Professor", "Genie", "Nobelpreis-Anwärter"];
@@ -2141,6 +2175,20 @@
     app().innerHTML = `
       <h1>⚙️ Einstellungen</h1>
       <div class="card">
+        <h2>🎨 Design</h2>
+        <p class="small muted" style="margin:0">Such dir deinen Look aus – er wird sofort übernommen. Eine App, die dir gefällt, öffnest du einfach lieber.</p>
+        <div class="design-grid" id="designGrid">${DESIGNS.map(d => `<button type="button" class="design-tile ${d.id === designOf().id ? "active" : ""}" data-dsg="${d.id}" aria-pressed="${d.id === designOf().id}">
+            <span class="dt-prev" style="background:${d.pv[0]}"><span class="dt-card" style="background:${d.pv[1]};${d.pv[4] || ""}"><i style="background:${d.pv[3]}"></i><i style="background:${d.pv[3]};opacity:.35;width:58%"></i><b style="background:${d.pv[2]};${d.pv[5] || ""}"></b></span></span>
+            <span class="dt-name" style="font-family:'${d.ff}',var(--font)">${esc(d.name)}${d.mode === "dark" ? " <small>immer dunkel</small>" : d.mode === "light" ? " <small>immer hell</small>" : ""}</span>
+            <span class="dt-desc">${esc(d.desc)}</span>
+          </button>`).join("")}</div>
+        <label class="field" style="margin:18px 0 0"><span>Hell oder dunkel</span><select id="sTheme">
+          <option value="auto" ${s.theme === "auto" ? "selected" : ""}>Automatisch (wie dein iPhone/iPad)</option>
+          <option value="light" ${s.theme === "light" ? "selected" : ""}>Immer hell</option>
+          <option value="dark" ${s.theme === "dark" ? "selected" : ""}>Immer dunkel</option></select></label>
+        <p class="small muted" id="themeNote" style="margin:8px 0 0"></p>
+      </div>
+      <div class="card">
         <label class="field"><span>Dein Name</span><input type="text" id="sName" value="${esc(state.profile.name)}"></label>
         <div class="grid grid-2">
           <label class="field"><span>Karten pro Session</span><input type="number" id="sSize" min="5" max="100" value="${s.sessionSize}"></label>
@@ -2148,10 +2196,6 @@
           <label class="field"><span>Schlafziel (h)</span><input type="number" id="sSleep" min="4" max="12" step="0.5" value="${s.sleepGoal}"></label>
           <label class="field"><span>Kalorienziel (kcal)</span><input type="number" id="sKcal" min="1000" max="6000" step="50" value="${s.kcalGoal || 2500}"></label>
         </div>
-        <label class="field"><span>Design</span><select id="sTheme">
-          <option value="auto" ${s.theme === "auto" ? "selected" : ""}>Automatisch</option>
-          <option value="light" ${s.theme === "light" ? "selected" : ""}>Hell</option>
-          <option value="dark" ${s.theme === "dark" ? "selected" : ""}>Dunkel</option></select></label>
       </div>
       <div class="card">
         <h2>🤖 Claude-Verbindung</h2>
@@ -2185,6 +2229,16 @@
       s.model = $("#sModel").value;
     };
     $("#sSave").addEventListener("click", () => { collect(); save(); applyTheme(); renderTopStats(); toast("✅ Gespeichert"); });
+    DESIGNS.forEach(d => loadFont(d.font));
+    const themeNote = () => { const d = designOf(); $("#themeNote").textContent = d.mode ? `„${d.name}“ ist immer ${d.mode === "dark" ? "dunkel" : "hell"} – diese Einstellung gilt für die anderen Designs.` : ""; };
+    themeNote();
+    $$("#designGrid [data-dsg]").forEach(b => b.addEventListener("click", () => {
+      s.design = b.dataset.dsg; save(); applyTheme();
+      $$("#designGrid [data-dsg]").forEach(x => { x.classList.toggle("active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+      themeNote();
+      toast(`🎨 Design „${designOf().name}“ aktiv`);
+    }));
+    $("#sTheme").addEventListener("change", () => { s.theme = $("#sTheme").value; save(); applyTheme(); });
     $("#testKey").addEventListener("click", async (e) => {
       collect(); save();
       const b = e.currentTarget; b.disabled = true; b.textContent = "Teste…";

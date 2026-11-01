@@ -18,6 +18,18 @@
   <meta name="apple-mobile-web-app-title" content="Lernen">
   <link rel="stylesheet" href="vendor/katex/katex.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/designs.css">
+  <script>
+    // Gewähltes Design schon vor dem ersten Bild setzen (kein Aufblitzen des Standard-Designs)
+    try {
+      var s = (JSON.parse(localStorage.getItem("julian-lernen-v1") || "{}").settings) || {};
+      var d = s.design || "mint", f = { aurora: "dark", neon: "dark", midnight: "dark", brutal: "light" }[d];
+      var m = f || (s.theme === "light" || s.theme === "dark" ? s.theme : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+      var r = document.documentElement;
+      r.setAttribute("data-design", d); r.setAttribute("data-mode", m);
+      if (f || s.theme === "light" || s.theme === "dark") r.setAttribute("data-theme", m);
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <header class="topbar" id="topbar">

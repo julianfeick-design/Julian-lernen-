@@ -23,7 +23,8 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 7. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
 8. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
 9. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
-10. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
+10. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
+11. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
 
 ## Aktuelle Inhalte
 
@@ -83,6 +84,6 @@ Lokal reicht es, `index.html` im Browser zu öffnen.
 
 - Check-ins, Punkte, Fortschritt und gelesene Lektionen werden **im Browser** gespeichert (localStorage). Unter ⚙️ Mehr → **Backup** kannst du alles sichern oder auf ein anderes Gerät übertragen.
 - Dateien:
-  - `index.html`, `css/style.css`
+  - `index.html`, `css/style.css`, `css/designs.css` (Designs)
   - `js/app.js` (Logik), `js/claude.js` (Claude-Anbindung), `js/icons.js` (einfarbige Icons), `js/food.js` (Lebensmittel)
   - `js/decks/` (Karteikarten & Aufgaben), `js/mc/` (Multiple Choice + Erklärungen), `js/lessons/` (Lektionen)
