@@ -30,6 +30,7 @@
     achievements: {},
     chat: [],
     mc: {},
+    lessons: {},
     food: {}
   };
   let state = load();
@@ -100,6 +101,8 @@
     { id: "sleep_goal", e: "😴", n: "Ausgeschlafen", d: "Schlafziel erreicht" },
     { id: "athlete", e: "🏋️", n: "Sportskanone", d: "Mind. 45 Min trainiert" },
     { id: "creator", e: "✍️", n: "Kartenbauer", d: "Eigenen Stapel erstellt" },
+    { id: "first_lesson", e: "📖", n: "Verstanden", d: "Erste Lektion abgeschlossen" },
+    { id: "lessons_10", e: "🎓", n: "Wissensdurst", d: "10 Lektionen abgeschlossen" },
     { id: "level_5", e: "⭐", n: "Level 5", d: "Level 5 erreicht" }
   ];
   function unlock(id) {
@@ -291,7 +294,8 @@
     try {
       window.renderMathInElement(el, {
         delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }],
-        throwOnError: false
+        throwOnError: false,
+        strict: "ignore"
       });
     } catch { /* KaTeX nicht verfügbar – Rohtext bleibt sichtbar */ }
   }
@@ -314,6 +318,8 @@
       case "lernen": setTab("ordner"); return viewLearn(rest.join("/"));
       case "quiz": setTab("ordner"); return viewQuiz(rest.join("/"));
       case "mc": setTab(""); return viewMC(rest.join("/"));
+      case "lektionen": setTab("lektionen"); return viewLessons();
+      case "lektion": setTab("lektionen"); return viewLesson(rest[0], rest[1]);
       case "neu": setTab("neu"); return viewNew(rest[0]);
       case "verlauf": setTab("verlauf"); return viewHistory();
       case "einstellungen": setTab("einstellungen"); return viewSettings();
@@ -496,6 +502,7 @@
         <div class="bar" style="background:rgba(255,255,255,.2);margin-top:14px"><div style="width:${li.pct}%;background:#fff"></div></div>
       </div>
 
+      ${nextStepCard(folders)}
       ${examSection(folders)}
       ${dailySection(folders)}
       ${mcSection(folders)}
@@ -792,15 +799,19 @@
           <p class="muted small" style="margin:4px 0 0">${f.decks.length} Stapel · ${fst.total} Karten · ${fst.mastered} sicher · ${fst.due} fällig</p>
           ${f.examDate && daysUntil(f.examDate) >= 0 ? `<p class="small" style="margin:6px 0 0"><span class="badge due">📅 Prüfung ${new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" })} · noch ${daysUntil(f.examDate)} Tage</span></p>` : ""}</div>
           <div class="row">
+            ${f.decks.some(d => lessonsAll()[lessonKey(fid, d.id)]) ? `<a class="btn small" href="#/lektionen">📖 Lektionen</a>` : ""}
             ${f.type === "math" ? "" : `<a class="btn small" href="#/mc/folder:${encodeURIComponent(fid)}">🧩 Multiple Choice</a>`}
             <a class="btn ${f.type === "math" ? "" : "secondary "}small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Karteikarten"}</a>
             ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>`}
           </div>
         </div>
+        ${f.decks.some(d => lessonsAll()[lessonKey(fid, d.id)]) ? `<div style="margin-top:14px">${pathStrip(-1, f.type === "math")}</div>` : ""}
       </div>
       <div class="card">
         ${f.decks.length ? f.decks.map(d => {
           const st = stats(cardsInScope(`deck:${fid}:${d.id}`));
+          const lk = lessonKey(fid, d.id), hasL = !!lessonsAll()[lk], doneL = lessonDone(lk);
+          const onlyTasks = d.cards.length && d.cards.every(c => Array.isArray(c.steps));
           return `<div class="deck">
             <div class="info">
               <h3 style="margin:0">${esc(d.name)}</h3>
@@ -809,15 +820,16 @@
                 <span class="badge">${st.total} ${f.type === "math" ? "Aufgaben" : "Karten"}</span>
                 ${st.fresh ? `<span class="badge new">${st.fresh} neu</span>` : ""}
                 ${st.due ? `<span class="badge due">${st.due} fällig</span>` : ""}
-                ${f.type === "math" ? "" : `<span class="badge new">🧩 ${mcStats(cardsInScope(`deck:${fid}:${d.id}`)).pct}% MC-sicher</span>`}
+                ${hasL ? `<span class="badge ${doneL ? "new" : ""}">${doneL ? "📖 verstanden" : "📖 Lektion offen"}</span>` : ""}
+                ${f.type === "math" || onlyTasks ? "" : `<span class="badge new">🧩 ${mcStats(cardsInScope(`deck:${fid}:${d.id}`)).pct}% MC-sicher</span>`}
                 <span class="badge">${st.pct}% Karteikarten</span>
               </div>
               <div class="bar"><div style="width:${st.pct}%"></div></div>
             </div>
             <div class="actions">
-              ${f.type === "math" ? "" : `<a class="btn small" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">🧩 MC</a>`}
-              <a class="btn ${f.type === "math" ? "" : "secondary "}small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : "Karten"}</a>
-              ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">Quiz</a>`}
+              ${hasL ? `<a class="btn ${doneL ? "secondary " : ""}small" href="#/lektion/${encodeURIComponent(fid)}/${encodeURIComponent(d.id)}">${doneL ? "✓ Lektion" : "📖 Lektion"}</a>` : ""}
+              ${f.type === "math" || onlyTasks ? "" : `<a class="btn ${hasL && !doneL ? "secondary " : ""}small" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">🧩 MC</a>`}
+              <a class="btn ${f.type === "math" || onlyTasks ? "" : "secondary "}small" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(d.id)}">${f.type === "math" ? "Rechnen" : onlyTasks ? "📝 Aufgaben lösen" : "Karten"}</a>
               ${!d.builtin ? `<button class="btn-ghost small" data-del-deck="${esc(d.id)}" title="Stapel löschen">🗑️</button>` : ""}
             </div>
           </div>`;
@@ -1124,6 +1136,7 @@
           <a href="${back}" class="small">← Beenden</a>
           <span class="small muted">🧩 ${esc(scopeName(scope))}</span>
         </div>
+        ${session.i === 0 ? lessonHint(scope) : ""}
         <div class="progress" style="margin-top:10px"><div style="width:${session.i / queue.length * 100}%"></div></div>
         <div class="row between small muted"><span>Frage ${session.i + 1} / ${queue.length}</span><span>✅ ${session.right} · ⭐ ${session.points}</span></div>
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
@@ -1192,6 +1205,188 @@
       if (session.wrong.length === 0) confetti();
     }
     render();
+  }
+
+
+  // =========================================================
+  //  Lektionen – erst verstehen, dann üben
+  // =========================================================
+  const lessonsAll = () => window.LESSONS || {};
+  const lessonKey = (fid, did) => fid + "/" + did;
+  const lessonDone = (key) => !!(state.lessons || {})[key];
+  const mdx = (x) => esc(x || "").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
+  const ico = (x) => x && x.startsWith("i:") ? `<span class="ic">${window.icon ? window.icon(x.slice(2)) : ""}</span>` : esc(x || "");
+  let svgSeq = 0;
+  const SVG_DEFS = `<defs><marker id="ah" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ah"/></marker><marker id="ahp" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ahp"/></marker></defs>`;
+  function uniqSvg(svg) {
+    const n = ++svgSeq;
+    return svg.replace("{{defs}}", SVG_DEFS).replace(/id="([\w-]+)"/g, `id="$1-${n}"`).replace(/url\(#([\w-]+)\)/g, `url(#$1-${n})`);
+  }
+  const STEPS4 = [["📖", "Verstehen", "Lektion"], ["🧩", "Wiedererkennen", "Multiple Choice"], ["🧠", "Erinnern", "Karteikarten"], ["📝", "Anwenden", "Klausuraufgaben"]];
+  const STEPS_MATH = [["📖", "Verstehen", "Lektion mit Formeln"], ["✏️", "Rechnen", "Aufgaben + Lösungsweg"], ["📝", "Anwenden", "Klausur-Mix"]];
+  function pathStrip(active, math) {
+    return `<div class="path">${(math ? STEPS_MATH : STEPS4).map(([i, t, s], k) => `${k ? `<span class="path-arrow" aria-hidden="true"></span>` : ""}<span class="path-step ${k === active ? "on" : ""} ${k < active ? "done" : ""}"><b>${k + 1}</b><span>${i} ${t}</span><small>${s}</small></span>`).join("")}</div>`;
+  }
+  function lessonHint(scope) {
+    const [type, fid, did] = scope.split(":");
+    if (type !== "deck") return "";
+    const k = lessonKey(fid, did), L = lessonsAll()[k];
+    if (!L || lessonDone(k)) return "";
+    return `<a class="lesson-hint" href="#/lektion/${encodeURIComponent(fid)}/${encodeURIComponent(did)}">📖 <span><b>Tipp:</b> Lies zuerst die Lektion „${esc(L.title)}“ (${L.min} Min) – dann verstehst du die Zusammenhänge hinter den Fragen.</span></a>`;
+  }
+
+  function lessonSection(sec) {
+    const H = sec.h ? `<h2>${mdx(sec.h)}</h2>` : "";
+    const cap = sec.cap ? `<p class="ls-cap">${mdx(sec.cap)}</p>` : "";
+    switch (sec.t) {
+      case "intro": return `<div class="ls-intro">${mdx(sec.x)}</div>`;
+      case "text": return `<section class="card ls">${H}<p>${mdx(sec.x)}</p></section>`;
+      case "ex": return `<section class="ls-box ls-ex"><span class="tag">💡 ${esc(sec.h || "Praxisbeispiel")}</span><p>${mdx(sec.x)}</p></section>`;
+      case "merke": return `<section class="ls-box ls-merke"><span class="tag">📌 ${esc(sec.h || "Merke")}</span><p>${mdx(sec.x)}</p></section>`;
+      case "cards": return `<section class="card ls">${H}<div class="lcards">${sec.items.map(([i, t, x]) => `<div class="lcard"><div class="lc-i">${ico(i)}</div><b>${mdx(t)}</b><span>${mdx(x)}</span></div>`).join("")}</div>${cap}</section>`;
+      case "flow": return `<section class="card ls">${H}<div class="flow">${sec.steps.map(([t, x, tag], i) => `${i ? `<div class="flow-arrow" aria-hidden="true"></div>` : ""}<div class="flow-step"><span class="flow-n">${i + 1}</span><b>${mdx(t)}</b>${x ? `<span>${mdx(x)}</span>` : ""}${tag ? `<em>${mdx(tag)}</em>` : ""}</div>`).join("")}</div>${cap}</section>`;
+      case "table": return `<section class="card ls">${H}<div class="table-scroll"><table class="ltable"><thead><tr>${sec.head.map(h => `<th>${mdx(h)}</th>`).join("")}</tr></thead><tbody>${sec.rows.map(r => `<tr>${r.map((c, j) => j ? `<td>${mdx(c)}</td>` : `<th scope="row">${mdx(c)}</th>`).join("")}</tr>`).join("")}</tbody></table></div>${cap}</section>`;
+      case "matrix": return `<section class="card ls">${H}${sec.legend ? `<p class="ls-legend">${mdx(sec.legend)}</p>` : ""}<div class="mx" style="grid-template-columns:minmax(58px,.72fr) repeat(${sec.cols.length},minmax(0,1fr))"><div class="mx-corner">${mdx(sec.corner || "")}</div>${sec.cols.map(c => `<div class="mx-h">${mdx(c)}</div>`).join("")}${sec.rows.map(([lab, ...cells]) => `<div class="mx-r">${mdx(lab)}</div>${cells.map(([t, x, hl]) => `<div class="mx-c ${hl ? "hl" : ""}"><b>${mdx(t)}</b>${x ? `<span>${mdx(x)}</span>` : ""}</div>`).join("")}`).join("")}</div>${cap}</section>`;
+      case "bal": return `<section class="card ls">${H}<div class="bal"><div class="bal-side"><b>${mdx(sec.l[0])}</b><ul>${sec.l[1].map(i => `<li>${mdx(i)}</li>`).join("")}</ul></div><div class="bal-mid">${esc(sec.mid || "vs.")}</div><div class="bal-side"><b>${mdx(sec.r[0])}</b><ul>${sec.r[1].map(i => `<li>${mdx(i)}</li>`).join("")}</ul></div></div>${cap}</section>`;
+      case "pyr": return `<section class="card ls">${H}<div class="pyr">${sec.levels.map(([t, x], i, a) => `<div class="pyr-l" style="width:${Math.round(58 + 42 * i / Math.max(1, a.length - 1))}%;background:color-mix(in srgb, var(--primary) ${Math.round(30 - 22 * i / Math.max(1, a.length - 1))}%, var(--surface-solid))"><b>${mdx(t)}</b>${x ? `<span>${mdx(x)}</span>` : ""}</div>`).join("")}</div>${cap}</section>`;
+      case "tree": return `<section class="card ls">${H}<div class="tree"><div class="tree-root">${mdx(sec.root)}</div><div class="tree-kids" style="--n:${sec.kids.length}">${sec.kids.map(([t, leaves]) => `<div class="tree-kid"><div class="tree-node">${mdx(t)}</div>${leaves && leaves.length ? `<ul>${leaves.map(l => `<li>${mdx(l)}</li>`).join("")}</ul>` : ""}</div>`).join("")}</div></div>${cap}</section>`;
+      case "stairs": return `<section class="card ls">${H}<div class="stairs" style="--n:${sec.steps.length}">${sec.steps.map(([t, sub, x], i, a) => `<div class="stair" style="--i:${i};background:color-mix(in srgb, var(--primary) ${Math.round(8 + 22 * i / Math.max(1, a.length - 1))}%, var(--surface-solid))"><b>${mdx(t)}</b><em>${mdx(sub)}</em><span>${mdx(x)}</span></div>`).join("")}</div>${cap}</section>`;
+      case "svg": return `<section class="card ls">${H}<div class="dg">${uniqSvg(sec.svg)}</div>${cap}</section>`;
+      case "formula": return `<section class="card ls">${H}<div class="ls-formula">$$${esc(sec.tex)}$$</div>${sec.items ? `<ul class="ls-list">${sec.items.map(i => `<li>${mdx(i)}</li>`).join("")}</ul>` : ""}${cap}</section>`;
+      case "check": {
+        const opts = shuffle(sec.o.map((o, i) => ({ o, ok: i === 0 })));
+        return `<section class="card ls ls-check"><span class="tag">✅ Kurz-Check</span><h3>${mdx(sec.q)}</h3><div class="options">${opts.map((x, k) => `<button class="option" data-ok="${x.ok ? 1 : 0}">${String.fromCharCode(65 + k)}) ${mdx(x.o)}</button>`).join("")}</div><div class="ls-why hidden">${mdx(sec.why || "")}</div></section>`;
+      }
+      default: return "";
+    }
+  }
+
+  function viewLesson(fid, did) {
+    const f = getFolders().find(x => x.id === fid);
+    const d = f && f.decks.find(x => x.id === did);
+    const key = lessonKey(fid, did), L = lessonsAll()[key];
+    if (!f || !d || !L) { app().innerHTML = `<div class="card empty"><div class="e">📖</div><p>Diese Lektion gibt es (noch) nicht.</p><a class="btn" href="#/lektionen">Alle Lektionen</a></div>`; return; }
+    const all = Object.keys(lessonsAll()).filter(k => k.startsWith(fid + "/"));
+    const pos = all.indexOf(key);
+    const nextKey = all[pos + 1];
+    const checks = L.s.filter(x => x.t === "check").length;
+    const diagrams = L.s.filter(x => ["svg", "flow", "matrix", "pyr", "tree", "stairs", "bal"].includes(x.t)).length;
+    window.chatContext = `Ich lese gerade die Lektion „${L.title}“ im Fach ${f.name}. Lernziele: ${L.goals.join("; ")}. Erklär mir bitte verständlich und mit Beispielen, wenn ich frage.`;
+    app().innerHTML = `
+      <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · Lektion ${pos + 1} von ${all.length}</span></div>
+      <div class="card ls-hero">
+        <span class="tag">📖 Lektion · ${esc(d.name)}</span>
+        <h1>${esc(L.title)}</h1>
+        <p class="ls-meta">⏱ ${L.min} Min · 🗺 ${diagrams} Schaubilder · ✅ ${checks} Kurz-Checks${lessonDone(key) ? " · ✓ schon verstanden" : ""}</p>
+        <div class="ls-goals"><b>Nach dieser Lektion kannst du …</b><ul>${L.goals.map(g => `<li>${mdx(g)}</li>`).join("")}</ul></div>
+      </div>
+      ${L.s.map(lessonSection).join("")}
+      <div class="card ls-done" id="lsDoneBox">
+        <h2>Alles klar?</h2>
+        <p class="muted" id="lsScore">Beantworte die Kurz-Checks oben – dann schließ die Lektion ab und geh zum Üben.</p>
+        <div class="row">
+          <button class="btn" id="lsDone">✓ Lektion abschließen</button>
+          <button class="btn-ghost small" id="lsAsk">💬 Claude: Erklär mir das nochmal anders</button>
+        </div>
+        <div id="lsNext" class="hidden" style="margin-top:14px">
+          ${pathStrip(1, f.type === "math")}
+          <div class="row" style="margin-top:14px">
+            ${f.type === "math" ? "" : `<a class="btn" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">🧩 Jetzt Multiple Choice üben</a>`}
+            <a class="btn ${f.type === "math" ? "" : "secondary"}" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">${f.type === "math" ? "✏️ Jetzt Aufgaben rechnen" : "🧠 Karteikarten"}</a>
+            ${nextKey ? `<a class="btn secondary" href="#/lektion/${nextKey.split("/").map(encodeURIComponent).join("/")}">Nächste Lektion →</a>` : ""}
+          </div>
+        </div>
+      </div>`;
+    renderMath(app());
+    let right = 0, answered = 0;
+    $$(".ls-check").forEach(box => {
+      $$(".option", box).forEach(b => b.addEventListener("click", () => {
+        if (box.dataset.done) return;
+        box.dataset.done = "1"; answered++;
+        const ok = b.dataset.ok === "1";
+        if (ok) right++;
+        $$(".option", box).forEach(x => { x.disabled = true; if (x.dataset.ok === "1") x.classList.add("correct"); });
+        if (!ok) b.classList.add("wrong");
+        const why = $(".ls-why", box);
+        why.innerHTML = `${ok ? "✅ <b>Richtig!</b> " : "❌ <b>Nicht ganz.</b> "}${why.innerHTML}`;
+        why.classList.remove("hidden");
+        renderMath(box);
+        $("#lsScore").textContent = `Kurz-Check: ${right} von ${answered} richtig${answered < checks ? ` (noch ${checks - answered} offen)` : ""}.`;
+      }));
+    });
+    $("#lsDone").addEventListener("click", e => {
+      const first = !lessonDone(key);
+      if (!state.lessons) state.lessons = {};
+      state.lessons[key] = { d: dayKey(), r: right, n: checks };
+      save();
+      if (first) { addPoints(20, e); toast("📖 Lektion verstanden! +20 ⭐"); confetti(50); }
+      unlock("first_lesson");
+      if (Object.keys(state.lessons).length >= 10) unlock("lessons_10");
+      e.currentTarget.textContent = "✓ Verstanden";
+      e.currentTarget.disabled = true;
+      $("#lsNext").classList.remove("hidden");
+      $("#lsNext").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    $("#lsAsk").addEventListener("click", () => openChat(`Erklär mir bitte das Thema „${L.title}“ (${f.name}) nochmal ganz einfach – mit einem Alltagsbeispiel und einer Eselsbrücke. Die Lernziele sind: ${L.goals.join("; ")}.`));
+  }
+
+  function viewLessons() {
+    const L = lessonsAll();
+    const folders = getFolders().filter(f => f.decks.some(d => L[lessonKey(f.id, d.id)]))
+      .sort((a, b) => (a.examDate || "9999").localeCompare(b.examDate || "9999"));
+    const total = Object.keys(L).length, done = Object.keys(L).filter(lessonDone).length;
+    app().innerHTML = `
+      <h1>📖 Lernen & Verstehen</h1>
+      <p class="muted">Jedes Thema in vier Schritten – erst verstehen, dann üben. ${done} von ${total} Lektionen verstanden.</p>
+      <div class="card">${pathStrip(0)}<p class="small muted" style="margin:12px 0 0">Tipp: Lies pro Lerntag 1–2 Lektionen und übe direkt danach das gleiche Thema mit Multiple Choice. So bleibt es hängen.</p></div>
+      ${folders.map(f => {
+        const ls = f.decks.filter(d => L[lessonKey(f.id, d.id)]);
+        const dn = ls.filter(d => lessonDone(lessonKey(f.id, d.id))).length;
+        const exam = f.examDate && daysUntil(f.examDate) >= 0 ? ` · Prüfung ${new Date(f.examDate + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" })} (noch ${daysUntil(f.examDate)} Tage)` : "";
+        return `<div class="card">
+          <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h2><span class="badge ${dn === ls.length ? "new" : ""}">${dn}/${ls.length} verstanden</span></div>
+          <p class="small muted" style="margin:4px 0 0">${ls.reduce((t, d) => t + L[lessonKey(f.id, d.id)].min, 0)} Min Lesezeit${exam}</p>
+          <div class="bar"><div style="width:${dn / ls.length * 100}%"></div></div>
+          <div class="lesson-list">${ls.map((d, i) => {
+            const k = lessonKey(f.id, d.id), isDone = lessonDone(k), LL = L[k];
+            return `<a class="lesson-item ${isDone ? "done" : ""}" href="#/lektion/${encodeURIComponent(f.id)}/${encodeURIComponent(d.id)}">
+              <span class="li-n">${isDone ? "✓" : i + 1}</span>
+              <span class="li-t"><b>${esc(LL.title)}</b><span class="small muted">${LL.min} Min · ${esc(d.name)}</span></span>
+              <span class="li-go">${isDone ? "Wiederholen" : "Starten"} →</span></a>`;
+          }).join("")}</div>
+        </div>`;
+      }).join("")}`;
+  }
+
+  function nextStepCard(folders) {
+    const L = lessonsAll();
+    const exams = folders.filter(f => f.examDate && daysUntil(f.examDate) >= 0).sort((a, b) => a.examDate.localeCompare(b.examDate));
+    let rec = null;
+    for (const f of exams) {
+      const d = f.decks.find(x => L[lessonKey(f.id, x.id)] && !lessonDone(lessonKey(f.id, x.id)));
+      if (d) { rec = { step: 0, f, d, L: L[lessonKey(f.id, d.id)] }; break; }
+    }
+    if (!rec) {
+      for (const f of exams) {
+        if (f.type === "math") continue;
+        const d = f.decks.find(x => x.id !== "klausur" && mcStats(cardsInScope(`deck:${f.id}:${x.id}`)).total && mcStats(cardsInScope(`deck:${f.id}:${x.id}`)).pct < 80);
+        if (d) { rec = { step: 1, f, d }; break; }
+      }
+    }
+    if (!rec && exams.length) rec = { step: 3, f: exams[0], d: exams[0].decks.find(x => x.id === "klausur") };
+    if (!rec || !rec.d) return "";
+    const { f, d } = rec;
+    const href = rec.step === 0 ? `#/lektion/${encodeURIComponent(f.id)}/${encodeURIComponent(d.id)}` : rec.step === 1 ? `#/mc/deck:${encodeURIComponent(f.id)}:${encodeURIComponent(d.id)}` : `#/lernen/deck:${encodeURIComponent(f.id)}:${encodeURIComponent(d.id)}`;
+    const title = rec.step === 0 ? rec.L.title : rec.step === 1 ? `Multiple Choice: ${d.name}` : `Klausuraufgaben ${f.short || f.name}`;
+    const sub = rec.step === 0 ? `Lektion · ${rec.L.min} Min · ${f.short || f.name} ist deine nächste Prüfung` : rec.step === 1 ? `Alle Lektionen von ${f.short || f.name} gelesen – jetzt festigen, bis 80 % MC-sicher sind` : `Alles verstanden und geübt – jetzt wie in der Klausur anwenden`;
+    const btn = rec.step === 0 ? "📖 Lektion starten" : rec.step === 1 ? "🧩 Üben" : "📝 Aufgaben lösen";
+    return `<div class="card next-step">
+      <div class="row between" style="align-items:flex-start">
+        <div style="flex:1;min-width:220px"><span class="tag">🎯 Dein nächster Schritt</span><h2 style="margin:8px 0 2px">${esc(title)}</h2><p class="muted small" style="margin:0">${esc(sub)}</p></div>
+        <div class="row"><a class="btn" href="${href}">${btn}</a><a class="btn secondary small" href="#/lektionen">Alle Lektionen</a></div>
+      </div>
+      <div style="margin-top:14px">${f.type === "math" ? pathStrip(rec.step === 3 ? 2 : rec.step, true) : pathStrip(rec.step)}</div>
+    </div>`;
   }
 
   function viewQuiz(scope) {
