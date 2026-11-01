@@ -715,3 +715,8 @@ input[type="text"], input[type="number"], input[type="password"], select, textar
   .chat { bottom: 28px; }
 }
 .hero h1 .ic, .hero .muted .ic { color: #fff; }
+
+/* MC-Erklärung nach der Antwort */
+.mc-explain { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--primary-soft); border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent); }
+.mc-explain p { margin: 8px 0 0; white-space: pre-wrap; line-height: 1.55; }
+.mc-explain .mc-example { padding: 10px 12px; border-radius: 12px; background: var(--surface-solid); font-size: .94rem; }

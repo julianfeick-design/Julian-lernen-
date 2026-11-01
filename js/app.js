@@ -1151,15 +1151,20 @@
         const tl = todayLog(); tl.quizTotal++; if (ok) tl.quizCorrect++;
         save();
         $("#after").innerHTML = `
-          <div class="explain">${ok ? (rec.s === MC_SAFE ? "✅ <b>Richtig!</b> Diese Karte ist jetzt MC-sicher 🎉" : "✅ <b>Richtig!</b>") : "❌ <b>Leider falsch.</b> Die Frage kommt am Ende dieser Runde nochmal."}
-          ${c.hint ? `<br><span class="small">💡 ${esc(c.hint)}</span>` : ""}</div>
+          <div class="explain">${ok ? (rec.s === MC_SAFE ? "✅ <b>Richtig!</b> Diese Karte ist jetzt MC-sicher 🎉" : "✅ <b>Richtig!</b>") : "❌ <b>Leider falsch.</b> Die Frage kommt am Ende dieser Runde nochmal."}</div>
+          <div class="mc-explain">
+            <span class="tag">📖 So hängt's zusammen</span>
+            <p>${esc(c.a)}</p>
+            ${(window.MC_EXPLAIN || {})[c.key] ? `<p class="mc-example">${esc(window.MC_EXPLAIN[c.key])}</p>` : ""}
+            ${c.hint ? `<p class="small muted">💡 ${esc(c.hint)}</p>` : ""}
+          </div>
           <div class="row" style="margin-top:12px">
             <button class="btn" id="nextQ">${session.i === queue.length - 1 ? "Ergebnis ansehen" : "Weiter →"}</button>
-            ${!ok ? `<button class="btn-ghost small" id="why">💬 Claude erklärt</button>` : ""}
+            <button class="btn-ghost small" id="why">💬 Claude erklärt mehr</button>
           </div>`;
         $("#nextQ").addEventListener("click", () => { session.i++; render(); });
         $("#nextQ").scrollIntoView({ behavior: "smooth", block: "center" });
-        $("#why")?.addEventListener("click", () => openChat(`Ich hatte diese Multiple-Choice-Frage falsch. Erklär mir kurz die richtige Antwort mit einer Eselsbrücke:\nFrage: ${c.q}\nRichtig: ${c.a}`));
+        $("#why")?.addEventListener("click", () => openChat(`Erklär mir diese Multiple-Choice-Frage bitte einfach, mit einem Praxisbeispiel und einer Eselsbrücke:\nFrage: ${c.q}\nRichtige Antwort: ${c.a}`));
       }));
     }
 
