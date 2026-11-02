@@ -956,6 +956,19 @@ details.method { margin-top: 14px; }
    ========================================================= */
 .pr-q { margin-top: 16px; }
 .pr-ql { display: block; font-weight: 650; font-size: .93rem; margin-bottom: 6px; line-height: 1.4; }
+.pr-qn { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 7px; background: var(--primary-soft); color: var(--primary); font-size: .78rem; font-weight: 800; margin-right: 8px; vertical-align: 1px; }
+.pr-reveal { border: 1.5px dashed color-mix(in srgb, var(--primary) 45%, transparent); }
+.pr-reveal h2 { margin: 10px 0 6px; font-size: 1.15rem; }
+.pr-rv-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 12px; }
+.pr-rv-list > li { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.pr-rv-q { font-weight: 650; line-height: 1.45; font-size: .95rem; }
+.pr-rv-me, .pr-rv-a { margin-top: 10px; font-size: .93rem; line-height: 1.5; }
+.pr-rv-me p, .pr-rv-a p { margin: 2px 0 0; }
+.pr-rv-txt { white-space: pre-wrap; }
+.pr-rv-l { display: block; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.pr-rv-a { padding: 10px 12px; border-radius: 12px; background: var(--primary-soft); }
+.pr-rv-a .pr-rv-l { color: var(--primary); }
+.pr-ink { display: block; max-width: min(100%, 640px); max-height: 240px; border-radius: 10px; border: 1px solid var(--line); margin-top: 4px; background: #fff; }
 .wf { margin-top: 2px; }
 #app.im-ink .wf-text { display: none; }
 #app.im-text .wf .ink { display: none; }

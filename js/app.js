@@ -1323,8 +1323,26 @@
         <span class="tag">🧲 Aus deinem Priming</span>
         ${P.questions.length ? `<p style="margin:10px 0 6px"><b>Deine offenen Fragen – such beim Lesen die Antworten:</b></p><ul class="q-list ro">${P.questions.map(q => `<li>${q.a ? "✓" : "❓"} ${esc(q.q)}</li>`).join("")}</ul>` : ""}
         ${P.newTerms.length ? `<p class="small" style="margin:12px 0 0"><b>Neue Begriffe</b> (im Text markiert): ${P.newTerms.map(t => `<span class="badge">${mdx(t)}</span>`).join(" ")}</p>` : ""}
-        ${!P.questions.length && !P.newTerms.length ? `<p class="small muted" style="margin:8px 0 0">Vorwissen ist aktiviert – jetzt lesen!</p>` : ""}
+        <p class="small muted" style="margin:10px 0 0">${!P.questions.length && !P.newTerms.length ? "Vorwissen ist aktiviert – jetzt lesen! " : ""}Die Auflösung deiner Einstiegsfragen kommt am Ende der Lektion.</p>
       </div>` : !lessonDone(key) ? `<div class="lesson-hint" style="margin:0 0 16px">🧲 <span><b>Erst primen?</b> 5–10 Minuten Vorwissen sammeln und Fragen notieren – dann bleibt beim Lesen deutlich mehr hängen. <a href="${lessonHref(key, 0)}">Jetzt primen →</a></span></div>` : "";
+    const myAns = (i) => {
+      const id = `pr:${key}:q${i}`;
+      if (hasInk(id)) return `<img class="pr-ink" src="${Ink.image(id, 900)}" alt="Deine handschriftliche Antwort">`;
+      const t = ((P.ans || {})[i] || "").trim();
+      return t ? `<p class="pr-rv-txt">${esc(t)}</p>` : `<p class="muted">– nicht beantwortet –</p>`;
+    };
+    const PQ = P ? primingQs(key, L) : [];
+    const reveal = P && PQ.some(q => q.a) ? `<div class="card pr-reveal" id="prReveal">
+        <span class="tag">🧲 Auflösung · Priming</span>
+        <h2>Lagst du richtig?</h2>
+        <p class="small muted" style="margin:0">Überleg kurz, was du <b>jetzt</b> antworten würdest – dann deck die Auflösung auf. Falsch geraten ist kein Problem: Gerade an korrigierte Vermutungen erinnert man sich später besonders gut.</p>
+        <ol class="pr-rv-list">${PQ.map((q, i) => q.a ? `<li>
+          <div class="pr-rv-q"><span class="pr-qn">${i + 1}</span>${mdx(q.q)}</div>
+          <div class="pr-rv-me"><span class="pr-rv-l">Deine Vermutung</span>${myAns(i)}</div>
+          <div class="pr-rv-a ${P.rv ? "" : "hidden"}"><span class="pr-rv-l">✓ Auflösung</span><p>${mdx(q.a)}</p></div>
+        </li>` : "").join("")}</ol>
+        <button type="button" class="btn secondary ${P.rv ? "hidden" : ""}" id="prRevealBtn" style="margin-top:14px">👀 Auflösung zeigen</button>
+      </div>` : "";
     app().innerHTML = `
       <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · Lektion ${pos + 1} von ${all.length}</span></div>
       <div class="card ls-hero">
@@ -1335,6 +1353,7 @@
       </div>
       ${prBox}
       ${L.s.map(lessonSection).join("")}
+      ${reveal}
       <div class="card ls-done" id="lsDoneBox">
         <h2>Alles klar?</h2>
         <p class="muted" id="lsScore">Beantworte die Kurz-Checks oben – dann schließ die Lektion ab und erklär das Thema in eigenen Worten.</p>
@@ -1364,6 +1383,11 @@
         if (t.length > 2 && terms.some(x => t === x || (x.length > 3 && t.includes(x)) || (t.length >= 5 && x.includes(t)))) b.classList.add("ls-hl");
       });
     }
+    $("#prRevealBtn")?.addEventListener("click", e => {
+      $$("#prReveal .pr-rv-a").forEach(x => x.classList.remove("hidden"));
+      e.currentTarget.classList.add("hidden");
+      P.rv = true; save();
+    });
     $$("#prCheck [data-qa]").forEach(b => b.addEventListener("click", () => {
       const q = P.questions[+b.dataset.qa]; q.a = !q.a; save();
       b.textContent = q.a ? "✓ Ja" : "Ja?"; b.closest("li").classList.toggle("ok", q.a);
@@ -1624,13 +1648,26 @@
     $("#chatModeEnd")?.addEventListener("click", () => { endMethodChat(); toast("Modus beendet – Claude ist wieder im normalen Chat"); });
   }
 
-  function primingSystem(L, f, net) {
+  // Konkrete Einstiegsfragen je Lektion (js/lessons/priming.js) – sonst allgemeine, aber klare Fragen
+  function primingQs(key, L) {
+    const q = (window.PRIMING || {})[key];
+    if (q && q.length) return q;
+    const g = (L.goals || []).map(plainTxt);
+    return [
+      { q: `Nenne 3 Begriffe oder Beispiele, die dir spontan zu „${L.title}“ einfallen – auch wenn du nicht sicher bist.`, ph: "1. … 2. … 3. …", a: "" },
+      { q: g[0] ? `Lernziel: „${g[0]}“ – wie würdest du das heute schon angehen? Rate ruhig.` : `Was glaubst du: Welches Problem löst „${L.title}“ in der Praxis?`, ph: "Ich vermute …", a: "" },
+      { q: g[1] ? `Lernziel: „${g[1]}“ – was vermutest du, worauf es dabei ankommt?` : "Welche Frage zu diesem Thema würdest du einem Profi stellen?", ph: "Wahrscheinlich …", a: "" }
+    ];
+  }
+  function primingSystem(L, f, net, PQ) {
     return `MODUS: PRIMING (5–10 Minuten) zur Lektion „${L.title}“ (${f.name}). ${state.profile.name} hat die Lektion noch NICHT gelesen.\n` +
-      `Ziel: Vorwissen aktivieren, Neugier wecken und ein grobes Gedanken-Netz bauen, damit er beim Lesen gezielt nach Antworten sucht.\n` +
-      `So moderierst du:\n- Du stellst Fragen, er denkt. Erkläre den Stoff nicht und lege keine fertigen Listen oder Zusammenfassungen vor. Erklären nur, wenn er feststeckt oder ausdrücklich darum bittet.\n- Immer nur EINE kurze Frage pro Nachricht, dann auf die Antwort warten.\n` +
-      `Ablauf:\n1. Brainstorming aus dem Kopf: Was weiß er schon, was verbindet er damit?\n2. Relevanz: Warum ist das wichtig? Wo begegnet es ihm im Alltag oder im Ausbildungsbetrieb (Spedition/Logistik)?\n3. Hypothese: Wie könnte es funktionieren? Eine falsche Vermutung ist ausdrücklich erlaubt.\n` +
-      `4. Kurzer Scan der Überschriften unten: Was ist neu, was überrascht, was fehlte im Brainstorming?\n5. Begriffe grob ordnen – von außen nach innen: erst Überbegriffe, dann eine Ebene tiefer. Nicht in ein einzelnes Detail abtauchen.\n` +
-      `6. Verknüpfungen zu anderen Themen und offene Fragen sammeln, die er beim Lesen beantworten will.\n7. Abschluss: kurze Zusammenfassung (was er schon weiß, welche Fragen offen sind), dann zur Lektion schicken.\n\n` +
+      `Ziel: Vorwissen aktivieren und Neugier wecken, damit er beim Lesen gezielt nach Antworten sucht.\n` +
+      `So moderierst du:\n- Du stellst Fragen, er denkt. Erkläre den Stoff nicht und verrate keine Lösungen – auch nicht, wenn er falsch liegt. Sag dann z. B. „Spannende Vermutung – merk sie dir, die Lektion klärt das.“\n- Immer nur EINE kurze, konkrete Frage pro Nachricht, dann auf die Antwort warten. Keine vagen Fragen wie „Was weißt du darüber?“.\n` +
+      `Ablauf:\n1. Stelle nacheinander diese drei Einstiegsfragen (gern leicht umformuliert). Nach jeder Antwort: kurz würdigen, höchstens eine Nachfrage („Warum glaubst du das?“), dann die nächste Frage.\n` +
+      PQ.map((q, i) => `   ${i + 1}) ${plainTxt(q.q)}`).join("\n") + `\n` +
+      `2. Kurzer Scan der Überschriften unten: Welcher Begriff ist komplett neu? Was vermutet er, was er bedeutet?\n` +
+      `3. Gemeinsam 1–3 offene Fragen formulieren, die er beim Lesen beantworten will.\n4. Abschluss: kurze Zusammenfassung (seine Vermutungen + offene Fragen), dann zur Lektion schicken. Erinnere ihn daran, dass er die Auflösung am Ende der Lektion sieht.\n\n` +
+      `Auflösungen der Einstiegsfragen (NUR für dich – nicht verraten):\n${PQ.map((q, i) => `${i + 1}) ${plainTxt(q.a || "—")}`).join("\n")}\n\n` +
       `Überschriften und Schlüsselbegriffe der Lektion (nur für den Scan – nicht vorab erklären):\n${netText(net)}`;
   }
   const FY_LEVELS = [
@@ -1658,11 +1695,14 @@
     const key = lessonKey(fid, did), L = lessonsAll()[key];
     if (!f || !d || !L) { location.replace("#/lektionen"); return; }
     if (!state.priming) state.priming = {};
-    const P = state.priming[key] || (state.priming[key] = { know: "", why: "", hyp: "", surprise: "", newTerms: [], questions: [] });
+    const P = state.priming[key] || (state.priming[key] = { ans: {}, surprise: "", newTerms: [], questions: [] });
+    if (!P.ans) P.ans = {};
+    const PQ = primingQs(key, L);
     const net = lessonNet(L);
     const math = f.type === "math";
     window.chatContext = `Ich mache gerade Priming für die Lektion „${L.title}“ (${f.name}) – ich habe sie noch nicht gelesen. Erklär mir den Stoff noch nicht, sondern hilf mir mit Fragen beim Vorwissen-Sammeln.`;
     const field = (k, label, rows, ph) => `<div class="pr-q"><span class="pr-ql">${label}</span>${writeField(`pr:${key}:${k}`, P[k], { rows, ph: ph || "", attrs: `data-f="${k}"` })}</div>`;
+    const qField = (q, i) => `<div class="pr-q"><span class="pr-ql"><span class="pr-qn">${i + 1}</span>${mdx(q.q)}</span>${writeField(`pr:${key}:q${i}`, P.ans[i], { rows: 2, ph: q.ph || "", attrs: `data-qi="${i}"` })}</div>`;
     app().innerHTML = `
       <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
       <div class="card ls-hero">
@@ -1674,10 +1714,8 @@
       </div>
       <section class="card pr-step">
         <div class="row between"><h2><span class="pr-n">1</span>Aus dem Kopf</h2><button type="button" class="btn-ghost small" id="prT1">⏱ 2 Min Timer</button></div>
-        <div class="row between" style="align-items:center;gap:10px;margin-top:4px"><p class="muted small" style="margin:0;flex:1;min-width:180px">Ohne Unterlagen, Stichworte reichen – falsch gibt es hier nicht.</p>${modeSwitch()}</div>
-        ${field("know", `Was weißt du schon über „${esc(L.title)}“? Was fällt dir dazu ein?`, 3, "Begriffe, Beispiele, Erinnerungen aus Vorlesung oder Betrieb …")}
-        ${field("why", "Warum ist das wichtig? Wo begegnet es dir – im Alltag oder in deinem Ausbildungsbetrieb?", 2, "")}
-        ${field("hyp", "Deine Vermutung: Wie könnte das funktionieren oder zusammenhängen?", 2, "Eine Hypothese darf ruhig falsch sein – genau das macht neugierig.")}
+        <div class="row between" style="align-items:center;gap:10px;margin-top:4px"><p class="muted small" style="margin:0;flex:1;min-width:180px">Drei kurze Fragen, ohne Unterlagen. <b>Schätzen und raten ist ausdrücklich erlaubt</b> – Stichworte reichen. Die Auflösung siehst du am Ende der Lektion.</p>${modeSwitch()}</div>
+        ${PQ.map(qField).join("")}
         <button type="button" class="btn" id="prNext">Weiter zum Überblick →</button>
       </section>
       <section class="card pr-step ${P.scan ? "" : "hidden"}" id="prScan">
@@ -1686,7 +1724,7 @@
         <div class="net"><div class="net-root">${esc(L.title)}</div>
           <ol class="net-list">${net.map(n => `<li><b>${mdx(n.h)}</b>${n.terms.length ? `<div class="chips net-terms">${n.terms.map(t => `<button type="button" class="chip tchip ${P.newTerms.includes(t) ? "active" : ""}" data-term="${esc(t)}">${mdx(t)}</button>`).join("")}</div>` : ""}</li>`).join("")}</ol>
         </div>
-        ${field("surprise", "Was überrascht dich? Was hat in deinem Brainstorming gefehlt?", 2, "")}
+        ${field("surprise", "Welcher Begriff im Überblick ist dir komplett neu? Schreib ihn auf und rate, was er bedeuten könnte.", 2, "„…“ bedeutet vermutlich …")}
       </section>
       <section class="card pr-step ${P.scan ? "" : "hidden"}" id="prOpen">
         <h2><span class="pr-n">3</span>Deine offenen Fragen</h2>
@@ -1709,6 +1747,7 @@
     timerBtn($("#prT1"), 120);
     timerBtn($("#prT2"), 180);
     $$("textarea[data-f]").forEach(t => t.addEventListener("input", () => { P[t.dataset.f] = t.value; saveSoon(); }));
+    $$("textarea[data-qi]").forEach(t => t.addEventListener("input", () => { P.ans[t.dataset.qi] = t.value; saveSoon(); }));
     const renderQs = () => {
       $("#prQs").innerHTML = P.questions.length ? P.questions.map((q, i) => `<li><span>❓ ${esc(q.q)}</span><button type="button" class="btn-ghost small" data-del="${i}" aria-label="Frage löschen">✕</button></li>`).join("") : `<li class="empty-q">Noch keine Fragen – mindestens eine lohnt sich!</li>`;
       $$("[data-del]", $("#prQs")).forEach(b => b.addEventListener("click", () => { P.questions.splice(+b.dataset.del, 1); save(); renderQs(); renderSug(); }));
@@ -1749,7 +1788,7 @@
     });
     $("#prClaude").addEventListener("click", () => {
       if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key geht Priming einfach hier auf der Seite."); return; }
-      startMethodChat(`🧲 Priming · ${L.title}`, primingSystem(L, f, net), `Lass uns die Lektion „${L.title}“ primen. Ich habe sie noch nicht gelesen.`);
+      startMethodChat(`🧲 Priming · ${L.title}`, primingSystem(L, f, net, PQ), `Lass uns die Lektion „${L.title}“ primen. Ich habe sie noch nicht gelesen.`);
     });
   }
 

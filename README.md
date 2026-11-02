@@ -9,7 +9,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
    → Du bekommst einen **Tages-Score (0–100)**, Feedback und eine Empfehlung, wie du heute lernen solltest.
 2. **📖 Lernen (Lektionen)**: Jedes Thema als Lern-Seite mit Erklärungen, **Schaubildern**, Praxisbeispielen, „Merke“-Kästen und **Kurz-Checks**.
 3. **Lernweg pro Thema – 5 Schritte**:
-   1. 🧲 **Primen** (5–10 Min, vor dem Lesen): Vorwissen sammeln, nur die Überschriften scannen, neue Begriffe antippen, offene Fragen notieren. In der Lektion sind die neuen Begriffe dann markiert und am Ende wird abgefragt, ob die Fragen beantwortet sind.
+   1. 🧲 **Primen** (5–10 Min, vor dem Lesen): drei **konkrete Einstiegsfragen pro Lektion** aus dem Kopf beantworten (Schätzfragen, kleine Praxisfälle, „Was vermutest du?“ – raten erlaubt), dann nur die Überschriften scannen, neue Begriffe antippen und offene Fragen notieren. In der Lektion sind die neuen Begriffe markiert, und am Ende siehst du die **Auflösung** neben deiner eigenen Antwort (auch handschriftlich).
    2. 📖 **Verstehen**: die Lektion lesen.
    3. 🗣️ **Erklären (Feynman-Methode)** – Unterthema für Unterthema, auf Wunsch **mit dem Apple Pencil** (Schreibfeld mit Stift, Radierer, Farben, Rückgängig; Finger scrollt weiter). Beim Vergleichen hakst du die konkreten Punkte des Unterthemas ab, fehlende werden im Material markiert: Unterthema und Niveau wählen, in eigenen Worten erklären (gern per Diktierfunktion), dann **selbst prüfen** (Material zum Vergleich + Lücken-Check + Analogie) oder **Claude** prüfen lassen, der gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
    4. 🧩 **Abrufen**: Multiple Choice und Karteikarten (bei Mathe: Aufgaben rechnen).
@@ -49,6 +49,8 @@ Die Lektionen liegen in `js/lessons/<fach>.js`. Jede Lektion gehört zu einem St
 - **Üben:** `check` – Kurz-Check mit 4 Antworten (die erste ist die richtige, sie werden beim Anzeigen gemischt) und Erklärung
 
 Punkte: Priming +10 ⭐, Lektion +20 ⭐, erste Erklärung +15 ⭐ (Wiederholungen +5 ⭐).
+
+Die Priming-Fragen mit Auflösung stehen in `js/lessons/priming.js` (Schlüssel `ordner/stapel`, je Frage `q` = Frage, `ph` = Denkanstoß, `a` = Auflösung).
 
 Zu jeder Lektion gibt es außerdem eine **Priming-Seite** (`#/primen/ordner/stapel`) und eine **Erklär-Seite** (`#/erklaeren/ordner/stapel`). Die Begriffe für den Überblick werden automatisch aus den Überschriften und Schaubildern der Lektion gebaut.
 Mit Claude laufen Priming und Feynman als eigener **Modus im Chat** (oben im Chat zu sehen, mit ✕ beendbar) – Claude stellt dann Fragen, statt den Stoff vorwegzunehmen.
