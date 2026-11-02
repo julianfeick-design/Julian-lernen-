@@ -34,7 +34,8 @@
     priming: {},
     feynman: {},
     feynmanDraft: {},
-    food: {}
+    food: {},
+    flags: { hide: {}, star: {} }
   };
   let state = load();
 
@@ -182,25 +183,58 @@
     return Array.from(map.values());
   }
   const cardKey = (fid, did, cid) => `${fid}/${did}/${cid}`;
-  function cardsInScope(scope) {
+  // Eigene Markierungen: „🚫 Kommt nicht dran“ (ausblenden) und „⭐ Kommt dran“ (Prüfungsfokus)
+  function flags() {
+    const F = state.flags || (state.flags = {});
+    if (!F.hide) F.hide = {};
+    if (!F.star) F.star = {};
+    return F;
+  }
+  function cardsInScope(scope, { withHidden = false } = {}) {
     const [type, fid, did] = scope.split(":");
-    const out = [];
+    const F = flags(), out = [];
     for (const f of getFolders()) {
-      if ((type === "folder" || type === "deck") && f.id !== fid) continue;
+      if ((type === "folder" || type === "deck" || type === "focus") && f.id !== fid) continue;
       if ((type === "all" || type === "due") && (f.type === "math" || f.type === "general")) continue;
       if (type === "math" && f.type !== "math") continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
-        for (const c of d.cards || []) out.push({ ...c, key: cardKey(f.id, d.id, c.id), folder: f, deck: d });
+        for (const c of d.cards || []) {
+          const key = cardKey(f.id, d.id, c.id);
+          if (!withHidden && F.hide[key]) continue;
+          const star = !!F.star[key], official = !!c.important;
+          if (type === "focus" && !official && !star) continue;
+          out.push({ ...c, important: official || star, official, star, key, folder: f, deck: d });
+        }
       }
     }
     return out;
+  }
+  const scopeBack = (scope) => /^(deck|folder|focus):/.test(scope) ? "#/ordner/" + encodeURIComponent(scope.split(":")[1]) : "#/";
+  const flagButtons = (c) => `${c.official ? "" : `<button type="button" class="btn-ghost small flag-b ${c.star ? "on" : ""}" data-flag="star" aria-pressed="${c.star ? "true" : "false"}" title="Der Prof hat gesagt, das ist wichtig">${c.star ? "★ Kommt dran" : "☆ Kommt dran"}</button>`}<button type="button" class="btn-ghost small flag-b" data-flag="hide" title="Diese Karte nicht mehr abfragen">🚫 Kommt nicht dran</button>`;
+  function bindFlags(c, onHide) {
+    $$("[data-flag]", app()).forEach(b => b.addEventListener("click", e => {
+      e.stopPropagation();
+      const F = flags();
+      if (b.dataset.flag === "star") {
+        if (F.star[c.key]) delete F.star[c.key]; else F.star[c.key] = dayKey();
+        c.star = !!F.star[c.key]; c.important = c.official || c.star;
+        save();
+        b.classList.toggle("on", c.star); b.setAttribute("aria-pressed", c.star ? "true" : "false");
+        b.textContent = c.star ? "★ Kommt dran" : "☆ Kommt dran";
+        toast(c.star ? "⭐ Gemerkt: kommt jetzt bevorzugt und im Prüfungsfokus dran" : "Markierung entfernt");
+      } else {
+        F.hide[c.key] = dayKey(); delete F.star[c.key]; save();
+        toast("🚫 Ausgeblendet – im Ordner kannst du sie jederzeit wieder einblenden", 3400);
+        onHide();
+      }
+    }));
   }
   function quizInScope(scope) {
     const [type, fid, did] = scope.split(":");
     const out = [];
     for (const f of getFolders()) {
-      if ((type === "folder" || type === "deck") && f.id !== fid) continue;
+      if ((type === "folder" || type === "deck" || type === "focus") && f.id !== fid) continue;
       if ((type === "all" || type === "due") && (f.type === "math" || f.type === "general")) continue;
       for (const d of f.decks) {
         if (type === "deck" && d.id !== did) continue;
@@ -216,6 +250,7 @@
     const f = getFolders().find(x => x.id === fid);
     if (!f) return "?";
     if (type === "folder") return `${f.emoji || "📁"} ${f.name}`;
+    if (type === "focus") return `⭐ Prüfungsfokus · ${f.short || f.name}`;
     const d = f.decks.find(x => x.id === did);
     return `${f.emoji || "📁"} ${d ? d.name : "?"}`;
   }
@@ -767,24 +802,40 @@
           </div>
         </a>`;
       }).join("")}</div>
-      ${list.some(f => f.decks.some(d => d.id === "klausur")) ? `<div class="row" style="margin-top:14px;gap:8px">
+      ${list.some(f => cardsInScope("focus:" + f.id).length) ? `<div class="row" style="margin-top:14px;gap:8px">
+        <span class="small muted" style="font-weight:600">⭐ Prüfungsfokus:</span>
+        ${list.filter(f => cardsInScope("focus:" + f.id).length).map(f => `<a class="chip" href="#/${f.type === "math" ? "lernen" : "mc"}/focus:${encodeURIComponent(f.id)}">${esc(f.emoji || "📁")} ${esc(f.short || f.name)}</a>`).join("")}
+      </div>` : ""}
+      ${list.some(f => f.decks.some(d => d.id === "klausur")) ? `<div class="row" style="margin-top:10px;gap:8px">
         <span class="small muted" style="font-weight:600">📝 Klausuraufgaben üben:</span>
         ${list.filter(f => f.decks.some(d => d.id === "klausur")).map(f => `<a class="chip" href="#/lernen/deck:${encodeURIComponent(f.id)}:klausur">${esc(f.emoji || "📁")} ${esc(f.short || f.name)}</a>`).join("")}
       </div>` : ""}
     </div>`;
   }
 
-  // ---------- Wissen des Tages ----------
+  // ---------- Prüfungsfrage des Tages (sonst Bonus-Wissen) ----------
   function dailySection(folders) {
-    const gen = folders.filter(f => f.type === "general");
-    if (!gen.length) return "";
-    const cards = gen.flatMap(f => cardsInScope("folder:" + f.id));
-    if (!cards.length) return "";
     const n = Math.floor(new Date(dayKey() + "T12:00:00").getTime() / 86400000);
-    const c = cards[n % cards.length];
+    const exams = folders
+      .filter(f => f.examDate && daysUntil(f.examDate) >= 0 && f.type !== "math" && f.type !== "general")
+      .map(f => ({ f, cards: cardsInScope("focus:" + f.id).filter(c => !Array.isArray(c.steps)) }))
+      .filter(x => x.cards.length);
+    let c, tag, link;
+    if (exams.length) {
+      const x = exams[n % exams.length];
+      c = x.cards[Math.floor(n / exams.length) % x.cards.length];
+      tag = `⭐ Prüfungsfrage des Tages · ${esc(x.f.short || x.f.name)}`;
+      link = `<a class="small" href="#/mc/focus:${encodeURIComponent(x.f.id)}">Prüfungsfokus üben →</a>`;
+    } else {
+      const cards = folders.filter(f => f.type === "general").flatMap(f => cardsInScope("folder:" + f.id));
+      if (!cards.length) return "";
+      c = cards[n % cards.length];
+      tag = `🎓 Wissen des Tages · ${esc(c.deck.name)}`;
+      link = `<a class="small" href="#/mc/folder:${encodeURIComponent(c.folder.id)}">Bonus-Wissen üben →</a>`;
+    }
     return `<div class="card daily">
-      <div class="row between"><span class="tag">🎓 Wissen des Tages · ${esc(c.deck.name)}</span>
-        <a class="small" href="#/mc/folder:${encodeURIComponent(c.folder.id)}">Studienwissen üben →</a></div>
+      <div class="row between"><span class="tag">${tag}</span>
+        ${link}</div>
       <h3 style="margin:10px 0 0">${esc(c.q)}</h3>
       <div id="dailyA" class="explain hidden">${esc(c.a)}</div>
       <button class="btn secondary small" id="dailyBtn" style="margin-top:12px">Antwort zeigen</button>
@@ -849,6 +900,7 @@
           </div>
         </div>
         ${f.decks.some(d => lessonsAll()[lessonKey(fid, d.id)]) ? `<div style="margin-top:14px">${pathStrip(-1, f.type === "math")}</div>` : ""}
+        ${focusBox(f)}
       </div>
       <div class="card">
         ${f.decks.length ? f.decks.map(d => {
@@ -883,6 +935,12 @@
         ${userFolder && !f.builtin ? `<button class="btn-ghost" id="delFolder">🗑️ Ordner löschen</button>` : ""}
       </div>`;
     renderMath(app());
+    $$("[data-unhide]").forEach(b => b.addEventListener("click", () => {
+      const F = flags(), k = b.dataset.unhide;
+      if (k === "*") cardsInScope("folder:" + fid, { withHidden: true }).forEach(c => delete F.hide[c.key]);
+      else delete F.hide[k];
+      save(); toast("👍 Wieder eingeblendet"); viewFolder(fid);
+    }));
     $$("[data-del-deck]").forEach(b => b.addEventListener("click", () => {
       if (!confirm("Stapel wirklich löschen?")) return;
       const uf = state.userFolders.find(x => x.id === fid);
@@ -893,6 +951,24 @@
       if (!confirm("Ganzen Ordner mit allen eigenen Stapeln löschen?")) return;
       state.userFolders = state.userFolders.filter(x => x.id !== fid); save(); location.hash = "#/ordner";
     });
+  }
+
+  // Prüfungsfokus (⭐) und ausgeblendete Karten eines Ordners
+  function focusBox(f) {
+    const n = cardsInScope("focus:" + f.id).length;
+    const hidden = cardsInScope("folder:" + f.id, { withHidden: true }).filter(c => flags().hide[c.key]);
+    if (!n && !hidden.length) return "";
+    const math = f.type === "math", id = encodeURIComponent(f.id);
+    return `<div class="focus-box">
+      ${n ? `<div class="focus-main">
+        <div><b>⭐ Prüfungsfokus</b><span class="small muted">${n} ${math ? "Aufgaben" : "Fragen"} aus den Lernfragen der Profs, Prof-Hinweisen und deinen „Kommt dran“-Markierungen</span></div>
+        <div class="row" style="gap:8px">${math ? `<a class="btn small" href="#/lernen/focus:${id}">✏️ Rechnen</a>` : `<a class="btn small" href="#/mc/focus:${id}">🧩 MC</a><a class="btn secondary small" href="#/lernen/focus:${id}">📚 Karten</a>`}</div>
+      </div>` : ""}
+      ${hidden.length ? `<details class="hid-list"><summary>🚫 ${hidden.length} ${hidden.length === 1 ? "Karte" : "Karten"} ausgeblendet („Kommt nicht dran“)</summary>
+        <ul>${hidden.map(c => `<li><span>${esc(c.q)}</span><button type="button" class="btn-ghost small" data-unhide="${esc(c.key)}">Wieder einblenden</button></li>`).join("")}</ul>
+        ${hidden.length > 1 ? `<button type="button" class="btn-ghost small" data-unhide="*">Alle wieder einblenden</button>` : ""}
+      </details>` : ""}
+    </div>`;
   }
 
   // =========================================================
@@ -907,10 +983,12 @@
     const size = state.settings.sessionSize;
     let due = all.filter(c => isDue(c.key));
     // Erst überfällige/bekannte, dann neue Karten
-    due = shuffle(due).sort((a, b) => (isNew(a.key) - isNew(b.key)));
+    // … und innerhalb davon zuerst die prüfungsrelevanten (⭐)
+    due = shuffle(due).sort((a, b) => (isNew(a.key) - isNew(b.key)) || (b.important - a.important));
     let practice = false;
     let queue = due.slice(0, size);
-    if (!queue.length) { practice = true; queue = shuffle(all).slice(0, size); }
+    if (!queue.length) { practice = true; queue = shuffle(all).sort((a, b) => b.important - a.important).slice(0, size); }
+    const dropCard = (c) => { for (let j = queue.length - 1; j >= idx; j--) if (queue[j].key === c.key) queue.splice(j, 1); render(); };
 
     const session = { done: [], good: 0, hard: 0, again: 0, points: 0, combo: 0, bestCombo: 0, start: Date.now(), requeued: new Set() };
     let idx = 0, flipped = false;
@@ -923,7 +1001,7 @@
       window.chatContext = `Ich lerne gerade die Karteikarte aus "${c.deck.name}":\nFrage: ${c.q}\nAntwort: ${c.a}`;
       app().innerHTML = `
         <div class="row between">
-          <a href="${scope.startsWith("deck") || scope.startsWith("folder") ? "#/ordner/" + encodeURIComponent(c.folder.id) : "#/"}" class="small">← Beenden</a>
+          <a href="${scopeBack(scope)}" class="small">← Beenden</a>
           <span class="small muted">${esc(scopeName(scope))}${practice ? " · Freies Üben" : ""}</span>
         </div>
         <div class="progress" style="margin-top:10px"><div style="width:${idx / queue.length * 100}%"></div></div>
@@ -931,7 +1009,7 @@
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Combo!` : ""}</div>
         <div class="flash-wrap">
           <div class="flash" id="flash">
-            <div class="side front"><span class="tag">Frage · ${esc(c.deck.name)}</span>${c.important ? `<span class="imp">⭐ Prüfungsrelevant</span>` : ""}<div class="content">${esc(c.q)}</div>
+            <div class="side front"><span class="tag">Frage · ${esc(c.deck.name)}</span>${c.important ? `<span class="imp">${c.official ? "⭐ Prüfungsrelevant" : "⭐ Kommt dran (deine Markierung)"}</span>` : ""}<div class="content">${esc(c.q)}</div>
               ${c.hint ? `<button class="btn-ghost small" id="hintBtn" style="margin-top:14px">💡 Tipp anzeigen</button><div id="hint" class="hidden muted" style="margin-top:6px">${esc(c.hint)}</div>` : ""}
               <span class="tap">Tippen zum Umdrehen</span></div>
             <div class="side back"><span class="tag">Antwort</span><div class="content">${esc(c.a)}</div></div>
@@ -940,8 +1018,9 @@
         <div id="controls">
           <button class="btn block" id="flipBtn">Antwort zeigen</button>
         </div>
-        <div class="row" style="justify-content:center;margin-top:12px">
+        <div class="row flag-row">
           <button class="btn-ghost small" id="explain">💬 Claude erklärt mir das</button>
+          ${flagButtons(c)}
         </div>`;
       flipped = false;
       const flash = $("#flash");
@@ -959,6 +1038,7 @@
       $("#flipBtn").addEventListener("click", flip);
       $("#hintBtn")?.addEventListener("click", e => { e.stopPropagation(); $("#hint").classList.remove("hidden"); e.currentTarget.remove(); });
       $("#explain").addEventListener("click", () => openChat(`Erklär mir bitte diese Karteikarte ausführlicher, mit einem Beispiel und einer Eselsbrücke:\nFrage: ${c.q}\nAntwort: ${c.a}`));
+      bindFlags(c, () => dropCard(c));
     }
 
     function renderTask(c) {
@@ -967,14 +1047,14 @@
       window.chatContext = `Ich rechne gerade diese Mathe-Aufgabe aus "${c.deck.name}":\n${c.q}\nLösungsweg:\n${c.steps.join("\n")}\nErgebnis: ${c.a}`;
       app().innerHTML = `
         <div class="row between">
-          <a href="${scope.startsWith("deck") || scope.startsWith("folder") ? "#/ordner/" + encodeURIComponent(c.folder.id) : "#/"}" class="small">← Beenden</a>
+          <a href="${scopeBack(scope)}" class="small">← Beenden</a>
           <span class="small muted">${esc(scopeName(scope))}${practice ? " · Freies Üben" : ""}</span>
         </div>
         <div class="progress" style="margin-top:10px"><div style="width:${idx / queue.length * 100}%"></div></div>
         <div class="row between small muted"><span>Aufgabe ${idx + 1} / ${queue.length}</span><span>${p ? `Fach ${p.box} von 5` : "🆕 Neue Aufgabe"} · ⭐ ${session.points}</span></div>
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
         <div class="card task">
-          <div class="row between"><span class="tag">${isMath ? "✏️ Aufgabe" : "📝 Klausuraufgabe"} · ${esc(c.deck.name)}</span>${c.important ? `<span class="badge due">⭐ Klausurrelevant</span>` : ""}</div>
+          <div class="row between"><span class="tag">${isMath ? "✏️ Aufgabe" : "📝 Klausuraufgabe"} · ${esc(c.deck.name)}</span>${c.important ? `<span class="badge due">${c.official ? "⭐ Klausurrelevant" : "⭐ Kommt dran"}</span>` : ""}</div>
           <div class="task-q">${esc(c.q)}</div>
           ${c.hint ? `<button class="btn-ghost small" id="hintBtn">💡 ${isMath ? "Tipp / Formel" : "Tipp / Was wird erwartet?"} anzeigen</button><div id="hint" class="hidden explain">${esc(c.hint)}</div>` : ""}
           <p class="small muted" style="margin:14px 0 0">${isMath ? "📝 Rechne die Aufgabe auf Papier – dann deck den Lösungsweg auf." : "📝 Schreib deine Antwort in Stichpunkten auf (wie in der Klausur) – dann vergleiche mit der Musterlösung und zähl deine Punkte."}</p>
@@ -985,9 +1065,10 @@
           <div class="result"><b>${isMath ? "Ergebnis" : "Kurzfassung"}:</b> ${esc(c.a)}</div>
         </div>
         <div id="controls"><button class="btn block" id="flipBtn">${isMath ? "Lösungsweg" : "Musterlösung"} zeigen 👀</button></div>
-        <div class="row" style="justify-content:center;margin-top:12px">
+        <div class="row flag-row">
           <button class="btn-ghost small" id="explain">💬 Claude erklärt mir den Weg</button>
           <button class="btn-ghost small" id="similar">🔁 Ähnliche Aufgabe von Claude</button>
+          ${flagButtons(c)}
         </div>`;
       renderMath(app());
       $("#hintBtn")?.addEventListener("click", e => { $("#hint").classList.remove("hidden"); e.currentTarget.remove(); });
@@ -1004,6 +1085,7 @@
       });
       $("#explain").addEventListener("click", () => openChat(`Erklär mir bitte den Lösungsweg dieser Aufgabe Schritt für Schritt und so, dass ich ihn verstehe (nicht nur vorrechnen):\n${c.q}\nLösungsweg:\n${c.steps.join("\n")}\nErgebnis: ${c.a}`));
       $("#similar").addEventListener("click", () => openChat(`Gib mir bitte eine ähnliche Übungsaufgabe mit anderen Zahlen zu dieser Aufgabe. Zeig die Lösung erst, wenn ich dir mein Ergebnis schicke:\n${c.q}`));
+      bindFlags(c, () => dropCard(c));
     }
 
     function rate(c, r, evt) {
@@ -1161,10 +1243,11 @@
     // Schwächste Karten zuerst: nicht sicher, dann oft falsch, dann zufällig
     const ranked = shuffle(cards).sort((a, b) => {
       const A = mcOf(a.key), B = mcOf(b.key);
-      return (Math.min(A.s, MC_SAFE) - Math.min(B.s, MC_SAFE)) || (B.w - A.w);
+      return (Math.min(A.s, MC_SAFE) - Math.min(B.s, MC_SAFE)) || (B.w - A.w) || (b.important - a.important);
     });
     const queue = ranked.slice(0, state.settings.sessionSize || 20);
-    const back = scope.startsWith("folder:") || scope.startsWith("deck:") ? "#/ordner/" + encodeURIComponent(scope.split(":")[1]) : "#/";
+    const back = scopeBack(scope);
+    const dropCard = (c) => { for (let j = queue.length - 1; j >= session.i; j--) if (queue[j].key === c.key) queue.splice(j, 1); render(); };
     const session = { i: 0, right: 0, wrong: [], points: 0, combo: 0, best: 0, requeued: new Set() };
 
     function render() {
@@ -1185,11 +1268,13 @@
         <div class="combo">${session.combo >= 3 ? `🔥 ${session.combo}er Serie!` : ""}</div>
         <div class="card task">
           <div class="row between"><span class="tag">🧩 ${esc(c.deck.name)}</span>
-            <span class="row" style="gap:6px">${c.important ? `<span class="badge due">⭐ Prüfungsrelevant</span>` : ""}${m.s >= MC_SAFE ? `<span class="badge new">✓ sicher</span>` : state.mc[c.key] ? "" : `<span class="badge">neu</span>`}</span></div>
+            <span class="row" style="gap:6px">${c.important ? `<span class="badge due">${c.official ? "⭐ Prüfungsrelevant" : "⭐ Kommt dran"}</span>` : ""}${m.s >= MC_SAFE ? `<span class="badge new">✓ sicher</span>` : state.mc[c.key] ? "" : `<span class="badge">neu</span>`}</span></div>
           <h2 style="margin:12px 0 16px">${esc(c.q)}</h2>
           <div class="options">${mc.options.map((o, k) => `<button class="option" data-k="${k}">${String.fromCharCode(65 + k)}) ${esc(o)}</button>`).join("")}</div>
           <div id="after"></div>
-        </div>`;
+        </div>
+        <div class="row flag-row">${flagButtons(c)}</div>`;
+      bindFlags(c, () => dropCard(c));
       $$(".option").forEach(b => b.addEventListener("click", e => {
         const k = Number(b.dataset.k), ok = k === mc.correct;
         $$(".option").forEach((x, j) => { x.disabled = true; if (j === mc.correct) x.classList.add("correct"); });
@@ -2181,7 +2266,7 @@
   }
   function saveDeck(root, name, cards, quiz, description) {
     const f = resolveFolder(root);
-    const deck = { id: "d-" + uid(), name: name || "Neuer Stapel", description: description || "", cards: cards.map(c => ({ id: uid(), q: c.q, a: c.a, hint: c.hint || "" })), quiz: quiz || [] };
+    const deck = { id: "d-" + uid(), name: name || "Neuer Stapel", description: description || "", cards: cards.map(c => ({ id: uid(), q: c.q, a: c.a, hint: c.hint || "", ...(c.important ? { important: true } : {}) })), quiz: quiz || [] };
     f.decks.push(deck);
     save();
     unlock("creator");
@@ -2446,6 +2531,7 @@
       `Du hilfst beim Verstehen von Studieninhalten, fragst ab, erklärst mit Beispielen und Eselsbrücken und motivierst. ` +
       `Antworte auf Deutsch, locker und freundlich, eher kurz (außer es wird eine ausführliche Erklärung gewünscht). ` +
       `Wenn du abfragst, stell immer nur eine Frage auf einmal und warte auf die Antwort. ` +
+      `Frag prüfungsnah ab wie in einer DHBW-Klausur (nennen, erläutern, abgrenzen, berechnen, auf einen Fall anwenden) – keine Zitate, Autorennamen, Jahreszahlen oder Zahlen-Trivia, außer der Stoff ist ausdrücklich als klausurrelevant markiert. ` +
       `Lernprinzip: ${state.profile.name} soll selbst denken – gib lieber einen Denkanstoß oder stell eine Rückfrage, bevor du die komplette Lösung verrätst, außer er bittet ausdrücklich um eine Erklärung. Feedback ehrlich und konkret, ohne Floskeln.\n\n` +
       `Heute ist ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}. ` +
       `Stand: Level ${li.level} (${li.title}), ${state.points} Punkte, Streak ${streak()} Tage.`;

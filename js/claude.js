@@ -66,8 +66,8 @@ window.Claude = (function () {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["q", "a", "hint"],
-          properties: { q: { type: "string" }, a: { type: "string" }, hint: { type: "string" } }
+          required: ["q", "a", "hint", "important"],
+          properties: { q: { type: "string" }, a: { type: "string" }, hint: { type: "string" }, important: { type: "boolean" } }
         }
       },
       quiz: {
@@ -109,6 +109,10 @@ window.Claude = (function () {
         " Ziel: ca. " + (count || 20) + " Karteikarten (je nach Stoffmenge mehr oder weniger) und 5–8 Multiple-Choice-Quizfragen mit je 4 Antwortmöglichkeiten." +
         " Regeln: Deutsch. Eine Karte = ein Fakt/Konzept. Fragen präzise, Antworten kurz (1–3 Sätze), aber vollständig." +
         " 'hint' ist ein kurzer Merkhinweis oder leer. 'correct' ist der 0-basierte Index der richtigen Option." +
+        " Prüfungsrelevanz zuerst: Frage nur ab, was in einer DHBW-Klausur drankommen kann (Operatoren nennen, erläutern, abgrenzen, berechnen, beurteilen):" +
+        " Definitionen, Abgrenzungen, Modelle, Abläufe, Vor- und Nachteile, Ursachen und Wirkungen, Rechenwege, Anwendung auf Praxisfälle." +
+        " Lass weg: Zitate und wer etwas gesagt hat, Autoren- und Literaturlisten, Jahreszahlen, Gesetzes- oder Verordnungsnummern ohne Inhalt, Anekdoten, Organisatorisches und reine Zahlen-Trivia." +
+        " Lernfragen, Übungsaufgaben und Hinweise wie „klausurrelevant“, „wichtig“ oder „kommt dran“ im Material haben Vorrang – solche Karten bekommen important = true, alle anderen false." +
         " Halte dich an den Inhalt des Materials und erfinde nichts dazu."
     });
 

@@ -12,7 +12,6 @@ Object.assign(window.MC_DATA, {
   "vbl1/a-grundlagen/g03": ["Er organisiert den Transport und beauftragt Frachtführer", "Er fährt die Ware selbst mit eigenen Lkw zum Kunden", "Er gibt den Transportauftrag und bezahlt die Fracht", "Er lagert die Ware ein und stellt Aufträge zusammen"],
   "vbl1/a-grundlagen/g04": ["Er fährt die Ware mit eigenen Fahrzeugen", "Er organisiert den Transport für andere", "Er gibt als Verlader den Auftrag", "Er prüft die Verträge der Transportkette"],
   "vbl1/a-grundlagen/g05": ["Mehr Sendungen bündeln → bessere Preise beim Frachtführer", "Mehr eigene Lkw kaufen → bessere Preise beim Kunden", "Mehr Lagerfläche mieten → höhere Preise am Markt", "Mehr Mitarbeiter einstellen → mehr Macht im Verband"],
-  "vbl1/a-grundlagen/g06": ["Architekt von Transportketten", "Dirigent der Lieferkette", "Baumeister der Logistiknetze", "Ingenieur des Güterverkehrs"],
   "vbl1/a-grundlagen/g07": ["Frachtführer & Lager auswählen, Verträge schließen und kontrollieren", "Den Lkw selbst fahren, die Ware beim Kunden abliefern und quittieren lassen", "Die Ware beim Hersteller einkaufen und weiterverkaufen", "Die Ware einlagern, umschlagen und neu verpacken"],
   "vbl1/a-grundlagen/g08": ["Der Spediteur fährt die Ware selbst mit eigenem Lkw", "Der Verlader fährt die Ware selbst mit eigenem Lkw", "Der Frachtführer organisiert den Transport selbst", "Der Empfänger holt die Ware selbst beim Verlader ab"],
   "vbl1/a-grundlagen/g09": ["Speditionsvertrag, § 453 HGB", "Speditionsvertrag, § 407 HGB", "Frachtvertrag, § 453 HGB", "Speditionsvertrag, § 454 HGB"],
@@ -34,7 +33,6 @@ Object.assign(window.MC_DATA, {
   // A2 · Verkehrsträger, Transportketten & Netze
   "vbl1/a-verkehrstraeger/v01": ["Träger = System · Mittel = Fahrzeug", "Träger = Fahrzeug · Mittel = System", "Träger = Unternehmen · Mittel = Fahrer", "Träger = Ladeeinheit · Mittel = Weg"],
   "vbl1/a-verkehrstraeger/v02": ["Straße: Palette · Luft: ULD · See: Container", "Straße: ULD · Luft: Container · See: Palette", "Straße: Container · Luft: Palette · See: ULD", "Straße: Palette · Luft: Container · See: ULD"],
-  "vbl1/a-verkehrstraeger/v03": ["Unit Load Device", "Universal Loading Dock", "Unit of Lorry Delivery", "Uniform Load Document"],
   "vbl1/a-verkehrstraeger/v04": ["Zuverlässigkeit · Tempo · Masse · Netzdichte · Preis", "Zuverlässigkeit · Marke · Masse · Werbung · Preis", "Tempo · Lizenz · Maut · Netzdichte · Fahrer", "Preis · Standort · Lagerfläche · Tempo · Marke"],
   "vbl1/a-verkehrstraeger/v05": ["Eignung → Kosten → Leistung → Umwelt → Entscheidung", "Kosten → Eignung → Umwelt → Leistung → Entscheidung", "Leistung → Kosten → Eignung → Umwelt → Entscheidung", "Umwelt → Eignung → Leistung → Kosten → Entscheidung"],
   "vbl1/a-verkehrstraeger/v06": ["Maße · Lieferfenster · Wert · Infrastruktur", "Maße · Marke · Wert · Werbebudget", "Preis · Lieferfenster · Rabatt · Infrastruktur", "Gewicht · Farbe · Hersteller · Lagerort"],
@@ -64,7 +62,7 @@ Object.assign(window.MC_DATA, {
   "vbl1/a-verkehrstraeger/v30": ["Fehlende Rückladung → Leerfahrten", "Zu viel Rückladung → Überladung", "Fehlende Fahrer → lange Standzeiten", "Hohe Maut auf dem Rückweg → Umwege"],
   "vbl1/a-verkehrstraeger/v31": ["Hub = Drehscheibe · Spoke = Speiche", "Hub = Speiche · Spoke = Drehscheibe", "Hub = Lager · Spoke = Fahrzeug", "Hub = Kunde · Spoke = Lieferant"],
   "vbl1/a-verkehrstraeger/v32": ["Amsterdam · Rotterdam · Antwerpen", "Antwerpen · Rostock · Amsterdam", "Amsterdam · Rotterdam · Algeciras", "Aarhus · Rotterdam · Antwerpen"],
-  "vbl1/a-verkehrstraeger/v33": ["Zentrale Lage, wichtige Autobahnen", "Großer Seehafen an der Nordsee", "Größter Flughafen Deutschlands", "Sitz der Deutschen Bahn"],
+  "vbl1/a-verkehrstraeger/v33": ["Zentrale Lage und Anbindung an Autobahnknoten", "Randlage mit wenig Verkehr in der Umgebung", "Nähe zu Kunden in nur einer Himmelsrichtung", "Möglichst weit weg von Autobahn und Bahn"],
   "vbl1/a-verkehrstraeger/v34": ["Stückgut < Teilladung < Komplettladung", "Teilladung < Stückgut < Komplettladung", "Komplettladung < Teilladung < Stückgut", "Stückgut < Komplettladung < Teilladung"],
   "vbl1/a-verkehrstraeger/v35": ["Viele Tore · kurze Durchlaufzeit", "Wenige Tore · lange Lagerzeit", "Viele Regale · lange Lagerzeit", "Produktion · kurze Durchlaufzeit"],
   "vbl1/a-verkehrstraeger/v36": ["Gleiche Ladeeinheit, Hauptlauf Schiene/Wasser", "Gleiche Ladeeinheit, Hauptlauf auf der Straße", "Umpacken der Ware, Hauptlauf Schiene/Wasser", "Wechselnde Ladeeinheit, Hauptlauf per Luft"],
@@ -74,7 +72,6 @@ Object.assign(window.MC_DATA, {
   "vbl1/a-verkehrstraeger/v40": ["Spart bei vielen Sendungen, Umschlag kostet", "Spart bei wenigen Sendungen, Umschlag kostet", "Spart immer, Umschlag ist kostenlos", "Spart nie, nur Umschlag kostet"],
 
   // A3 · Logistikdienstleister, Markt & Trends
-  "vbl1/a-markt/m01": ["Party Logistics Provider", "Primary Logistics Partner", "Professional Lorry Provider", "Partner Logistics Platform"],
   "vbl1/a-markt/m02": ["Frachtführer · Willi Betz · kurz", "Spediteur · Schenker · < 1 Jahr", "Kontraktlogistiker · K+N · 3–10 J.", "Integrator · CEVA · > 3 Jahre"],
   "vbl1/a-markt/m03": ["Spediteur · Schenker · < 1 Jahr", "Frachtführer · Willi Betz · kurz", "Kontraktlogistiker · K+N · 3–10 J.", "Integrator · CEVA · > 3 Jahre"],
   "vbl1/a-markt/m04": ["Kontraktlogistiker · K+N · 3–10 J.", "Spediteur · Schenker · < 1 Jahr", "Frachtführer · Willi Betz · kurz", "Integrator · CEVA · > 3 Jahre"],
@@ -97,14 +94,10 @@ Object.assign(window.MC_DATA, {
   "vbl1/a-markt/m21": ["Direktfahrt wegen Umladeverbot", "Stückgutnetz über zwei Hubs", "Seefracht über Rotterdam", "Bahn im Kombinierten Verkehr"],
 
   // B1 · Straßengüterverkehr
-  "vbl1/b-strasse/s01": ["Organisiert Versendungen (ADHGB 1861)", "Führt Versendungen durch (ADHGB 1861)", "Organisiert Versendungen (HGB 1998)", "Kauft und verkauft Ware (ADHGB 1861)"],
-  "vbl1/b-strasse/s02": ["1998, § 453 HGB", "1861, § 453 ADHGB", "2005, § 3 GÜKG", "1998, § 407 HGB"],
-  "vbl1/b-strasse/s03": ["Kraftwagenspediteur", "Werkverkehrsunternehmer", "Kabotageunternehmer", "Kontraktlogistiker"],
   "vbl1/b-strasse/s04": ["Flexibel · flächendeckend · kurze Distanzen", "Unflexibel · punktuell · lange Distanzen", "Flexibel · punktuell · Massengut", "Langsam · flächendeckend · Massengut"],
   "vbl1/b-strasse/s05": ["Fahrermangel · Energiepreise · Digitalisierung", "Fahrerüberschuss · sinkende Preise · Papier", "Fahrermangel · sinkende Preise · Kohle", "Lkw-Überschuss · Energiepreise · Analogtechnik"],
   "vbl1/b-strasse/s06": ["Gewerblicher Verkehr über 3,5 t zGG", "Gewerblicher Verkehr über 7,5 t zGG", "Werkverkehr über 3,5 t zGG", "Jeder Verkehr über 12 t zGG"],
   "vbl1/b-strasse/s07": ["Zuverlässigkeit · Finanzkraft · Fachkunde", "Zuverlässigkeit · Fuhrpark · Firmensitz", "Finanzkraft · Studium · Mindestgröße", "Fachkunde · Mautbox · Tachograph"],
-  "vbl1/b-strasse/s08": ["Alle Fahrzeuge zur Leistungserstellung", "Alle Fahrzeuge der beauftragten Subunternehmer", "Alle Lkw über 3,5 t im Werkverkehr", "Alle Wechselbrücken und Auflieger"],
   "vbl1/b-strasse/s09": ["Bis 18 t · Ladebordwand · regional", "Bis 40 t · Sattelauflieger · Fernverkehr", "Bis 3,5 t · Kastenwagen · Paketdienst", "Bis 25 t · Kipper · Baustellenverkehr"],
   "vbl1/b-strasse/s10": ["40 t · 18,75 m · 38 Paletten", "40 t · 16,50 m · 34 Paletten", "44 t · 18,75 m · 33 Paletten", "40 t · 25,25 m · 52 Paletten"],
   "vbl1/b-strasse/s11": ["40 t · 16,50 m · 33/34 Paletten", "40 t · 18,75 m · 38 Paletten", "44 t · 16,50 m · 38 Paletten", "40 t · 15,65 m · 30 Paletten"],
@@ -138,7 +131,6 @@ Object.assign(window.MC_DATA, {
   "vbl1/b-sammelgut/n12": ["Eigene Niederlassungen, Konzern", "Selbständige Partner, Mittelstand", "Eigene Niederlassungen, Mittelstand", "Selbständige Partner, Konzern"],
   "vbl1/b-sammelgut/n13": ["Selbständige Partner, Mittelstand", "Eigene Niederlassungen, Konzern", "Selbständige Partner, Konzern", "Eigene Niederlassungen, Mittelstand"],
   "vbl1/b-sammelgut/n14": ["DHL · DACHSER · DSV", "DHL · UPS · FedEx", "DACHSER · Hermes · DPD", "DSV · Maersk · Kühne + Nagel"],
-  "vbl1/b-sammelgut/n15": ["Rückgrat der europäischen Logistik", "Nebensegment der europäischen Logistik", "Rückgrat der europäischen Luftfahrt", "Ersatz für den Kombinierten Verkehr"],
   "vbl1/b-sammelgut/n16": ["Sternförmig zu einem zentralen Knoten", "Ringförmig ohne zentralen Knoten", "Direkt zwischen allen Knoten", "Linienförmig entlang einer Autobahn"],
   "vbl1/b-sammelgut/n17": ["Jeder fährt zum Hub, holt eigene Sendungen", "Der Hub fährt alle Partner einzeln an", "Partner tauschen Sendungen direkt aus", "Kunden holen Sendungen am Hub ab"],
   "vbl1/b-sammelgut/n18": ["24-h-Netz auch für kleine Partner", "Günstiger als jeder Direktverkehr", "Kein zusätzlicher Umschlag nötig", "Weniger Schäden durch kürzere Wege"],
@@ -146,10 +138,6 @@ Object.assign(window.MC_DATA, {
 
   // B3 · Europa
   "vbl1/b-europa/e01": ["EWR = EU + EFTA − Schweiz", "EWR = EU + EFTA − Norwegen", "EWR = EU + Schweiz − EFTA", "EWR = EU + EFTA + UK"],
-  "vbl1/b-europa/e02": ["Keine Zölle, ca. 80 % Binnenmarktregeln", "Zölle, aber 100 % Binnenmarktregeln", "Keine Zölle, ca. 20 % Binnenmarktregeln", "Zölle und keine Binnenmarktregeln"],
-  "vbl1/b-europa/e03": ["VO (EG) 1072/2009", "VO (EG) 561/2006", "VO (EU) 165/2014", "RL 2003/59/EG"],
-  "vbl1/b-europa/e04": ["RL 2003/59/EG", "VO (EG) 561/2006", "VO (EG) 1072/2009", "RL 1999/62/EG"],
-  "vbl1/b-europa/e05": ["Eurovignette: Mautgrundlage · EETS: ein Gerät", "Eurovignette: ein Gerät · EETS: Mautgrundlage", "Eurovignette: Lenkzeiten · EETS: Tachograph", "Eurovignette: Kabotage · EETS: Lizenzen"],
   "vbl1/b-europa/e06": ["Entsendung · Rückkehr alle 8 Wochen", "Entsendung · Rückkehr alle 4 Wochen", "Kabotagefreiheit · keine Rückkehr", "Mautbefreiung · Rückkehr alle 12 Wochen"],
   "vbl1/b-europa/e07": ["Grenzüberschreitend EU/EWR + Kabotage", "Inlandsverkehr in Deutschland + Kabotage", "Grenzüberschreitend Nicht-EU + Transit", "Werkverkehr in der EU + Kabotage"],
   "vbl1/b-europa/e08": ["Multilateral, 44 Staaten, auch Nicht-EU", "Bilateral, nur Deutschland–Schweiz", "Multilateral, nur 27 EU-Staaten", "National, nur für Werkverkehr"],
@@ -157,7 +145,6 @@ Object.assign(window.MC_DATA, {
   "vbl1/b-europa/e10": ["GÜKG-Erlaubnis · Versicherungsnachweis", "EU-Lizenz · CMR-Frachtbrief", "CEMT-Genehmigung · A1-Bescheinigung", "Werkverkehrsbescheinigung · Zollpapiere"],
   "vbl1/b-europa/e11": ["EU-Lizenz/CEMT · CMR · ggf. A1", "GÜKG-Erlaubnis · Versicherung", "EU-Lizenz · HGB-Frachtbrief", "CEMT · Werkverkehrsbescheinigung"],
   "vbl1/b-europa/e12": ["Sozialversicherungsnachweis bei Entsendung", "Führerscheinklasse für Lkw bis 3,5 t", "Genehmigung für zusätzliche Kabotagefahrten", "Nachweis über bezahlte Maut in der EU"],
-  "vbl1/b-europa/e13": ["Kfz grün · Anhänger gelb · Überwachung weiß", "Kfz gelb · Anhänger grün · Überwachung weiß", "Kfz weiß · Anhänger gelb · Überwachung grün", "Kfz grün · Anhänger weiß · Überwachung gelb"],
   "vbl1/b-europa/e14": ["Dokument im internationalen Straßenverkehr", "Dokument im nationalen Straßenverkehr", "Dokument im internationalen Seeverkehr", "Lizenz für den Straßengüterverkehr"],
   "vbl1/b-europa/e15": ["Zwingend · formgebunden", "Halbzwingend · formfrei", "Freiwillig · formgebunden", "Zwingend · formfrei"],
   "vbl1/b-europa/e16": ["Vertrag · Übernahme · Zustand der Güter", "Preis · Zahlung · Rabatt der Fracht", "Fahrer · Lenkzeiten · Pausen", "Maut · Route · Kraftstoffverbrauch"],
@@ -170,16 +157,15 @@ Object.assign(window.MC_DATA, {
   "vbl1/b-europa/e23": ["Lizenz · Lenkzeiten · Technik · Maut", "Lizenz · Werbung · Zoll · Steuer", "Führerschein · Navi · Vignette", "Technik · Versicherung · Kfz-Steuer"],
   "vbl1/b-europa/e24": ["Arbeit im anderen EU-Land → dortiger Mindestlohn", "Arbeit im anderen EU-Land → Heimatlohn", "Arbeit im Heimatland → EU-Mindestlohn", "Arbeit außerhalb der EU → dortiger Lohn"],
   "vbl1/b-europa/e25": ["Kabotage = Inland eines fremden Landes", "Kabotage = zwischen zwei fremden Ländern", "Kabotage = Heimatland ins Ausland", "Kabotage = Ausland ins Heimatland"],
-  "vbl1/b-europa/e26": ["Inlandstransport durch EU-Ausländer, seit 1998", "Inlandstransport durch EU-Ausländer, seit 2005", "Grenzverkehr durch Inländer, seit 1998", "Transitverkehr durch Drittstaaten, seit 2010"],
+  "vbl1/b-europa/e26": ["Inlandstransport durch Lkw aus anderem EU-Staat", "Grenzüberschreitender Transport ins Nachbarland", "Transport zwischen zwei fremden EU-Staaten", "Transitfahrt durch ein Land ohne Entladung"],
   "vbl1/b-europa/e27": ["Weniger Leerfahrten, mehr Wettbewerb", "Mehr Leerfahrten, weniger Wettbewerb", "Schutz heimischer Speditionen", "Höhere Preise im Binnenmarkt"],
   "vbl1/b-europa/e28": ["3 in 7 Tagen · 4 Tage Pause · 8 Wochen", "3 in 7 Tagen · 7 Tage Pause · 4 Wochen", "7 in 3 Tagen · 4 Tage Pause · 8 Wochen", "4 in 8 Tagen · 3 Tage Pause · 7 Wochen"],
-  "vbl1/b-europa/e29": ["Deutschland, über 40 %", "Frankreich, über 40 %", "Deutschland, über 20 %", "Polen, über 40 %"],
   "vbl1/b-europa/e30": ["Fragmentiert · > 80 % KMU · Ø < 10 Lkw", "Konzentriert · > 80 % Konzerne · Ø > 100 Lkw", "Fragmentiert · > 50 % Konzerne · Ø < 10 Lkw", "Konzentriert · > 80 % KMU · Ø > 50 Lkw"],
   "vbl1/b-europa/e31": ["Unpaarige Ströme · Werkverkehr", "Paarige Ströme · Speditionsverkehr", "Hohe Maut · lange Lenkzeiten", "Zu viele Fahrer · zu viele Lkw"],
 
   // Lernfragen der Profs
   "vbl1/lernfragen/l01": ["Versender beauftragt Spediteur (§ 453), Spediteur beauftragt Frachtführer (§ 407)", "Versender beauftragt Frachtführer (§ 453), Frachtführer beauftragt Spediteur (§ 407)", "Versender beauftragt Spediteur (§ 407), Spediteur beauftragt Frachtführer (§ 453)", "Empfänger beauftragt Spediteur (§ 453), Spediteur beauftragt Frachtführer (§ 407)"],
-  "vbl1/lernfragen/l02": ["Beim Selbsteintritt", "Bei jeder Besorgung", "Beim Werkverkehr", "Bei der Kabotage"],
+  "vbl1/lernfragen/l02": ["Bei Selbsteintritt, Fixkosten und Sammelladung", "Nur beim Selbsteintritt mit eigenem Lkw", "Bei jeder Besorgung nach § 454 HGB", "Bei Werkverkehr, Kabotage und Cross-Trade"],
   "vbl1/lernfragen/l03": ["Out bei Schwankung · In bei strategischer Logistik", "Out bei strategischer Logistik · In bei Schwankung", "Out bei wenigen Anbietern · In bei vielen Zielen", "Out bei stabilen Mengen · In bei Spezialwissen"],
   "vbl1/lernfragen/l04": ["1PL Transport · 2PL Koordination · 3PL Kontrakt", "1PL Koordination · 2PL Transport · 3PL Kontrakt", "1PL Kontrakt · 2PL Koordination · 3PL Transport", "1PL Transport · 2PL Kontrakt · 3PL Koordination"],
   "vbl1/lernfragen/l05": ["330 Mrd. € Kosten · 131 Mrd. € Umsatz", "330 Mrd. € Umsatz · 131 Mrd. € Kosten", "131 Mrd. € Kosten · 330 Mrd. € Umsatz", "230 Mrd. € Kosten · 31 Mrd. € Umsatz"],

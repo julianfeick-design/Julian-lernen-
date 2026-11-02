@@ -189,7 +189,7 @@
         { t: "check", q: "Ein Lager hält Weihnachtsartikel von September bis Dezember bereit. Was **überbrückt** es?", o: ["Die Zeit", "Den Raum", "Die Menge", "Den Preis"], why: "Lagerung = **Zeitüberbrückung**. Transport überbrückt den Raum, Kommissionierung/Umschlag verändert Menge und Anordnung." },
         { t: "check", q: "Was unterscheidet das **SCM** von der Logistik?", o: ["Es koordiniert mehrere Unternehmen", "Es betrifft nur Lkw-Transporte", "Es ist rein operativ und kurzfristig", "Es gilt nur in einer Abteilung"], why: "SCM ist **unternehmensübergreifend**: Es integriert Lieferanten, Dienstleister, Handel und Kunden über mehrere Stufen. Logistik schaut meist vom eigenen Unternehmen aus." },
         { t: "check", q: "Was gehört zum **Logistikservice** – und nicht zu den Logistikkosten?", o: ["Lieferflexibilität", "Bestände", "Handling", "Systeme"], why: "Service = Lieferzeit, Lieferqualität, Lieferflexibilität, Lieferbereitschaft. Bestände, Handling, Transport und Systeme sind **Kosten**." },
-        { t: "check", q: "In welchem Jahrzehnt rückte die **Fließsystemlogistik / SCM** in den Fokus?", o: ["1990er", "1960er", "1970/80er", "2000er"], why: "1960er TUL → 1970/80er Koordination → **1990er Fließsysteme/SCM** → 2000er globale Netzwerke → heute VUCA/BANI." }
+        { t: "check", q: "Welche Entwicklungsstufe kommt direkt **nach** der TUL-Logistik?", o: ["Funktionenintegration & Koordination", "Fließsystemlogistik / SCM", "Global integrierte Netzwerklogistik", "Logistik in der VUCA-/BANI-Welt"], why: "TUL-Logistik (1960er) → **Funktionenintegration & Koordination** (1970/80er: 7 R, Kundenbedürfnisse) → Fließsystemlogistik/SCM (1990er) → globale Netzwerke (2000er) → heute VUCA/BANI." }
       ]
     },
 

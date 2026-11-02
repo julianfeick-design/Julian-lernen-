@@ -7,7 +7,6 @@ window.MC_DATA = window.MC_DATA || {};
 Object.assign(window.MC_DATA, {
   // 1 · Begriff
   "logistik/l-begriff/lb01": ["Produkt · Menge · Zeit · Ort · Kosten · Info · Qualität", "Produkt · Menge · Zeit · Ort · Preis · Kunde · Qualität", "Produkt · Lager · Zeit · Ort · Kosten · Info · Marke", "Preis · Menge · Zeit · Route · Kosten · Info · Qualität"],
-  "logistik/l-begriff/lb02": ["Bedarfsgerecht versorgen zu minimalen Kosten", "Bedarfsgerecht versorgen zu maximalem Tempo", "Möglichst viel lagern zu minimalen Kosten", "Möglichst schnell liefern, egal zu welchen Kosten"],
   "logistik/l-begriff/lb03": ["Transport = Raum · Lager = Zeit", "Transport = Zeit · Lager = Raum", "Transport = Menge · Lager = Sorte", "Transport = Raum · Lager = Menge"],
   "logistik/l-begriff/lb04": ["TUL · Bestände · Aufträge · Verpackung", "TUL · Werbung · Preise · Vertrieb", "Produktion · Bestände · Forschung · Montage", "TUL · Personal · Steuern · Buchhaltung"],
   "logistik/l-begriff/lb05": ["Teil des SCM, plant Vor- und Rückfluss", "Oberbegriff des SCM, plant nur Vorfluss", "Teil des Marketings, plant den Absatz", "Teil der Produktion, plant Fertigung"],
@@ -21,7 +20,6 @@ Object.assign(window.MC_DATA, {
   "logistik/l-begriff/lb13": ["Zu effizient → kein Puffer bei Ausfällen", "Zu effizient → zu viel Lagerbestand im Netz", "Zu verfügbar → zu wenig Lagerbestand", "Zu verfügbar → keine Kostenkontrolle mehr"],
   "logistik/l-begriff/lb14": ["TUL → Koordination → SCM → Netzwerke → VUCA", "SCM → TUL → Koordination → VUCA → Netzwerke", "Koordination → TUL → Netzwerke → SCM → VUCA", "TUL → SCM → Koordination → VUCA → Netzwerke"],
   "logistik/l-begriff/lb15": ["Begriffe für eine unsichere, komplexe Welt", "Namen der zwei größten Logistikkonzerne Europas", "Normen für Ladungsträger in Europa", "Kennzahlen zur Messung der Lagerauslastung"],
-  "logistik/l-begriff/lb16": ["Kommunikation · Infrastruktur · Organisation", "Kommunikation · Werbung · Organisation", "Infrastruktur · Marke · Preisgestaltung", "Organisation · Steuern · Subventionen"],
 
   // 2 · Markt
   "logistik/l-markt/lm01": ["Ca. 331 Mrd. € · drittgrößter Bereich", "Ca. 331 Mrd. € · größter Bereich", "Ca. 131 Mrd. € · drittgrößter Bereich", "Ca. 231 Mrd. € · fünftgrößter Bereich"],
@@ -35,7 +33,6 @@ Object.assign(window.MC_DATA, {
   "logistik/l-markt/lm09": ["Ca. 27,4 Mrd. €", "Ca. 12,0 Mrd. €", "Ca. 36,0 Mrd. €", "Ca. 80,0 Mrd. €"],
   "logistik/l-markt/lm10": ["Kontraktlogistik, ca. 80 Mrd. €", "KEP-Dienste, ca. 80 Mrd. €", "Ladungsverkehr, ca. 36 Mrd. €", "Luft-/Seefracht, ca. 44 Mrd. €"],
   "logistik/l-markt/lm11": ["Kontrakt 80 · Inhouse 44 · FTL 36 · KEP 27,4", "KEP 80 · Inhouse 44 · FTL 36 · Kontrakt 27,4", "Kontrakt 44 · Inhouse 80 · FTL 27,4 · KEP 36", "Kontrakt 80 · Inhouse 36 · FTL 44 · KEP 12"],
-  "logistik/l-markt/lm12": ["Pfohl · Bretzke · Schulte · Ihde", "Gutenberg · Heinen · Ulrich · Wöhe", "Meffert · Bruhn · Walsh · Kotler", "Pfohl · Meffert · Wöhe · Heinen"],
 
   // 3 · Konzeption
   "logistik/l-konzeption/lk01": ["Beschaffung · Produktion · Distribution · Entsorgung", "Beschaffung · Marketing · Distribution · Finanzierung", "Einkauf · Produktion · Verkauf · Buchhaltung", "Beschaffung · Produktion · Werbung · Entsorgung"],

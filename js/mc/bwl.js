@@ -6,7 +6,6 @@
 window.MC_DATA = window.MC_DATA || {};
 Object.assign(window.MC_DATA, {
   // BWL 1
-  "bwl/bwl-b1/b101": ["120 Min: 80 BWL + 40 Marketing", "120 Min: 60 BWL + 60 Marketing", "90 Min: 60 BWL + 30 Marketing", "120 Min: 40 BWL + 80 Marketing"],
   "bwl/bwl-b1/b102": ["Real- → Geistes- → Wirtschaftswissenschaft", "Formal- → Geistes- → Wirtschaftswissenschaft", "Real- → Natur- → Wirtschaftswissenschaft", "Meta- → Formal- → Wirtschaftswissenschaft"],
   "bwl/bwl-b1/b103": ["Der Betrieb", "Das Wirtschaften", "Der Markt", "Der Haushalt"],
   "bwl/bwl-b1/b104": ["Planvolle Einheit, kombiniert Faktoren für Güter", "Planvolle Einheit, verbraucht Güter für Konsum", "Zufällige Einheit, kombiniert Faktoren für Güter", "Staatliche Einheit, verteilt Güter an Haushalte"],
@@ -15,9 +14,9 @@ Object.assign(window.MC_DATA, {
   "bwl/bwl-b1/b107": ["Einzelfall → allgemeine Theorie", "Allgemeine Theorie → Einzelfall", "Hypothese → Messwiederholung", "Theorie → Gegenbeweis"],
   "bwl/bwl-b1/b108": ["Allgemeine Theorie → Hypothese", "Einzelfall → allgemeine Theorie", "Beobachtung → Messwiederholung", "Hypothese → Beobachtung"],
   "bwl/bwl-b1/b109": ["Objektivität · Reliabilität · Validität", "Objektivität · Rentabilität · Validität", "Produktivität · Reliabilität · Validität", "Objektivität · Reliabilität · Liquidität"],
-  "bwl/bwl-b1/b110": ["Gutenberg · Faktoreinsatz ↔ Ertrag", "Heinen · Faktoreinsatz ↔ Ertrag", "Gutenberg · reale Entscheidungen", "Ulrich · Faktoreinsatz ↔ Ertrag"],
-  "bwl/bwl-b1/b111": ["Heinen · keine vollkommene Information", "Gutenberg · keine vollkommene Information", "Heinen · vollkommene Information", "Ulrich · keine vollkommene Information"],
-  "bwl/bwl-b1/b112": ["Ulrich · Unternehmen als System", "Heinen · Unternehmen als System", "Gutenberg · Unternehmen als System", "Ulrich · Unternehmen als Maschine"],
+  "bwl/bwl-b1/b110": ["Faktoreinsatz ↔ Ertrag, vollkommene Information", "Reale Entscheidungen, unvollkommene Information", "Unternehmen als System mit Sollwerten", "Verfügungsrechte und Transaktionskosten"],
+  "bwl/bwl-b1/b111": ["Reale Entscheidungen, unvollkommene Information", "Faktoreinsatz ↔ Ertrag, vollkommene Information", "Unternehmen als System mit Sollwerten", "Verfügungsrechte und Transaktionskosten"],
+  "bwl/bwl-b1/b112": ["Unternehmen als System mit Sollwerten", "Faktoreinsatz ↔ Ertrag, vollkommene Information", "Reale Entscheidungen, unvollkommene Information", "Verfügungsrechte und Transaktionskosten"],
   "bwl/bwl-b1/b113": ["Verhaltenswissenschaft statt Homo Oeconomicus", "Homo Oeconomicus statt Verhaltenswissenschaft", "Ökologie statt Homo Oeconomicus", "Transaktionskosten statt Verhaltenswissenschaft"],
   "bwl/bwl-b1/b114": ["Ethisch-normativ & ökologieorientiert", "Ethisch-normativ & entscheidungsorientiert", "Produktivitäts- & ökologieorientiert", "Institutionen- & verhaltensorientiert"],
   "bwl/bwl-b1/b115": ["Verfügungsrechte · Transaktionskosten", "Produktionstheorie · Kostentheorie", "Ökologie · Nachhaltigkeitsberichte", "Verhaltenstheorie · Systemtheorie"],
@@ -28,7 +27,6 @@ Object.assign(window.MC_DATA, {
   "bwl/bwl-b1/b120": ["Firma = Name · Fabrik = Produktionsort", "Firma = Produktionsort · Fabrik = Name", "Firma = Transaktion · Fabrik = Name", "Firma = Gebäude · Fabrik = Transaktion"],
   "bwl/bwl-b1/b121": ["Haushalte und Betriebe", "Käufer und Verkäufer", "Banken und Staat", "Hersteller und Händler"],
   "bwl/bwl-b1/b122": ["Ziel · Leistungsart · Branche · Größe", "Ziel · Standort · Alter · Rechtsform", "Leistungsart · Marke · Preis · Größe", "Branche · Gründer · Farbe · Größe"],
-  "bwl/bwl-b1/b123": ["Einheitliche amtliche Statistik", "Einheitliche Steuerberechnung", "Vergabe von Gewerbelizenzen", "Einteilung nach Rechtsform"],
   "bwl/bwl-b1/b124": ["Mittel: 50–249 MA, < 50 Mio. €", "Mittel: 10–49 MA, < 10 Mio. €", "Mittel: 50–249 MA, < 10 Mio. €", "Mittel: 250–499 MA, < 50 Mio. €"],
   "bwl/bwl-b1/b125": ["Umsatz − Kosten", "Kosten − Umsatz", "Umsatz + Kosten", "Umsatz ÷ Kosten"],
 
@@ -58,11 +56,9 @@ Object.assign(window.MC_DATA, {
   "bwl/bwl-b2/b223": ["UR = Gewinn ÷ Umsatz · GKR = (G + Zinsen) ÷ GK", "UR = Umsatz ÷ Gewinn · GKR = GK ÷ (G + Zinsen)", "UR = Gewinn ÷ GK · GKR = Gewinn ÷ Umsatz", "UR = Gewinn ÷ Kosten · GKR = (G − Zinsen) ÷ EK"],
 
   // Marketing 1
-  "bwl/mkt-1/k101": ["Warum kauft jemand bei uns?", "Wie senken wir die Kosten?", "Wie wachsen wir am schnellsten?", "Wie viel Werbung brauchen wir?"],
   "bwl/mkt-1/k102": ["Product · Price · Place · Promotion", "Product · Profit · Place · Partner", "People · Price · Plan · Promotion", "Product · Price · People · Process"],
   "bwl/mkt-1/k103": ["Denkhaltung, ausgerichtet am Kundennutzen", "Abteilung, ausgerichtet an Werbeplakaten", "Denkhaltung, ausgerichtet am Produktpreis", "Abteilung, ausgerichtet am Verkaufserfolg"],
   "bwl/mkt-1/k104": ["Denkhaltung · Kundennutzen · Unternehmensziele", "Abteilung · Produkteigenschaft · Selbstzweck", "Denkhaltung · Produkteigenschaft · Werbeziele", "Abteilung · Kundennutzen · Selbstzweck"],
-  "bwl/mkt-1/k105": ["Das ganze Business aus Kundensicht", "Eine Funktion neben anderen Funktionen", "Die Werbeabteilung des Unternehmens", "Das ganze Business aus Kostensicht"],
   "bwl/mkt-1/k106": ["Lieferzeit ist ein Marketinginstrument", "Lieferzeit ist nur ein Technikthema", "Lieferzeit ist Kunden meist egal", "Lieferzeit ist gesetzlich vorgegeben"],
   "bwl/mkt-1/k107": ["Nachfrager · Anbieter · Mittler · Helfer", "Nachfrager · Staat · Banken · Helfer", "Anbieter · Hersteller · Lieferanten · Staat", "Käufer · Verkäufer · Banken · Gerichte"],
   "bwl/mkt-1/k108": ["Zusteller ist oft einziger Kundenkontakt", "Zusteller legt die Endpreise fest", "Zusteller gestaltet die Werbung", "Zusteller wählt das Sortiment aus"],

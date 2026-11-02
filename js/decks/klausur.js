@@ -141,7 +141,7 @@
         a: "146,16 € Maut · Parameter: Strecke, Achsen/Gewicht, Schadstoff-, CO2-Klasse · Toll Collect, OBU."
       },
       {
-        id: "k10",
+        id: "k10", important: true,
         q: "Erklären Sie, warum es falsch ist, von 330 Mrd. € „Logistikumsatz“ zu sprechen, und ordnen Sie den Speditionsumsatz ein. (5 Punkte)",
         hint: "Prof-Lernfrage. Begriffe: Logistikkosten, insourced, outsourced.",
         steps: [
@@ -153,7 +153,7 @@
         a: "330 Mrd. € = Kosten inkl. Eigenleistung; nur ca. 131 Mrd. € (40 %) sind Umsatz der Dienstleister."
       },
       {
-        id: "k11",
+        id: "k11", important: true,
         q: "Ein Verlader überlegt, seine Distribution an eine Kontraktlogistik auszulagern. Nennen und erläutern Sie je zwei Argumente für Outsourcing und für Insourcing. (8 Punkte)",
         hint: "Kriterien: Mengen & Netz, Kompetenz, Investitionen, Steuerung, Abhängigkeit.",
         steps: [
@@ -165,16 +165,16 @@
         a: "Out: Bündelung, Kapital sparen, Know-how · In: strategische Bedeutung, Abhängigkeit vermeiden."
       },
       {
-        id: "k12",
+        id: "k12", important: true,
         q: "Nennen Sie die Kernpflichten des Spediteurs nach § 454 HGB und ordnen Sie sie den Bereichen Planung, Ausführung und Überwachung zu. Wann hat der Spediteur zusätzlich Frachtführerpflichten? (6 Punkte)",
         hint: "Planung: Mittel & Weg · Ausführung: Unternehmer, Verträge, Weisungen · Überwachung: Ansprüche sichern.",
         steps: [
           "Planung: Wahl des Beförderungsmittels und des Beförderungswegs (1,5 P.)",
           "Ausführung: Auswahl ausführender Unternehmer, Abschluss der Fracht-/Lager-/Speditionsverträge, Erteilung von Informationen & Weisungen (2 P.)",
           "Überwachung: Sicherung von Schadenersatzansprüchen (1 P.)",
-          "Frachtführerpflichten beim Selbsteintritt: Der Spediteur führt die Beförderung selbst aus (1,5 P.)"
+          "Frachtführerpflichten hinsichtlich der Beförderung in drei Fällen: Selbsteintritt (§ 458 HGB), Spedition zu festen Kosten (§ 459 HGB) und Sammelladung (§ 460 HGB) (1,5 P.)"
         ],
-        a: "Planung (Mittel, Weg) · Ausführung (Unternehmer, Verträge, Weisungen) · Überwachung (Ansprüche) · Selbsteintritt."
+        a: "Planung (Mittel, Weg) · Ausführung (Unternehmer, Verträge, Weisungen) · Überwachung (Ansprüche) · Frachtführerpflichten bei Selbsteintritt, Fixkosten-Spedition und Sammelladung."
       }
     ],
     quiz: []
@@ -405,7 +405,7 @@
         a: "a) Sendungsverdichtung · b) Ring · c) Tourenverdichtung · d) Knotenpunkt (Hub-and-Spoke)."
       },
       {
-        id: "k06",
+        id: "k06", important: true,
         q: "Ordnen Sie die Entscheidungen der strategischen, taktischen oder operativen Planungsebene zu: (je 1 Punkt)\na) Standort eines neuen Auslieferungslagers\nb) Tourenplanung für morgen\nc) Festlegung des Serviceniveaus (z. B. 98 % Lieferbereitschaft)\nd) Auswahl eines Systemlieferanten für 5 Jahre\ne) Auslösen eines Transportauftrags\nf) Wahl der Transportmittel für eine Relation",
         hint: "Strategisch = langfristige Struktur · taktisch = vorhandene Strukturen nutzen · operativ = konkrete Aufträge.",
         steps: [
@@ -431,7 +431,7 @@
         a: "Nicht pauschal böse: Kosten & verdeckte Probleme vs. Lieferfähigkeit & Resilienz – gezielt steuern."
       },
       {
-        id: "k08",
+        id: "k08", important: true,
         q: "Grenzen Sie Logistik und Supply Chain Management anhand von vier Kriterien voneinander ab. (8 Punkte)",
         hint: "Kriterien: Ziel/Fokus, Betrachtungsbereich, typische Inhalte, Managementebene, Kooperationsumfang.",
         steps: [
@@ -443,7 +443,7 @@
         a: "Logistik steuert Flüsse im Unternehmen; SCM integriert die ganze Kette unternehmensübergreifend und strategisch."
       },
       {
-        id: "k09",
+        id: "k09", important: true,
         q: "Nennen Sie die drei Arten von Informationsflüssen in einem Logistiksystem und geben Sie für einen Lkw-Transport je ein konkretes Beispiel. (6 Punkte)",
         hint: "Vorauseilend (t0), begleitend (t1), nachfolgend (t2).",
         steps: [
@@ -466,7 +466,7 @@
         a: "Kaufkraft, zentrale Lage, globale Lieferketten, Effizienz/Infrastruktur."
       },
       {
-        id: "k11",
+        id: "k11", important: true,
         q: "Wenden Sie die 7 R auf die Versorgung eines Krankenhauses mit Impfstoff an. (7 Punkte)",
         hint: "Für jedes R ein konkreter Satz zum Fall.",
         steps: [

@@ -19,25 +19,39 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 4. **Karteikarten in Ordnern**: Ordner (Fach) → Stapel (Thema/Vorlesung) → Karten.
    Lernen nach dem **Leitner-System** (5 Fächer, Wiederholung nach 1/2/4/8/16 Tagen).
 5. **Multiple-Choice-Training** mit eigenem Fortschritt (sicher = 2× hintereinander richtig) und einer Erklärung nach jeder Antwort.
-6. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
-7. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
-8. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
-9. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
-10. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
-11. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
+6. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
+   - **⭐ Kommt dran**, wenn der Prof sagt, das ist wichtig. Die Karte kommt dann bevorzugt dran.
+   - **🚫 Kommt nicht dran**: Die Karte wird nicht mehr abgefragt und lässt sich im Ordner jederzeit wieder einblenden.
+7. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
+8. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
+9. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
+10. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
+11. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
+12. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
 
 ## Aktuelle Inhalte
 
 | Ordner | Prüfung | Lektionen | Inhalt |
 |---|---|---|---|
-| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | 5 Stapel, 68 Karten, 20 Quizfragen |
-| 💼 Grundlagen der BWL | 11. Januar | 4 | BWL + Marketing, 104 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
+| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | 5 Stapel, 65 Karten, 20 Quizfragen |
+| 💼 Grundlagen der BWL | 11. Januar | 4 | BWL + Marketing, 100 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
 | 🧮 Mathematik & Statistik | 13. Januar | 3 | **Aufgabenmodus**: 25 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg |
-| 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | 7 Stapel, 171 Karten, 41 Quizfragen |
-| 🎓 Studienwissen BWL-STL | – | – | Fachbegriffe, Incoterms 2020, BWL-Basics, Verkehrsgeografie, Klausur-Technik (61 Karten) |
+| 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | 7 Stapel, 157 Karten, 41 Quizfragen |
+| 🎓 Bonus: Praxiswissen | – | – | **kein Klausurstoff:** Fachbegriffe, Incoterms 2020, BWL-Basics (z. B. Rechtsformen), Klausur-Technik (49 Karten) |
 
 Zusätzlich hat jedes Prüfungsfach einen Stapel **📝 Klausuraufgaben** (DHBW-Stil mit Punkten und Musterlösung/Erwartungshorizont, `js/decks/klausur.js`).
 Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
+
+## Prüfungsrelevanz – so wird ausgewählt
+
+Woran sich die Fragen orientieren, absteigend nach Gewicht:
+
+1. **Lernfragen der Profs** (Folien: Logistik 20 Lernfragen, VBL 1 Einführung in die Spedition 22 Lernfragen). Jede Lernfrage ist durch Karten abgedeckt, und diese Karten sind ⭐.
+2. **Übungen und Hinweise aus der Vorlesung**: Übungsaufgaben auf den Folien (z. B. ökonomisches Prinzip, Produktionsfaktoren, Flittiflotti) und Notizen wie „Klausurfrage“ oder „Folie 21 nochmal angucken“.
+3. **Kerninhalte der Folien**: Definitionen, Abgrenzungen, Modelle, Abläufe, Vor- und Nachteile, Rechenwege und Fälle, abgefragt mit den Klausur-Operatoren (nennen, erläutern, abgrenzen, berechnen, beurteilen).
+
+**Nicht abgefragt** werden Zitate und wer etwas gesagt hat, Autoren- und Literaturlisten, Jahreszahlen, Verordnungsnummern ohne Inhalt, Farben von Nachweisen, Anekdoten, Organisatorisches und Zahlen-Trivia. Solches Hintergrundwissen steht höchstens noch zum Verständnis in den Lektionen.
+Auch Karten, die Claude auf der Website aus hochgeladenen Folien erstellt, folgen diesen Regeln.
 
 ## Lektionen (Lern-Seiten)
 

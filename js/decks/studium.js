@@ -1,13 +1,14 @@
 /*
- * Studienwissen BWL – Spedition, Transport und Logistik (DHBW)
- * Allgemeines Grundwissen fürs ganze Studium und die Praxisphasen – unabhängig von einer Klausur.
- * type "general": zählt nicht in „Fällig“/Prüfungs-Countdown, ist aber im MC-Training und
- * im „Wissen des Tages“ auf der Startseite.
+ * Bonus: Praxiswissen BWL – Spedition, Transport und Logistik (DHBW)
+ * Allgemeines Grundwissen fürs Studium und die Praxisphasen – KEIN Klausurstoff der aktuellen Prüfungen.
+ * type "general": zählt nicht in „Fällig“, Prüfungs-Countdown oder Prüfungsfokus; nur freiwillig im Ordner
+ * und als „Wissen des Tages“, wenn gerade keine Prüfung ansteht.
  */
 window.BUILTIN_FOLDERS.push({
   id: "studium",
   type: "general",
-  name: "Studienwissen BWL-STL",
+  name: "Bonus: Praxiswissen (kein Klausurstoff)",
+  short: "Bonus",
   emoji: "🎓",
   decks: [
     {
@@ -77,24 +78,6 @@ window.BUILTIN_FOLDERS.push({
       quiz: []
     },
     {
-      id: "geografie",
-      name: "Verkehrsgeografie",
-      description: "Häfen, Flughäfen, Wasserstraßen und Routen, die man als Speditionskaufmann kennen sollte.",
-      cards: [
-        { id: "g01", q: "Größter Seehafen Europas und größter Seehafen Deutschlands?", a: "Europa: Rotterdam. Deutschland: Hamburg." },
-        { id: "g02", q: "Größter Containerhafen der Welt?", a: "Shanghai (China)." },
-        { id: "g03", q: "Welcher Hafen gilt als größter Binnenhafen Europas?", a: "Duisburg (am Rhein) – auch Endpunkt vieler Güterzüge aus China." },
-        { id: "g04", q: "Größte Frachtflughäfen in Deutschland?", a: "Frankfurt am Main (größter) und Leipzig/Halle (zweitgrößter, europäisches Drehkreuz von DHL)." },
-        { id: "g05", q: "Wichtigste Binnenwasserstraße Europas?", a: "Der Rhein – verbindet Basel, Mannheim, Duisburg mit Rotterdam und den ARA-Häfen." },
-        { id: "g06", q: "Was ist der Nord-Ostsee-Kanal?", a: "Kanal in Schleswig-Holstein zwischen Nordsee (Brunsbüttel) und Ostsee (Kiel) – meistbefahrene künstliche Wasserstraße der Welt, spart den Weg um Dänemark." },
-        { id: "g07", q: "Welche zwei Kanäle sind für den Welthandel entscheidend?", a: "Suezkanal (Mittelmeer ↔ Rotes Meer, Asien–Europa) und Panamakanal (Atlantik ↔ Pazifik)." },
-        { id: "g08", q: "Wie lange braucht ein Güterzug von China nach Duisburg ungefähr?", a: "Ca. 2–3 Wochen – schneller als das Schiff (5–6 Wochen), günstiger als Luftfracht." },
-        { id: "g09", q: "Wichtigste Alpenübergänge für den Güterverkehr?", a: "Brenner (Österreich–Italien) und Gotthard (Schweiz). Die Schweiz verlagert Transit gezielt auf die Schiene (Lkw-Abgabe LSVA, Gotthard-Basistunnel)." },
-        { id: "g10", q: "Was ist die „Blaue Banane“?", a: "Der dichtbesiedelte, wirtschaftsstarke Korridor Europas von Nordengland über Benelux und das Rheinland bis Norditalien – Rückgrat der europäischen Güterströme." }
-      ],
-      quiz: []
-    },
-    {
       id: "studium-dhbw",
       name: "Klausur-Technik & Studium",
       description: "Operatoren verstehen, Punkte holen, wissenschaftlich arbeiten.",
@@ -105,8 +88,6 @@ window.BUILTIN_FOLDERS.push({
         { id: "s04", q: "Was verlangt der Operator „Beurteilen“ bzw. „Bewerten“?", a: "Vor- und Nachteile bzw. Kriterien abwägen und zu einem begründeten eigenen Urteil (Fazit) kommen." },
         { id: "s05", q: "Was verlangt der Operator „Berechnen“?", a: "Rechenweg mit Formel, Einsetzen, Ergebnis und Einheit nachvollziehbar darstellen – Teilpunkte gibt es auch für den Weg." },
         { id: "s06", q: "Wie holt man in einer Rechenaufgabe Teilpunkte, wenn das Ergebnis falsch ist?", a: "Formel allgemein hinschreiben, Werte sichtbar einsetzen, Zwischenergebnisse notieren, Einheit angeben – Folgefehler werden oft trotzdem bewertet." },
-        { id: "s07", q: "Wie viele ECTS hat ein Bachelor an der DHBW?", a: "210 ECTS in 6 Semestern (Theorie- und Praxisphasen im Wechsel)." },
-        { id: "s08", q: "Was ist der Unterschied zwischen direktem und indirektem Zitat?", a: "Direkt: wörtlich in Anführungszeichen mit genauer Seite. Indirekt: sinngemäß in eigenen Worten, oft mit „vgl.“ – Quelle muss bei beiden angegeben werden." },
         { id: "s09", q: "Wie viel Zeit sollte man in einer Klausur pro Punkt einplanen?", a: "Faustregel: Bearbeitungszeit ÷ Gesamtpunkte. Beispiel: 80 Min. für 80 Punkte ≈ 1 Minute pro Punkt – so erkennt man, wann man weitergehen muss." }
       ],
       quiz: []
@@ -162,16 +143,6 @@ Object.assign(window.MC_DATA, {
   "studium/bwl-basics/b13": ["Anschaffungskosten über Nutzungsdauer verteilen", "Anschaffungskosten sofort voll abziehen", "Wertsteigerung über Nutzungsdauer verteilen", "Reparaturkosten über Nutzungsdauer verteilen"],
   "studium/bwl-basics/b14": ["Umlaufvermögen − kurzfristige Verbindlichkeiten", "Anlagevermögen − langfristige Verbindlichkeiten", "Eigenkapital − Fremdkapital", "Umsatz − kurzfristige Verbindlichkeiten"],
 
-  "studium/geografie/g01": ["Europa: Rotterdam · DE: Hamburg", "Europa: Hamburg · DE: Bremerhaven", "Europa: Antwerpen · DE: Hamburg", "Europa: Rotterdam · DE: Bremerhaven"],
-  "studium/geografie/g02": ["Shanghai", "Singapur", "Rotterdam", "Los Angeles"],
-  "studium/geografie/g03": ["Duisburg", "Mannheim", "Basel", "Köln"],
-  "studium/geografie/g04": ["Frankfurt und Leipzig/Halle", "München und Hamburg", "Frankfurt und Köln/Bonn", "Leipzig/Halle und Berlin"],
-  "studium/geografie/g05": ["Der Rhein", "Die Donau", "Die Elbe", "Der Main"],
-  "studium/geografie/g06": ["Nordsee ↔ Ostsee, meistbefahrener Kanal", "Rhein ↔ Main, längster Kanal Deutschlands", "Nordsee ↔ Elbe, tiefster Kanal Europas", "Ostsee ↔ Oder, ältester Kanal Europas"],
-  "studium/geografie/g07": ["Suezkanal und Panamakanal", "Suezkanal und Nord-Ostsee-Kanal", "Panamakanal und Mittellandkanal", "Kielkanal und Bosporus"],
-  "studium/geografie/g08": ["Ca. 2–3 Wochen", "Ca. 5–6 Wochen", "Ca. 3–4 Tage", "Ca. 8–10 Wochen"],
-  "studium/geografie/g09": ["Brenner und Gotthard", "Brenner und Mont Blanc", "Gotthard und Arlberg", "Simplon und Großglockner"],
-  "studium/geografie/g10": ["Wirtschaftskorridor England–Norditalien", "Bananen-Importroute nach Hamburg", "Wirtschaftskorridor Paris–Warschau", "Schifffahrtsroute durch den Ärmelkanal"],
 
   "studium/studium-dhbw/s01": ["Aufzählen ohne Erklärung", "Erklären mit Beispiel", "Abwägen mit Fazit", "Beschreiben mit Begründung"],
   "studium/studium-dhbw/s02": ["Strukturiert wiedergeben, ohne Begründung", "In Stichpunkten aufzählen, ohne Erklärung", "Abwägen und ein eigenes Urteil fällen", "Herleiten mit vollständigem Rechenweg"],
@@ -179,7 +150,5 @@ Object.assign(window.MC_DATA, {
   "studium/studium-dhbw/s04": ["Abwägen und begründet urteilen", "Aufzählen ohne jede Erklärung", "Beschreiben ohne eigenes Urteil", "Nur die Nachteile nennen"],
   "studium/studium-dhbw/s05": ["Formel, Einsetzen, Ergebnis mit Einheit", "Nur das Endergebnis ohne Einheit notieren", "Formel nennen, aber nicht einsetzen", "Ergebnis schätzen und sinnvoll runden"],
   "studium/studium-dhbw/s06": ["Formel, Einsetzen und Zwischenschritte zeigen", "Nur das Endergebnis groß und deutlich hinschreiben", "Rechnung weglassen und das Ergebnis schätzen", "Mehrere Ergebnisse zur Auswahl angeben"],
-  "studium/studium-dhbw/s07": ["210 ECTS", "180 ECTS", "240 ECTS", "150 ECTS"],
-  "studium/studium-dhbw/s08": ["Direkt wörtlich · indirekt sinngemäß", "Direkt sinngemäß · indirekt wörtlich", "Direkt ohne Quelle · indirekt mit Quelle", "Direkt aus Büchern · indirekt aus Internet"],
   "studium/studium-dhbw/s09": ["Zeit ÷ Punkte, z. B. ≈ 1 Min. je Punkt", "Punkte ÷ Zeit, z. B. ≈ 2 Min. je Punkt", "Immer 5 Min. je Aufgabe", "Zuerst die längste Aufgabe bearbeiten"]
 });
