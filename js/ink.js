@@ -43,7 +43,7 @@ window.Ink = (function () {
   const ic = (n) => window.icon ? `<span class="ic">${window.icon(n)}</span>` : "";
 
   // ---------- Zeichnen ----------
-  const widthOf = (s, pt, k) => s.c === "er" ? s.w * k : s.w * k * (0.45 + 0.9 * (pt[2] == null ? 0.5 : pt[2] / 100));
+  const widthOf = (s, pt, k) => s.c === "er" ? s.w * k : s.w * k * (0.78 + 0.44 * (pt[2] == null ? 0.5 : pt[2] / 100));
   function paint(ctx, s, k, cm, from) {
     const p = s.p;
     ctx.save();
@@ -55,7 +55,7 @@ window.Ink = (function () {
     }
     for (let i = Math.max(1, from || 1); i < p.length; i++) {
       const a = p[i - 1], b = p[i], z = p[i - 2] || a;
-      ctx.lineWidth = widthOf(s, b, k);
+      ctx.lineWidth = widthOf(s, [0, 0, ((a[2] == null ? 50 : a[2]) + (b[2] == null ? 50 : b[2])) / 2], k);
       ctx.beginPath();
       ctx.moveTo((z[0] + a[0]) / 2 * k, (z[1] + a[1]) / 2 * k);
       ctx.quadraticCurveTo(a[0] * k, a[1] * k, (a[0] + b[0]) / 2 * k, (a[1] + b[1]) / 2 * k);
@@ -143,7 +143,7 @@ window.Ink = (function () {
 
     const pt = (e) => {
       const r = cv.getBoundingClientRect(), f = W / r.width;
-      return [Math.round((e.clientX - r.left) * f), Math.round((e.clientY - r.top) * f), e.pointerType === "pen" ? Math.round((e.pressure || 0.5) * 100) : 50];
+      return [Math.round((e.clientX - r.left) * f * 10) / 10, Math.round((e.clientY - r.top) * f * 10) / 10, e.pointerType === "pen" ? Math.round((e.pressure || 0.5) * 100) : 50];
     };
     cv.addEventListener("pointerdown", e => {
       if (e.pointerType === "pen" && !prefs.penSeen) { prefs.penSeen = true; if (prefs.finger === null) prefs.finger = false; savePrefs(); syncBars(); }
@@ -153,7 +153,9 @@ window.Ink = (function () {
       try { cv.setPointerCapture(e.pointerId); } catch { /* egal */ }
       const er = prefs.tool === "eraser" || (e.buttons & 32);
       cm = screenColors();
-      cur = { c: er ? "er" : prefs.color, w: er ? 30 : 2.6, p: [pt(e)], pid: e.pointerId };
+      const px = W / (cv.getBoundingClientRect().width || W);   // 1 Bildschirm-Pixel in Blatt-Einheiten
+      const first = pt(e);
+      cur = { c: er ? "er" : prefs.color, w: Math.round((er ? 24 : 2.9) * px * 100) / 100, p: [first], pid: e.pointerId, ps: first[2], sx: first[0], sy: first[1] };
       rec.s.push(cur); rec.t = Date.now();
       ph.classList.add("hidden");
       paint(ctx, cur, k, cm, 0);
@@ -164,15 +166,22 @@ window.Ink = (function () {
       const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of (evs.length ? evs : [e])) {
         const q = pt(ev), last = cur.p[cur.p.length - 1];
-        if (Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) < 2) continue;
-        cur.p.push(q);
+        cur.ps = cur.ps * 0.75 + q[2] * 0.25;                 // Druck sanft glätten
+        cur.sx += (q[0] - cur.sx) * 0.6; cur.sy += (q[1] - cur.sy) * 0.6;   // leichtes Glätten gegen Zittern
+        const sm = [Math.round(cur.sx * 10) / 10, Math.round(cur.sy * 10) / 10, Math.round(cur.ps)];
+        if (Math.abs(sm[0] - last[0]) + Math.abs(sm[1] - last[1]) < 1.2) continue;
+        cur.p.push(sm);
         paint(ctx, cur, k, cm, cur.p.length - 1);
       }
     });
     const end = (e) => {
       if (!cur || (e && e.pointerId !== cur.pid)) return;
+      if (e && e.clientX != null && e.type === "pointerup") {
+        const q = pt(e), last = cur.p[cur.p.length - 1];
+        if (Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) >= 1.2) { q[2] = Math.round(cur.ps); cur.p.push(q); paint(ctx, cur, k, cm, cur.p.length - 1); }
+      }
       tail(ctx, cur, k, cm);
-      delete cur.pid;
+      delete cur.pid; delete cur.ps; delete cur.sx; delete cur.sy;
       cur = null; persist(); fire(id);
     };
     cv.addEventListener("pointerup", end);
