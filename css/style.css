@@ -950,3 +950,61 @@ details.method { margin-top: 14px; }
   .topbar .pill { padding: 4px 8px; font-size: .84rem; gap: 4px; }
   .brand { font-size: .98rem; gap: 6px; }
 }
+
+/* =========================================================
+   Handschrift (Apple Pencil) & Tippen
+   ========================================================= */
+.pr-q { margin-top: 16px; }
+.pr-ql { display: block; font-weight: 650; font-size: .93rem; margin-bottom: 6px; line-height: 1.4; }
+.wf { margin-top: 2px; }
+#app.im-ink .wf-text { display: none; }
+#app.im-text .wf .ink { display: none; }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; flex: none; }
+.seg-b { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: .84rem; padding: 7px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.seg-b.on { background: var(--surface-solid); color: var(--text); box-shadow: var(--shadow-sm); }
+.ink { border: 1px solid var(--line-strong); border-radius: 18px; overflow: hidden; background: var(--surface-solid); }
+.ink-bar { display: flex; align-items: center; gap: 2px; padding: 5px 8px; border-bottom: 1px solid var(--line); background: var(--surface-2); flex-wrap: wrap; }
+.ink-b, .ink-c { appearance: none; border: 0; background: transparent; color: var(--text); height: 40px; min-width: 40px; border-radius: 12px; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.ink-b .ic svg { width: 1.25rem; height: 1.25rem; }
+.ink-b.on { background: var(--primary-soft); color: var(--primary); }
+.ink-c i { width: 20px; height: 20px; border-radius: 50%; display: block; box-shadow: 0 0 0 2px var(--surface-2), 0 0 0 3px var(--line-strong); }
+.ink-c.on i { box-shadow: 0 0 0 2px var(--surface-2), 0 0 0 4px var(--primary); }
+.ink-c[data-color="ink"] i { background: var(--text); }
+.ink-c[data-color="acc"] i { background: var(--primary); }
+.ink-c[data-color="red"] i { background: #e5484d; }
+.ink-sep { width: 1px; height: 24px; background: var(--line-strong); margin: 0 6px; opacity: .6; }
+.ink-grow { flex: 1; }
+.ink-paper {
+  position: relative; min-height: 120px; background-color: var(--surface-solid);
+  background-image: repeating-linear-gradient(transparent 0 37px, color-mix(in srgb, var(--primary) 16%, transparent) 37px 38px);
+  background-position: 0 12px;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.ink-paper canvas { display: block; position: absolute; left: 0; top: 0; }
+.ink-ph { position: absolute; left: 16px; top: 14px; color: var(--muted); font-size: .95rem; pointer-events: none; }
+.ink.eraser canvas { cursor: cell; }
+.ink-paper canvas { cursor: crosshair; }
+
+/* Erklären: Checkliste pro Unterthema */
+.fy-how > summary { cursor: pointer; padding: 2px 0; }
+.fy-steps { margin: 12px 0 0; padding-left: 22px; line-height: 1.75; }
+.chip.tchip.done:not(.active) { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
+.fy-points { display: grid; gap: 8px; }
+.fy-pt { appearance: none; font: inherit; text-align: left; display: flex; gap: 12px; align-items: flex-start; padding: 11px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); cursor: pointer; line-height: 1.45; font-size: .93rem; transition: background .15s, border-color .15s; }
+.fy-box { flex: none; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line-strong); display: grid; place-items: center; }
+.fy-pt.ok { background: var(--primary-soft); border-color: color-mix(in srgb, var(--primary) 45%, transparent); }
+.fy-pt.ok .fy-box { background: var(--grad); border-color: transparent; }
+.fy-pt.ok .fy-box::after { content: ""; width: 10px; height: 5px; border-left: 2.5px solid var(--on-accent); border-bottom: 2.5px solid var(--on-accent); transform: translateY(-1px) rotate(-45deg); }
+.fy-result { margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+.fy-result p { margin: 8px 0 0; line-height: 1.55; }
+.fy-miss { background: color-mix(in srgb, var(--warn) 30%, transparent); border-radius: 4px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 30%, transparent); }
+#fyRate .btn.suggested { outline: 3px solid color-mix(in srgb, var(--primary) 60%, transparent); outline-offset: 2px; }
+.msg-img { display: block; max-width: 100%; border-radius: 12px; margin-bottom: 8px; background: #fff; }
+.msg-imgnote { display: block; font-size: .78rem; opacity: .85; margin-bottom: 4px; }
+
+/* Check-in ohne Seitenleiste: auf dem iPad mittig */
+@media (min-width: 1000px) {
+  body.no-nav { padding-left: 0; }
+  body.no-nav .topbar { margin-left: 0; padding-left: 20px; }
+  body.no-nav .topbar .brand { visibility: visible; }
+}

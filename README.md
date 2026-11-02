@@ -11,7 +11,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 3. **Lernweg pro Thema – 5 Schritte**:
    1. 🧲 **Primen** (5–10 Min, vor dem Lesen): Vorwissen sammeln, nur die Überschriften scannen, neue Begriffe antippen, offene Fragen notieren. In der Lektion sind die neuen Begriffe dann markiert und am Ende wird abgefragt, ob die Fragen beantwortet sind.
    2. 📖 **Verstehen**: die Lektion lesen.
-   3. 🗣️ **Erklären (Feynman-Methode)**: Unterthema und Niveau wählen, in eigenen Worten erklären (gern per Diktierfunktion), dann **selbst prüfen** (Material zum Vergleich + Lücken-Check + Analogie) oder **Claude** prüfen lassen, der gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
+   3. 🗣️ **Erklären (Feynman-Methode)** – Unterthema für Unterthema, auf Wunsch **mit dem Apple Pencil** (Schreibfeld mit Stift, Radierer, Farben, Rückgängig; Finger scrollt weiter). Beim Vergleichen hakst du die konkreten Punkte des Unterthemas ab, fehlende werden im Material markiert: Unterthema und Niveau wählen, in eigenen Worten erklären (gern per Diktierfunktion), dann **selbst prüfen** (Material zum Vergleich + Lücken-Check + Analogie) oder **Claude** prüfen lassen, der gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
    4. 🧩 **Abrufen**: Multiple Choice und Karteikarten (bei Mathe: Aufgaben rechnen).
    5. 📝 **Anwenden**: Klausuraufgaben.
 

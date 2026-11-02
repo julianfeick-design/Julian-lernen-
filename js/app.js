@@ -351,6 +351,7 @@
     const free = ["checkin", "einstellungen"];
     if (!hasCheckin && !free.includes(page)) { location.replace("#/checkin"); return; }
     $("#tabbar").classList.toggle("hidden", page === "checkin");
+    document.body.classList.toggle("no-nav", page === "checkin");
     window.scrollTo(0, 0);
     switch (page) {
       case "checkin": setTab(""); return viewCheckin(rest[0] === "edit");
@@ -1600,17 +1601,20 @@
 
   // ---------- Claude-Modus im Chat (eigener Verlauf je Sitzung) ----------
   let chatMode = null;
-  function startMethodChat(title, system, first) {
+  function startMethodChat(title, system, first, img) {
     chatMode = { title, system, id: Date.now() };
     state.chat.push({ role: "divider", content: title, id: chatMode.id });
     save();
     toggleChat(true);
     renderChatMode();
-    if (first) sendChat(first);
+    if (first) sendChat(first, img);
   }
   function endMethodChat() {
     if (!chatMode) return;
     chatMode = null;
+    // Handschrift-Bilder nicht dauerhaft im Chatverlauf speichern
+    state.chat.forEach(m => { if (m.img) { delete m.img; m.hadImg = true; } });
+    save();
     renderChatMode();
   }
   function renderChatMode() {
@@ -1658,7 +1662,7 @@
     const net = lessonNet(L);
     const math = f.type === "math";
     window.chatContext = `Ich mache gerade Priming für die Lektion „${L.title}“ (${f.name}) – ich habe sie noch nicht gelesen. Erklär mir den Stoff noch nicht, sondern hilf mir mit Fragen beim Vorwissen-Sammeln.`;
-    const field = (k, label, rows, ph) => `<label class="pr-q"><span>${label}</span><textarea data-f="${k}" rows="${rows}" placeholder="${esc(ph || "")}">${esc(P[k] || "")}</textarea></label>`;
+    const field = (k, label, rows, ph) => `<div class="pr-q"><span class="pr-ql">${label}</span>${writeField(`pr:${key}:${k}`, P[k], { rows, ph: ph || "", attrs: `data-f="${k}"` })}</div>`;
     app().innerHTML = `
       <div class="row between"><a href="#/lektionen" class="small">← Alle Lektionen</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
       <div class="card ls-hero">
@@ -1670,7 +1674,7 @@
       </div>
       <section class="card pr-step">
         <div class="row between"><h2><span class="pr-n">1</span>Aus dem Kopf</h2><button type="button" class="btn-ghost small" id="prT1">⏱ 2 Min Timer</button></div>
-        <p class="muted small" style="margin:0">Ohne Unterlagen, Stichworte reichen – falsch gibt es hier nicht.</p>
+        <div class="row between" style="align-items:center;gap:10px;margin-top:4px"><p class="muted small" style="margin:0;flex:1;min-width:180px">Ohne Unterlagen, Stichworte reichen – falsch gibt es hier nicht.</p>${modeSwitch()}</div>
         ${field("know", `Was weißt du schon über „${esc(L.title)}“? Was fällt dir dazu ein?`, 3, "Begriffe, Beispiele, Erinnerungen aus Vorlesung oder Betrieb …")}
         ${field("why", "Warum ist das wichtig? Wo begegnet es dir – im Alltag oder in deinem Ausbildungsbetrieb?", 2, "")}
         ${field("hyp", "Deine Vermutung: Wie könnte das funktionieren oder zusammenhängen?", 2, "Eine Hypothese darf ruhig falsch sein – genau das macht neugierig.")}
@@ -1701,6 +1705,7 @@
         <button type="button" class="btn secondary small" id="prClaude">💬 Mit Claude primen</button>
       </div>`;
     renderMath(app());
+    bindInputMode(app());
     timerBtn($("#prT1"), 120);
     timerBtn($("#prT2"), 180);
     $$("textarea[data-f]").forEach(t => t.addEventListener("input", () => { P[t.dataset.f] = t.value; saveSoon(); }));
@@ -1725,6 +1730,7 @@
     $("#prNext").addEventListener("click", () => {
       P.scan = true; save();
       $("#prScan").classList.remove("hidden"); $("#prOpen").classList.remove("hidden");
+      applyInputMode();
       $("#prScan").scrollIntoView({ behavior: "smooth", block: "start" });
     });
     $("#prForm").addEventListener("submit", e => {
@@ -1747,8 +1753,55 @@
     });
   }
 
+  // ---------- Schreiben: Handschrift (Apple Pencil) oder Tippen ----------
+  const inputMode = () => state.settings.inputMode ||
+    (window.matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) >= 700 ? "ink" : "text");
+  const modeSwitch = () => `<div class="seg" role="group" aria-label="Eingabe">
+      <button type="button" class="seg-b ${inputMode() === "ink" ? "on" : ""}" data-im="ink">✍️ Handschrift</button>
+      <button type="button" class="seg-b ${inputMode() === "text" ? "on" : ""}" data-im="text">⌨️ Tippen</button>
+    </div>`;
+  function writeField(id, text, { rows = 3, ph = "", inkPh = "", attrs = "" } = {}) {
+    return `<div class="wf"><textarea class="wf-text" rows="${rows}" placeholder="${esc(ph)}" ${attrs}>${esc(text || "")}</textarea>${window.Ink ? Ink.html(id, { ph: inkPh }) : ""}</div>`;
+  }
+  function applyInputMode(root = app()) {
+    const ink = inputMode() === "ink" && !!window.Ink;
+    root.classList.toggle("im-ink", ink);
+    root.classList.toggle("im-text", !ink);
+    $$(".seg-b[data-im]", root).forEach(b => b.classList.toggle("on", b.dataset.im === (ink ? "ink" : "text")));
+    if (window.Ink) Ink.mount(root);
+  }
+  function bindInputMode(root = app(), after) {
+    $$(".seg-b[data-im]", root).forEach(b => b.addEventListener("click", () => {
+      state.settings.inputMode = b.dataset.im; save(); applyInputMode(root);
+      if (after) after();
+    }));
+    applyInputMode(root);
+  }
+  const hasInk = (id) => !!(window.Ink && Ink.has(id));
+
+  // Punkte eines Unterthemas, die in eine gute Erklärung gehören
+  function topicPoints(L, sel) {
+    if (sel.i < 0) return lessonNet(L).map(n => n.h).slice(0, 10);
+    const sec = L.s[sel.i];
+    let pts = sec.t === "bal" ? [sec.l[0], sec.r[0], ...sec.l[1].slice(0, 3), ...sec.r[1].slice(0, 3)]
+      : ((lessonNet(L).find(n => n.i === sel.i) || { terms: [] }).terms || []).slice();
+    if (pts.length < 3) {
+      const src = topicMaterial(L, sel.i).flatMap(s => [s.x, s.cap, ...(s.items || []).map(i => Array.isArray(i) ? i.join(" ") : i)]).filter(Boolean).join(" ");
+      for (const m of src.matchAll(/\*\*(.+?)\*\*/g)) {
+        const t = plainTxt(m[1]).replace(/[.:,;!]+$/, "");
+        if (t.length >= 3 && t.length <= 70 && !pts.map(plainTxt).includes(t)) pts.push(t);
+      }
+    }
+    return [...new Set(pts.map(plainTxt))].filter(Boolean).slice(0, 8);
+  }
+  const FY_QUALITY = [
+    "Jeden <b>Fachbegriff</b> auch ohne Fachwort erklärt",
+    "Keine <b>Floskeln</b> wie „ist halt so“ – alles begründet",
+    "<b>Zusammenhänge</b> gezeigt (weil …, dadurch …)"
+  ];
+
   // ---------- Schritt 3: Erklären (Feynman) ----------
-  function viewFeynman(fid, did) {
+  function viewFeynman(fid, did, pick) {
     const f = getFolders().find(x => x.id === fid);
     const d = f && f.decks.find(x => x.id === did);
     const key = lessonKey(fid, did), L = lessonsAll()[key];
@@ -1760,147 +1813,219 @@
     const net = lessonNet(L);
     const topics = [...net.map(n => ({ id: String(n.i), h: n.h, i: n.i })), { id: "all", h: "Die ganze Lektion im Überblick", i: -1 }];
     const tp = F.topics || {};
-    let sel = topics.find(t => !tp[t.h]) || topics.slice().sort((a, b) => (tp[a.h].r - tp[b.h].r) || tp[a.h].d.localeCompare(tp[b.h].d))[0];
+    let sel = (pick && topics.find(t => t.id === pick)) || topics.find(t => !tp[t.h]) || topics.slice().sort((a, b) => (tp[a.h].r - tp[b.h].r) || tp[a.h].d.localeCompare(tp[b.h].d))[0];
     let lvl = F.lvl || "mittel";
     const due = feynDue(key);
+    const doneCount = topics.filter(t => tp[t.h]).length;
+    const inkId = () => `fy:${key}|${sel.h}`, anaId = () => `fya:${key}|${sel.h}`;
     window.chatContext = `Ich übe gerade die Feynman-Methode zur Lektion „${L.title}“ (${f.name}): Ich erkläre ein Unterthema in eigenen Worten. Nimm mir die Antworten nicht vorweg.`;
     app().innerHTML = `
       <div class="row between"><a href="${lessonHref(key, 1)}" class="small">← Zur Lektion</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
       <div class="card ls-hero">
         <span class="tag">🗣️ Schritt 3 von 5 · Erklären</span>
         <h1>${esc(L.title)}</h1>
-        <p class="ls-meta">⏱ 5–10 Min · Feynman-Methode${due ? " · 🔁 Wiederholung ist heute dran" : ""}</p>
+        <p class="ls-meta">⏱ 5 Min pro Unterthema · Feynman-Methode${due ? " · 🔁 Wiederholung ist heute dran" : ""}</p>
         <div style="margin-top:6px">${pathStrip(2, math)}</div>
       </div>
-      ${lessonSection({ t: "flow", h: "So funktioniert die Feynman-Methode", steps: [
-        ["Unterthema wählen", "klein und konkret – nicht die ganze Lektion auf einmal"],
-        ["Einfach erklären", "frei und ohne Spickzettel – als würdest du es einem Freund beibringen"],
-        ["Lücken finden", "Wo stockst du? Nur **diese** Stelle nachlesen"],
-        ["Vereinfachen", "nochmal erklären – mit einer **Analogie** aus dem Alltag"]
-      ], cap: "Wiederholen, bis es flüssig klappt. **Wenn du es nicht einfach erklären kannst, hast du es noch nicht ganz verstanden** – und genau das findest du hier heraus." })}
+      <details class="card fy-how" ${doneCount ? "" : "open"}><summary><b>So funktioniert’s</b> <span class="small muted">– ein Unterthema nach dem anderen</span></summary>
+        <ol class="fy-steps">
+          <li><b>Unterthema wählen</b> – klein und konkret</li>
+          <li><b>Erklären</b> – ohne nachzuschauen, als würdest du es einem Freund beibringen</li>
+          <li><b>Vergleichen</b> – das Material aufklappen und abhaken, welche Punkte du drin hattest</li>
+          <li><b>Lücken schließen</b> – fehlende Punkte nachlesen, dann nochmal kurz mit einer Analogie erklären</li>
+          <li><b>Bewerten</b> – danach geht’s mit dem nächsten Unterthema weiter</li>
+        </ol>
+      </details>
       <section class="card fy">
-        <h2><span class="pr-n">1</span>Unterthema</h2>
-        <div class="chips" id="fyTopics">${topics.map(t => `<button type="button" class="chip tchip ${t.id === sel.id ? "active" : ""}" data-t="${t.id}">${tp[t.h] ? "✓ " : ""}${mdx(t.h)}</button>`).join("")}</div>
+        <div class="row between" style="align-items:baseline"><h2><span class="pr-n">1</span>Unterthema</h2><span class="small muted">${doneCount} von ${topics.length} erklärt</span></div>
+        <div class="bar" style="margin:4px 0 12px"><div style="width:${doneCount / topics.length * 100}%"></div></div>
+        <div class="chips" id="fyTopics">${topics.map(t => `<button type="button" class="chip tchip ${t.id === sel.id ? "active" : ""} ${tp[t.h] ? "done" : ""}" data-t="${t.id}">${tp[t.h] ? "✓ " : ""}${mdx(t.h)}</button>`).join("")}</div>
         <h2 style="margin-top:18px"><span class="pr-n">2</span>Niveau</h2>
         <div class="chips" id="fyLvls">${FY_LEVELS.map(([id, n]) => `<button type="button" class="chip ${id === lvl ? "active" : ""}" data-l="${id}">${n}</button>`).join("")}</div>
         <p class="small muted" id="fyLvlTxt" style="margin:8px 0 0"></p>
-        <h2 style="margin-top:18px"><span class="pr-n">3</span>Jetzt erklären</h2>
-        <p class="small muted" style="margin:0 0 8px">🎤 Tipp: Tippe auf das Mikrofon deiner Tastatur und erkläre laut – das trainiert gleich fürs Mündliche. Nicht nachschauen!</p>
-        <textarea id="fyTxt" rows="7"></textarea>
+      </section>
+      <section class="card fy" id="fyWriteCard">
+        <div class="row between" style="align-items:center;gap:10px"><h2 style="margin:0"><span class="pr-n">3</span><span id="fyTopicH"></span></h2>${modeSwitch()}</div>
+        <p class="small muted" style="margin:8px 0 10px" id="fyHint"></p>
+        <div id="fyWrite"></div>
         <p class="small muted" id="fyCount" style="margin:6px 0 0"></p>
         <div class="row" style="margin-top:12px">
-          <button type="button" class="btn" id="fySelf">☑️ Selbst prüfen</button>
-          <button type="button" class="btn secondary" id="fyClaude">🤖 Claude prüft & fragt nach</button>
+          <button type="button" class="btn" id="fySelf">☑️ Fertig – jetzt vergleichen</button>
+          <button type="button" class="btn secondary" id="fyClaude">🤖 Claude prüfen lassen</button>
         </div>
-        <p class="small muted" style="margin:8px 0 0">Selbst prüfen ist kostenlos. Claude kostet ein paar Cent pro Nachricht (API-Key unter ⚙️ Mehr).</p>
+        <p class="small muted" style="margin:8px 0 0">Vergleichen ist kostenlos. Claude liest auch deine Handschrift und fragt nach – kostet ein paar Cent (API-Key unter ⚙️ Mehr).</p>
       </section>
       <section class="card fy hidden" id="fyCheck">
-        <h2><span class="pr-n">4</span>Lücken finden</h2>
-        <details class="fy-mat" open><summary>📖 Material zum Vergleichen</summary><div id="fyMat"></div></details>
-        <p style="margin:16px 0 8px"><b>Ehrlich abhaken – was hat geklappt?</b></p>
-        <div class="fy-gaps">
-          <label class="fy-gap"><input type="checkbox"><span>Ich konnte jeden <b>Fachbegriff</b> auch ohne Fachwort erklären</span></label>
-          <label class="fy-gap"><input type="checkbox"><span>Keine <b>Floskeln</b> wie „ist halt so“ – alles begründet</span></label>
-          <label class="fy-gap"><input type="checkbox"><span><b>Zusammenhänge</b> gezeigt (weil …, dadurch …) – nicht nur behauptet</span></label>
-          <label class="fy-gap"><input type="checkbox"><span>Nichts Wichtiges <b>vergessen</b> oder falsch erklärt</span></label>
+        <h2><span class="pr-n">4</span>Vergleichen &amp; abhaken</h2>
+        <details class="fy-mat" open><summary>📖 Material zu „<span id="fyMatH"></span>“</summary><div id="fyMat"></div></details>
+        <p style="margin:16px 0 4px"><b>Welche Punkte hattest du in deiner Erklärung?</b></p>
+        <p class="small muted" style="margin:0 0 10px">Antippen = drin. Was fehlt, wird im Material oben markiert.</p>
+        <div class="fy-points" id="fyPoints"></div>
+        <p style="margin:16px 0 8px"><b>Und wie hast du erklärt?</b></p>
+        <div class="fy-points" id="fyQual">${FY_QUALITY.map((q, i) => `<button type="button" class="fy-pt" data-q="${i}"><span class="fy-box"></span><span>${q}</span></button>`).join("")}</div>
+        <div class="fy-result" id="fyResult"></div>
+        <div id="fyAnaBox" class="hidden">
+          <h2 style="margin-top:18px"><span class="pr-n">5</span>Lücken schließen &amp; vereinfachen</h2>
+          <p class="small muted" style="margin:0 0 8px" id="fyAnaHint"></p>
+          <div id="fyAna"></div>
         </div>
-        <p class="small muted" id="fyGapTxt" style="margin:10px 0 0">Jedes leere Kästchen ist eine Lücke: Lies genau diese Stelle nach und erkläre sie neu – oben im Textfeld.</p>
-        <h2 style="margin-top:18px"><span class="pr-n">5</span>Vereinfachen</h2>
-        <p class="small muted" style="margin:0 0 8px">Erklär es jetzt nochmal in ein, zwei Sätzen – mit einem Bild oder einer Analogie aus dem Alltag.</p>
-        <textarea id="fyAna" rows="3" placeholder="„… ist wie …, weil …“"></textarea>
       </section>
       <section class="card fy hidden" id="fyRate">
-        <h2>Wie gut sitzt es?</h2>
-        <p class="small muted" style="margin:0 0 12px">Danach plant die App automatisch, wann du es nochmal erklärst – in wachsenden Abständen.</p>
+        <h2>Wie gut sitzt „<span id="fyRateH"></span>“?</h2>
+        <p class="small muted" style="margin:0 0 12px">Danach plant die App automatisch, wann du es nochmal erklärst – in wachsenden Abständen. Das Schreibblatt wird dafür geleert.</p>
         <div class="row">
           <button type="button" class="btn secondary" data-r="0">😕 Noch Lücken</button>
           <button type="button" class="btn secondary" data-r="1">🙂 Fast</button>
-          <button type="button" class="btn" data-r="2">💪 Sitzt!</button>
+          <button type="button" class="btn secondary" data-r="2">💪 Sitzt!</button>
         </div>
         <div id="fyAfter" class="hidden" style="margin-top:16px"></div>
       </section>
       ${Object.keys(tp).length ? `<div class="card"><b>Schon erklärt</b><ul class="q-list ro">${Object.entries(tp).map(([h, t]) => `<li>${["😕", "🙂", "💪"][t.r] || ""} ${mdx(h)} <span class="small muted">· ${fmtAgo(t.d)}</span></li>`).join("")}</ul>${F.due ? `<p class="small muted" style="margin:10px 0 0">🔁 Nächste Wiederholung: ${fmtLong(F.due)}</p>` : ""}</div>` : ""}`;
     renderMath(app());
-    const txt = $("#fyTxt");
-    const words = () => (txt.value.trim().match(/\S+/g) || []).length;
+
+    let pts = [], okPts = new Set(), okQ = new Set();
+    const txt = () => $("#fyWrite .wf-text");
+    const words = () => ((txt() && txt().value.trim().match(/\S+/g)) || []).length;
+    const filled = () => words() >= 12 || hasInk(inkId());
+    const updCount = () => {
+      const n = words();
+      $("#fyCount").textContent = inputMode() === "ink" ? "" : (n ? `${n} Wörter` : "");
+    };
+    const showMaterial = () => { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); markMissing(); };
+    const norm = (t) => plainTxt(t).toLowerCase().replace(/\$/g, "").replace(/\s+/g, " ").trim();
+    function markMissing() {
+      $$("#fyMat .fy-miss").forEach(x => x.classList.remove("fy-miss"));
+      const miss = pts.filter((p, i) => !okPts.has(i)).map(norm);
+      if (!miss.length) return;
+      $$("#fyMat b, #fyMat th, #fyMat .tree-node, #fyMat li, #fyMat .mx-r").forEach(el => {
+        if (el.closest(".katex")) return;
+        const t = norm(el.textContent);
+        if (t.length < 3 || t.length > 160) return;
+        if (miss.some(m => t === m || t.includes(m) || (t.length >= 5 && m.includes(t)))) el.classList.add("fy-miss");
+      });
+    }
+    function renderResult() {
+      const n = okPts.size, N = pts.length, q = okQ.size;
+      const missing = pts.filter((p, i) => !okPts.has(i));
+      const pct = N ? Math.round(n / N * 100) : 100;
+      let msg, sug;
+      if (N && n === N && q === FY_QUALITY.length) { msg = "💪 <b>Alles drin!</b> Erklär es unten noch einmal ganz kurz mit einer Analogie – dann bewerten."; sug = 2; }
+      else if (N && n === N) { msg = `Inhaltlich vollständig 👍 Achte beim nächsten Mal noch auf: ${FY_QUALITY.filter((x, i) => !okQ.has(i)).map(x => x.replace(/<\/?b>/g, "")).join(" · ")}.`; sug = 1; }
+      else if (n >= N / 2) { msg = `Fast! Noch offen: <b>${missing.map(m => esc(m)).join("</b>, <b>")}</b>. Lies genau diese Punkte oben im Material nach (markiert) und erklär sie unten nochmal kurz.`; sug = 1; }
+      else { msg = `Noch Lücken bei: <b>${missing.map(m => esc(m)).join("</b>, <b>")}</b>. Kein Problem – genau dafür ist die Methode da. Lies die markierten Stellen nach und erklär sie unten nochmal.`; sug = 0; }
+      $("#fyResult").innerHTML = `<div class="row between"><b>${n} von ${N} Punkten erklärt</b><span class="small muted">${pct} %</span></div><div class="bar"><div style="width:${pct}%"></div></div><p>${msg}</p>`;
+      renderMath($("#fyResult"));
+      $$("#fyRate [data-r]").forEach(b => b.classList.toggle("suggested", +b.dataset.r === sug && !b.disabled));
+      $("#fyAnaHint").textContent = missing.length ? "Erklär hier nur die fehlenden Punkte nochmal – am besten mit einem Bild oder einer Analogie aus dem Alltag." : "Erklär es jetzt in ein, zwei Sätzen mit einem Bild oder einer Analogie aus dem Alltag („… ist wie …, weil …“).";
+      markMissing();
+    }
+    const renderPoints = () => {
+      $("#fyPoints").innerHTML = pts.length ? pts.map((p, i) => `<button type="button" class="fy-pt ${okPts.has(i) ? "ok" : ""}" data-p="${i}"><span class="fy-box"></span><span>${mdx(p)}</span></button>`).join("") : `<p class="small muted">Für dieses Thema gibt es keine Einzelpunkte – vergleiche frei mit dem Material.</p>`;
+      renderMath($("#fyPoints"));
+      $$("#fyPoints [data-p]").forEach(b => b.addEventListener("click", () => {
+        const i = +b.dataset.p; okPts.has(i) ? okPts.delete(i) : okPts.add(i);
+        b.classList.toggle("ok", okPts.has(i)); renderResult();
+      }));
+    };
+    $$("#fyQual [data-q]").forEach(b => b.addEventListener("click", () => {
+      const i = +b.dataset.q; okQ.has(i) ? okQ.delete(i) : okQ.add(i);
+      b.classList.toggle("ok", okQ.has(i)); renderResult();
+    }));
     const setTopic = () => {
-      txt.placeholder = sel.i < 0 ? `Erklär die ganze Lektion „${L.title}“ im Überblick – worum geht es, und wie hängt alles zusammen?` : `Erklär „${sel.h}“ in deinen eigenen Worten …`;
-      txt.value = state.feynmanDraft[key + "|" + sel.h] || "";
-      $("#fyCount").textContent = "";
-      if (!$("#fyCheck").classList.contains("hidden")) showMaterial();
+      pts = topicPoints(L, sel); okPts = new Set(); okQ = new Set();
+      $$("#fyQual .fy-pt").forEach(b => b.classList.remove("ok"));
+      $("#fyTopicH").innerHTML = sel.i < 0 ? "Erklär die ganze Lektion" : `Erklär: ${mdx(sel.h)}`;
+      $("#fyMatH").innerHTML = mdx(sel.h); $("#fyRateH").innerHTML = mdx(sel.h);
+      $("#fyHint").innerHTML = inputMode() === "ink"
+        ? "✍️ Schreib mit dem Apple Pencil – Stichpunkte, Pfeile und kleine Skizzen sind ausdrücklich erlaubt. Nicht nachschauen!"
+        : "🎤 Tipp: Tippe auf das Mikrofon deiner Tastatur und erkläre laut – das trainiert gleich fürs Mündliche. Nicht nachschauen!";
+      $("#fyWrite").innerHTML = writeField(inkId(), state.feynmanDraft[key + "|" + sel.h] || "", {
+        rows: 7,
+        ph: sel.i < 0 ? `Erklär die ganze Lektion „${L.title}“ im Überblick – worum geht es, und wie hängt alles zusammen?` : `Erklär „${plainTxt(sel.h)}“ in deinen eigenen Worten …`,
+        inkPh: `Erklär „${plainTxt(sel.h)}“ – schreib einfach los …`
+      });
+      $("#fyAna").innerHTML = writeField(anaId(), "", { rows: 3, ph: "„… ist wie …, weil …“", inkPh: "Analogie oder fehlende Punkte – kurz und einfach …" });
+      $("#fyWrite .wf-text").addEventListener("input", () => { state.feynmanDraft[key + "|" + sel.h] = txt().value; saveSoon(); updCount(); });
+      applyInputMode();
+      renderMath($("#fyWriteCard"));
+      updCount();
+      $("#fyCheck").classList.add("hidden"); $("#fyAnaBox").classList.add("hidden"); $("#fyRate").classList.add("hidden");
+      $("#fyAfter").classList.add("hidden");
+      $$("#fyRate [data-r]").forEach(x => { x.disabled = false; x.classList.remove("active", "suggested"); });
     };
     const setLvl = () => { $("#fyLvlTxt").textContent = "Erkläre es " + FY_LEVELS.find(x => x[0] === lvl)[2] + "."; };
-    const showMaterial = () => { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); };
+    bindInputMode(app(), () => { $("#fyHint").innerHTML = inputMode() === "ink" ? "✍️ Schreib mit dem Apple Pencil – Stichpunkte, Pfeile und kleine Skizzen sind ausdrücklich erlaubt. Nicht nachschauen!" : "🎤 Tipp: Tippe auf das Mikrofon deiner Tastatur und erkläre laut. Nicht nachschauen!"; updCount(); });
     setTopic(); setLvl();
     $$("#fyTopics [data-t]").forEach(b => b.addEventListener("click", () => {
       sel = topics.find(t => t.id === b.dataset.t);
       $$("#fyTopics .chip").forEach(x => x.classList.toggle("active", x === b));
       setTopic();
+      $("#fyWriteCard").scrollIntoView({ behavior: "smooth", block: "start" });
     }));
     $$("#fyLvls [data-l]").forEach(b => b.addEventListener("click", () => {
       lvl = b.dataset.l;
       $$("#fyLvls .chip").forEach(x => x.classList.toggle("active", x === b));
       setLvl();
     }));
-    txt.addEventListener("input", () => {
-      state.feynmanDraft[key + "|" + sel.h] = txt.value; saveSoon();
-      const n = words();
-      $("#fyCount").textContent = n ? `${n} Wörter` : "";
-    });
     const enough = () => {
-      if (words() >= 12) return true;
-      toast("✍️ Erklär erst ein paar Sätze – mindestens 2–3, gern mehr.");
-      txt.focus(); return false;
+      if (filled()) return true;
+      toast(inputMode() === "ink" ? "✍️ Schreib erst ein paar Stichpunkte oder Sätze dazu." : "✍️ Erklär erst ein paar Sätze – mindestens 2–3, gern mehr.");
+      return false;
     };
     $("#fySelf").addEventListener("click", () => {
       if (!enough()) return;
-      showMaterial();
-      $("#fyCheck").classList.remove("hidden"); $("#fyRate").classList.remove("hidden");
+      showMaterial(); renderPoints(); renderResult();
+      $("#fyCheck").classList.remove("hidden"); $("#fyAnaBox").classList.remove("hidden"); $("#fyRate").classList.remove("hidden");
+      applyInputMode();
       $("#fyCheck").scrollIntoView({ behavior: "smooth", block: "start" });
     });
-    $$(".fy-gap input").forEach(c => c.addEventListener("change", () => {
-      const open = $$(".fy-gap input").filter(x => !x.checked).length;
-      $("#fyGapTxt").innerHTML = open ? `<b>${open} ${open === 1 ? "Lücke" : "Lücken"}</b> gefunden – lies genau diese Stelle im Material nach und erkläre sie oben neu. Das ist kein Fehler, sondern genau der Sinn der Methode!` : "💪 Keine Lücke gefunden – jetzt noch vereinfachen und bewerten.";
-    }));
     $("#fyClaude").addEventListener("click", () => {
-      if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key: „Selbst prüfen“."); return; }
+      if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key: „Fertig – jetzt vergleichen“."); return; }
       if (!enough()) return;
       const lv = FY_LEVELS.find(x => x[0] === lvl);
       const material = [`Lernziele der Lektion: ${L.goals.map(plainTxt).join("; ")}`, ...topicMaterial(L, sel.i).map(secPlain)].join("\n\n");
-      startMethodChat(`🗣️ Feynman · ${sel.h}`, feynmanSystem(L, f, sel.h, lvl, material), `Unterthema: ${sel.h}\nNiveau: ${lv[1].replace(/^\S+\s/, "")}\n\nMeine Erklärung:\n${txt.value.trim()}`);
+      const typed = words() ? txt().value.trim() : "";
+      const img = hasInk(inkId()) ? Ink.image(inkId()) : null;
+      const msg = `Unterthema: ${plainTxt(sel.h)}\nNiveau: ${lv[1].replace(/^\S+\s/, "")}\n\n` +
+        (img ? `Meine Erklärung habe ich mit dem Apple Pencil geschrieben – sie ist als Bild angehängt.${typed ? `\nGetippt habe ich noch:\n${typed}` : ""}` : `Meine Erklärung:\n${typed}`);
+      startMethodChat(`🗣️ Feynman · ${plainTxt(sel.h)}`, feynmanSystem(L, f, plainTxt(sel.h), lvl, material) + (img ? "\nWichtig: Seine Erklärung ist handschriftlich als Bild angehängt. Lies sie sorgfältig; wenn ein Wort unleserlich ist, frag kurz nach, statt zu raten." : ""), msg, img);
       $("#fyRate").classList.remove("hidden");
     });
     $$("#fyRate [data-r]").forEach(b => b.addEventListener("click", e => {
-      if (!words()) { toast("✍️ Erst erklären, dann bewerten."); txt.focus(); return; }
+      if (!filled()) { toast("✍️ Erst erklären, dann bewerten."); return; }
       const r = +b.dataset.r;
       const X = state.feynman[key] || (state.feynman[key] = { topics: {}, n: 0, streak: 0 });
       const first = !X.n;
       X.n = (X.n || 0) + 1; X.d = dayKey(); X.lvl = lvl;
-      X.topics[sel.h] = { d: dayKey(), r, lvl, txt: txt.value.trim().slice(0, 3000), ana: $("#fyAna").value.trim().slice(0, 800) };
+      X.topics[sel.h] = { d: dayKey(), r, lvl, pts: pts.length ? `${okPts.size}/${pts.length}` : "", txt: words() ? txt().value.trim().slice(0, 3000) : "", ink: hasInk(inkId()) };
       X.streak = r === 2 ? (X.streak || 0) + 1 : 0;
       const gap = r === 0 ? 1 : r === 1 ? 3 : [7, 14, 30][Math.min(X.streak - 1, 2)];
       X.due = addDays(dayKey(), gap);
       delete state.feynmanDraft[key + "|" + sel.h];
       save();
+      if (window.Ink) { Ink.clear(inkId()); Ink.clear(anaId()); }
       addPoints(first ? 15 : 5, e);
       toast(first ? "🗣️ Erklärt! +15 ⭐" : "🗣️ Wieder erklärt! +5 ⭐");
       if (r === 2) confetti(40);
       unlock("first_feynman");
       if (Object.values(state.feynman).reduce((t, x) => t + (x.n || 0), 0) >= 10) unlock("feynman_10");
       endMethodChat();
-      $$("#fyRate [data-r]").forEach(x => { x.disabled = true; x.classList.toggle("active", x === b); });
+      $$("#fyRate [data-r]").forEach(x => { x.disabled = true; x.classList.remove("suggested"); x.classList.toggle("active", x === b); });
       const next = topics.find(t => !X.topics[t.h]);
+      const left = topics.filter(t => !X.topics[t.h]).length;
       const fidE = encodeURIComponent(fid), didE = encodeURIComponent(did);
       $("#fyAfter").innerHTML = `
-        <p style="margin:0 0 12px">${r === 0 ? "Gut, dass du die Lücken gefunden hast – genau so lernt man." : r === 1 ? "Fast geschafft!" : "Stark!"} 🔁 Nächste Wiederholung: <b>${fmtLong(X.due)}</b> (in ${gap} ${gap === 1 ? "Tag" : "Tagen"}).</p>
-        ${pathStrip(3, math)}
+        <p style="margin:0 0 12px">${r === 0 ? "Gut, dass du die Lücken gefunden hast – genau so lernt man." : r === 1 ? "Fast geschafft!" : "Stark!"} 🔁 Nächste Wiederholung: <b>${fmtLong(X.due)}</b>.</p>
+        ${next ? `<button type="button" class="btn block" id="fyMore">➡️ Weiter mit: ${mdx(next.h)}</button>
+          <p class="small muted" style="margin:8px 0 0">Noch ${left} ${left === 1 ? "Unterthema" : "Unterthemen"} offen.</p>`
+        : `<p style="margin:0 0 10px"><b>🎉 Alle Unterthemen erklärt!</b> Jetzt aktiv abrufen:</p>${pathStrip(3, math)}`}
         <div class="row" style="margin-top:14px">
-          ${math ? `<a class="btn" href="#/lernen/deck:${fidE}:${didE}">✏️ Jetzt Aufgaben rechnen</a>` : `<a class="btn" href="#/mc/deck:${fidE}:${didE}">🧩 Jetzt Multiple Choice</a>`}
-          ${next ? `<button type="button" class="btn secondary" id="fyMore">🗣️ Nächstes Unterthema</button>` : ""}
+          ${math ? `<a class="btn ${next ? "secondary" : ""}" href="#/lernen/deck:${fidE}:${didE}">✏️ Aufgaben rechnen</a>` : `<a class="btn ${next ? "secondary" : ""}" href="#/mc/deck:${fidE}:${didE}">🧩 Multiple Choice</a>`}
           ${math ? "" : `<a class="btn secondary" href="#/lernen/deck:${fidE}:${didE}">🧠 Karteikarten</a>`}
         </div>`;
+      renderMath($("#fyAfter"));
       $("#fyAfter").classList.remove("hidden");
-      $("#fyMore")?.addEventListener("click", () => viewFeynman(fid, did));
+      $("#fyMore")?.addEventListener("click", () => { viewFeynman(fid, did, next.id); window.scrollTo({ top: 0 }); setTimeout(() => $("#fyWriteCard")?.scrollIntoView({ block: "start" }), 50); });
       $("#fyAfter").scrollIntoView({ behavior: "smooth", block: "center" });
     }));
   }
@@ -2305,7 +2430,7 @@
       chatBody.innerHTML = `<div class="msg system">Hi ${esc(state.profile.name)}! 👋 Ich bin immer für dich da – frag mich zu deinem Stoff, lass dich abfragen oder erzähl mir, wie's läuft.
 ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter ⚙️ Mehr."}</div>`;
     } else {
-      chatBody.innerHTML = state.chat.map(m => `<div class="msg ${m.role === "divider" ? "divider" : m.role}">${esc(m.content)}</div>`).join("");
+      chatBody.innerHTML = state.chat.map(m => `<div class="msg ${m.role === "divider" ? "divider" : m.role}">${m.img ? `<img class="msg-img" src="${m.img}" alt="Deine Handschrift">` : m.hadImg ? `<span class="msg-imgnote">✍️ Handschrift</span>` : ""}${esc(m.content)}</div>`).join("");
     }
     if (chatBusy) chatBody.insertAdjacentHTML("beforeend", `<div class="msg assistant typing">Claude denkt nach</div>`);
     chatBody.scrollTop = chatBody.scrollHeight;
@@ -2318,10 +2443,11 @@ ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter �
     if (o) { renderChat(); setTimeout(() => $("#chatText").focus(), 50); }
   }
 
-  async function sendChat(text) {
+  async function sendChat(text, img) {
     text = text.trim(); if (!text || chatBusy) return;
     if (!state.settings.apiKey) { toast("🔑 Bitte zuerst API-Key in den Einstellungen eintragen"); location.hash = "#/einstellungen"; return; }
-    state.chat.push({ role: "user", content: text });
+    if (img) state.chat.forEach(m => { if (m.img) { delete m.img; m.hadImg = true; } });
+    state.chat.push(img ? { role: "user", content: text, img } : { role: "user", content: text });
     chatBusy = true; renderChat();
     try {
       let sys = systemPrompt();
@@ -2333,7 +2459,7 @@ ${state.settings.apiKey ? "" : "\n🔑 Hinterlege zuerst deinen API-Key unter �
       } else if (window.chatContext) sys += `\n\nAktueller Kontext auf der Website:\n${window.chatContext}`;
       const history = pool.filter(m => m.role === "user" || m.role === "assistant").slice(-30);
       while (history.length && history[0].role !== "user") history.shift();
-      const { text: reply } = await Claude.send({ apiKey: state.settings.apiKey, model: state.settings.model, system: sys, messages: history.map(m => ({ role: m.role, content: m.content })) });
+      const { text: reply } = await Claude.send({ apiKey: state.settings.apiKey, model: state.settings.model, system: sys, messages: history.map(m => ({ role: m.role, content: m.img ? [{ type: "image", source: { type: "base64", media_type: m.img.slice(5, m.img.indexOf(";")), data: m.img.slice(m.img.indexOf(",") + 1) } }, { type: "text", text: m.content }] : m.content })) });
       state.chat.push({ role: "assistant", content: reply || "(keine Antwort)" });
     } catch (err) {
       state.chat.pop();
