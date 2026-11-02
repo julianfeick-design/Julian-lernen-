@@ -1008,3 +1008,7 @@ details.method { margin-top: 14px; }
   body.no-nav .topbar { margin-left: 0; padding-left: 20px; }
   body.no-nav .topbar .brand { visibility: visible; }
 }
+
+/* Schreibfeld: Live-Ebene und keine Textauswahl (Radieren mit dem Pencil) */
+.ink, .ink * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.ink-paper .ink-ov { position: absolute; left: 0; top: 0; pointer-events: none; }

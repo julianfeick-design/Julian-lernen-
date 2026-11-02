@@ -44,33 +44,27 @@ window.Ink = (function () {
 
   // ---------- Zeichnen ----------
   const widthOf = (s, pt, k) => s.c === "er" ? s.w * k : s.w * k * (0.78 + 0.44 * (pt[2] == null ? 0.5 : pt[2] / 100));
-  function paint(ctx, s, k, cm, from) {
-    const p = s.p;
-    ctx.save();
+  function styleFor(ctx, s, cm) {
     ctx.lineCap = "round"; ctx.lineJoin = "round";
     if (s.c === "er") { ctx.globalCompositeOperation = "destination-out"; ctx.strokeStyle = ctx.fillStyle = "#000"; }
     else ctx.strokeStyle = ctx.fillStyle = cm[s.c] || cm.ink;
-    if (from == null || from === 0) {
-      ctx.beginPath(); ctx.arc(p[0][0] * k, p[0][1] * k, widthOf(s, p[0], k) / 2, 0, Math.PI * 2); ctx.fill();
-    }
-    for (let i = Math.max(1, from || 1); i < p.length; i++) {
-      const a = p[i - 1], b = p[i], z = p[i - 2] || a;
-      ctx.lineWidth = widthOf(s, [0, 0, ((a[2] == null ? 50 : a[2]) + (b[2] == null ? 50 : b[2])) / 2], k);
-      ctx.beginPath();
-      ctx.moveTo((z[0] + a[0]) / 2 * k, (z[1] + a[1]) / 2 * k);
-      ctx.quadraticCurveTo(a[0] * k, a[1] * k, (a[0] + b[0]) / 2 * k, (a[1] + b[1]) / 2 * k);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
-  function tail(ctx, s, k, cm) {
-    const p = s.p; if (p.length < 2) return;
-    const a = p[p.length - 2], b = p[p.length - 1];
-    ctx.save();
-    ctx.lineCap = "round";
-    if (s.c === "er") { ctx.globalCompositeOperation = "destination-out"; ctx.strokeStyle = "#000"; } else ctx.strokeStyle = cm[s.c] || cm.ink;
-    ctx.lineWidth = widthOf(s, b, k);
-    ctx.beginPath(); ctx.moveTo((a[0] + b[0]) / 2 * k, (a[1] + b[1]) / 2 * k); ctx.lineTo(b[0] * k, b[1] * k); ctx.stroke();
+  // Catmull-Rom-Spline: Die Linie läuft genau durch jeden Stiftpunkt und ist trotzdem rund.
+  function seg(ctx, s, k, i) {
+    const p = s.p, a = p[i - 1] || p[i], b = p[i], c = p[i + 1], d = p[i + 2] || c;
+    ctx.lineWidth = widthOf(s, [0, 0, ((b[2] == null ? 50 : b[2]) + (c[2] == null ? 50 : c[2])) / 2], k);
+    ctx.beginPath();
+    ctx.moveTo(b[0] * k, b[1] * k);
+    ctx.bezierCurveTo((b[0] + (c[0] - a[0]) / 6) * k, (b[1] + (c[1] - a[1]) / 6) * k,
+      (c[0] - (d[0] - b[0]) / 6) * k, (c[1] - (d[1] - b[1]) / 6) * k, c[0] * k, c[1] * k);
+    ctx.stroke();
+  }
+  // Zeichnet die Abschnitte from … to-1 (ohne Angabe: den ganzen Strich)
+  function paint(ctx, s, k, cm, from = 0, to) {
+    const p = s.p, end = to == null ? p.length - 1 : to;
+    ctx.save(); styleFor(ctx, s, cm);
+    if (from === 0) { ctx.beginPath(); ctx.arc(p[0][0] * k, p[0][1] * k, widthOf(s, p[0], k) / 2, 0, Math.PI * 2); ctx.fill(); }
+    for (let i = from; i < end; i++) seg(ctx, s, k, i);
     ctx.restore();
   }
 
@@ -115,25 +109,28 @@ window.Ink = (function () {
     root.querySelectorAll(".ink:not([data-ready])").forEach(setup);
     syncBars();
   }
+  let drawingNow = false;
+  document.addEventListener("selectstart", e => { if (drawingNow || (e.target && e.target.closest && e.target.closest(".ink"))) e.preventDefault(); });
   function setup(el) {
     el.dataset.ready = "1";
     const id = el.dataset.ink, cv = el.querySelector("canvas"), paper = el.querySelector(".ink-paper"), ph = el.querySelector(".ink-ph");
     const rec = store[id] || (store[id] = { s: [], r: 0, t: Date.now() });
     const ctx = cv.getContext("2d");
-    let k = 1, cur = null, cm = screenColors();
+    const ov = document.createElement("canvas"); ov.className = "ink-ov"; paper.appendChild(ov);   // Ebene für den Strich, der gerade entsteht
+    const octx = ov.getContext("2d");
+    let k = 1, cur = null, cm = screenColors(), raf = 0;
     const redraw = () => {
       ctx.clearRect(0, 0, cv.width, cv.height);
       cm = screenColors();
-      rec.s.forEach(s => { paint(ctx, s, k, cm, 0); tail(ctx, s, k, cm); });
+      rec.s.forEach(s => paint(ctx, s, k, cm));
       ph.classList.toggle("hidden", rec.s.length > 0);
     };
     const resize = () => {
       const w = paper.clientWidth; if (!w) return;
       if (!rec.r) rec.r = w < 600 ? 0.75 : 0.42;
-      const h = Math.round(w * rec.r), dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      const h = Math.round(w * rec.r), dpr = Math.min(window.devicePixelRatio || 1, 3);
       paper.style.height = h + "px";
-      cv.style.width = w + "px"; cv.style.height = h + "px";
-      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      [cv, ov].forEach(c => { c.style.width = w + "px"; c.style.height = h + "px"; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); });
       k = w / W * dpr;
       redraw();
     };
@@ -145,49 +142,55 @@ window.Ink = (function () {
       const r = cv.getBoundingClientRect(), f = W / r.width;
       return [Math.round((e.clientX - r.left) * f * 10) / 10, Math.round((e.clientY - r.top) * f * 10) / 10, e.pointerType === "pen" ? Math.round((e.pressure || 0.5) * 100) : 50];
     };
+    const drawLive = () => { raf = 0; if (!cur || cur.c === "er") return; octx.clearRect(0, 0, ov.width, ov.height); paint(octx, cur, k, cm); };
     cv.addEventListener("pointerdown", e => {
       if (e.pointerType === "pen" && !prefs.penSeen) { prefs.penSeen = true; if (prefs.finger === null) prefs.finger = false; savePrefs(); syncBars(); }
       if (e.pointerType === "touch" && !fingerOn()) return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
       e.preventDefault();
       try { cv.setPointerCapture(e.pointerId); } catch { /* egal */ }
+      try { const sel = window.getSelection(); if (sel && sel.rangeCount) sel.removeAllRanges(); } catch { /* egal */ }
+      drawingNow = true;
       const er = prefs.tool === "eraser" || (e.buttons & 32);
       cm = screenColors();
       const px = W / (cv.getBoundingClientRect().width || W);   // 1 Bildschirm-Pixel in Blatt-Einheiten
       const first = pt(e);
-      cur = { c: er ? "er" : prefs.color, w: Math.round((er ? 24 : 2.9) * px * 100) / 100, p: [first], pid: e.pointerId, ps: first[2], sx: first[0], sy: first[1] };
+      cur = { c: er ? "er" : prefs.color, w: Math.round((er ? 24 : 2.8) * px * 100) / 100, p: [first], pid: e.pointerId, ps: first[2] };
       rec.s.push(cur); rec.t = Date.now();
       ph.classList.add("hidden");
-      paint(ctx, cur, k, cm, 0);
+      if (er) paint(ctx, cur, k, cm, 0, 0); else drawLive();
     });
     cv.addEventListener("pointermove", e => {
       if (!cur || e.pointerId !== cur.pid) return;
       e.preventDefault();
-      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
       for (const ev of (evs.length ? evs : [e])) {
         const q = pt(ev), last = cur.p[cur.p.length - 1];
-        cur.ps = cur.ps * 0.75 + q[2] * 0.25;                 // Druck sanft glätten
-        cur.sx += (q[0] - cur.sx) * 0.6; cur.sy += (q[1] - cur.sy) * 0.6;   // leichtes Glätten gegen Zittern
-        const sm = [Math.round(cur.sx * 10) / 10, Math.round(cur.sy * 10) / 10, Math.round(cur.ps)];
-        if (Math.abs(sm[0] - last[0]) + Math.abs(sm[1] - last[1]) < 1.2) continue;
-        cur.p.push(sm);
-        paint(ctx, cur, k, cm, cur.p.length - 1);
+        if (Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) < 0.8) continue;
+        cur.ps = cur.ps * 0.7 + q[2] * 0.3;          // nur den Druck sanft glätten – die Form bleibt exakt
+        q[2] = Math.round(cur.ps);
+        cur.p.push(q);
+        if (cur.c === "er") paint(ctx, cur, k, cm, cur.p.length - 2, cur.p.length - 1);
       }
+      if (cur.c !== "er" && !raf) raf = requestAnimationFrame(drawLive);
     });
     const end = (e) => {
       if (!cur || (e && e.pointerId !== cur.pid)) return;
-      if (e && e.clientX != null && e.type === "pointerup") {
+      if (e && e.type === "pointerup" && e.clientX != null) {
         const q = pt(e), last = cur.p[cur.p.length - 1];
-        if (Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) >= 1.2) { q[2] = Math.round(cur.ps); cur.p.push(q); paint(ctx, cur, k, cm, cur.p.length - 1); }
+        if (Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) >= 0.8) { q[2] = Math.round(cur.ps); cur.p.push(q); }
       }
-      tail(ctx, cur, k, cm);
-      delete cur.pid; delete cur.ps; delete cur.sx; delete cur.sy;
-      cur = null; persist(); fire(id);
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      octx.clearRect(0, 0, ov.width, ov.height);
+      if (cur.c === "er") redraw(); else paint(ctx, cur, k, cm);
+      delete cur.pid; delete cur.ps;
+      cur = null; drawingNow = false; persist(); fire(id);
     };
     cv.addEventListener("pointerup", end);
     cv.addEventListener("pointercancel", end);
     cv.addEventListener("lostpointercapture", end);
-    // Stift darf die Seite nicht scrollen, Finger schon (außer Finger-Modus)
+    cv.addEventListener("contextmenu", e => e.preventDefault());
+    // Stift darf die Seite nicht scrollen und keinen Text markieren, Finger scrollt (außer Finger-Modus)
     const stop = (e) => { if (fingerOn() || Array.from(e.touches).some(t => t.touchType === "stylus")) e.preventDefault(); };
     cv.addEventListener("touchstart", stop, { passive: false });
     cv.addEventListener("touchmove", stop, { passive: false });
@@ -223,7 +226,7 @@ window.Ink = (function () {
     const k = maxW / W, h = Math.max(220, Math.round(Math.min(maxY + 50, W * (r.r || 0.5)) * k));
     const layer = document.createElement("canvas"); layer.width = maxW; layer.height = h;
     const lx = layer.getContext("2d");
-    r.s.forEach(s => { paint(lx, s, k, PRINT, 0); tail(lx, s, k, PRINT); });
+    r.s.forEach(s => paint(lx, s, k, PRINT));
     const c = document.createElement("canvas"); c.width = maxW; c.height = h;
     const x = c.getContext("2d"); x.fillStyle = "#ffffff"; x.fillRect(0, 0, maxW, h); x.drawImage(layer, 0, 0);
     return c.toDataURL("image/jpeg", 0.85);
