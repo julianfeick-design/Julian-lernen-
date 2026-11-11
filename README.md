@@ -19,24 +19,26 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 4. **Karteikarten in Ordnern**: Ordner (Fach) → Stapel (Thema/Vorlesung) → Karten.
    Lernen nach dem **Leitner-System** (5 Fächer, Wiederholung nach 1/2/4/8/16 Tagen).
 5. **Multiple-Choice-Training** mit eigenem Fortschritt (sicher = 2× hintereinander richtig) und einer Erklärung nach jeder Antwort.
-6. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
+6. **🎯 Lernfragen** (Lernen → Lernfragen, auch im Ordner und auf der Startseite): alle **offiziellen Lernfragen und Lernziele der Profs** und dazu **vermutete Prüfungsfragen** für Teile ohne offizielle Liste. Du antwortest aus dem Kopf, mit dem Apple Pencil oder getippt. Danach siehst du die **Musterantwort als Kernpunkte** und hakst ab, was du hattest. Alternativ prüft **Claude** deine Antwort wie ein Prüfer. Was sitzt, kommt nach 3, 7, 14 und 30 Tagen wieder.
+7. **📄 Lernzettel** (eigener Reiter): pro Block alles Wichtige auf einen Blick – Kopfband, nummerierte Abschnitte, Tabellen und Merke-Kästen. Zu jeder Lektion entsteht er automatisch, für Blöcke ohne Lektion ist er handgeschrieben (`js/lernzettel.js`). Mit „🖨️ Als PDF“ lässt er sich drucken oder in GoodNotes importieren.
+8. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
    - **⭐ Kommt dran**, wenn der Prof sagt, das ist wichtig. Die Karte kommt dann bevorzugt dran.
    - **🚫 Kommt nicht dran**: Die Karte wird nicht mehr abgefragt und lässt sich im Ordner jederzeit wieder einblenden.
-7. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
-8. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
-9. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
-10. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
-11. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
-12. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
+9. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
+10. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
+11. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
+12. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
+13. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
+14. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
 
 ## Aktuelle Inhalte
 
 | Ordner | Prüfung | Lektionen | Inhalt |
 |---|---|---|---|
-| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | 5 Stapel, 65 Karten, 20 Quizfragen |
+| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | Nehm (Grundlagen) + **Schröder (Beschaffungslogistik)**: 6 Stapel, 97 Karten, 72 Lernfragen |
 | 💼 Grundlagen der BWL | 11. Januar | 4 | BWL + Marketing, 100 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
 | 🧮 Mathematik & Statistik | 13. Januar | 3 | **Aufgabenmodus**: 25 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg |
-| 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | 7 Stapel, 157 Karten, 41 Quizfragen |
+| 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | Nehm, Hasselberg, **Bahnverkehr, Kombinierter Verkehr, KEP** (KV/KEP vorläufig aus Notizen): 10 Stapel, 205 Karten, 57 Lernfragen |
 | 🎓 Bonus: Praxiswissen | – | – | **kein Klausurstoff:** Fachbegriffe, Incoterms 2020, BWL-Basics (z. B. Rechtsformen), Klausur-Technik (49 Karten) |
 
 Zusätzlich hat jedes Prüfungsfach einen Stapel **📝 Klausuraufgaben** (DHBW-Stil mit Punkten und Musterlösung/Erwartungshorizont, `js/decks/klausur.js`).
@@ -46,7 +48,7 @@ Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
 
 Woran sich die Fragen orientieren, absteigend nach Gewicht:
 
-1. **Lernfragen der Profs** (Folien: Logistik 20 Lernfragen, VBL 1 Einführung in die Spedition 22 Lernfragen). Jede Lernfrage ist durch Karten abgedeckt, und diese Karten sind ⭐.
+1. **Lernfragen der Profs** (Folien: Logistik Nehm 20 Lernfragen, Logistik Schröder 48 Lernziele, VBL 1 Einführung in die Spedition 21 Lernfragen). Jede hat im Bereich 🎯 Lernfragen eine Musterantwort mit Kernpunkten und ist durch ⭐-Karten abgedeckt.
 2. **Übungen und Hinweise aus der Vorlesung**: Übungsaufgaben auf den Folien (z. B. ökonomisches Prinzip, Produktionsfaktoren, Flittiflotti) und Notizen wie „Klausurfrage“ oder „Folie 21 nochmal angucken“.
 3. **Kerninhalte der Folien**: Definitionen, Abgrenzungen, Modelle, Abläufe, Vor- und Nachteile, Rechenwege und Fälle, abgefragt mit den Klausur-Operatoren (nennen, erläutern, abgrenzen, berechnen, beurteilen).
 
@@ -103,3 +105,5 @@ Lokal reicht es, `index.html` im Browser zu öffnen.
   - `index.html`, `css/style.css`, `css/designs.css` (Designs)
   - `js/app.js` (Logik), `js/claude.js` (Claude-Anbindung), `js/icons.js` (einfarbige Icons), `js/food.js` (Lebensmittel)
   - `js/decks/` (Karteikarten & Aufgaben), `js/mc/` (Multiple Choice + Erklärungen), `js/lessons/` (Lektionen)
+  - `js/lernfragen.js` (Lernfragen mit Kernpunkten), `js/lernzettel.js` (handgeschriebene Lernzettel)
+  - `CLAUDE.md`: Gedächtnis für Claude – Fächer, Prof-Hinweise, fehlende Folien und Regeln. Wird in jeder neuen Sitzung automatisch gelesen.

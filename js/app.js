@@ -35,7 +35,10 @@
     feynman: {},
     feynmanDraft: {},
     food: {},
-    flags: { hide: {}, star: {} }
+    flags: { hide: {}, star: {} },
+    lz: {},
+    lq: {},
+    lqDraft: {}
   };
   let state = load();
 
@@ -398,6 +401,8 @@
       case "lektion": setTab("lektionen"); return viewLesson(rest[0], rest[1]);
       case "primen": setTab("lektionen"); return viewPriming(rest[0], rest[1]);
       case "erklaeren": setTab("lektionen"); return viewFeynman(rest[0], rest[1]);
+      case "lernzettel": setTab("lernzettel"); return viewLernzettel(rest[0]);
+      case "lernfragen": setTab("lektionen"); return viewLernfragen(rest[0], rest[1]);
       case "neu": setTab("neu"); return viewNew(rest[0]);
       case "verlauf": setTab("verlauf"); return viewHistory();
       case "einstellungen": setTab("einstellungen"); return viewSettings();
@@ -802,7 +807,11 @@
           </div>
         </a>`;
       }).join("")}</div>
-      ${list.some(f => cardsInScope("focus:" + f.id).length) ? `<div class="row" style="margin-top:14px;gap:8px">
+      ${list.some(f => lqItems(f.id).length) ? `<div class="row" style="margin-top:14px;gap:8px">
+        <span class="small muted" style="font-weight:600">🎯 Lernfragen:</span>
+        ${list.filter(f => lqItems(f.id).length).map(f => { const st = lqStats(lqItems(f.id)); return `<a class="chip" href="#/lernfragen/${encodeURIComponent(f.id)}">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${st.safe}/${st.total}</a>`; }).join("")}
+      </div>` : ""}
+      ${list.some(f => cardsInScope("focus:" + f.id).length) ? `<div class="row" style="margin-top:10px;gap:8px">
         <span class="small muted" style="font-weight:600">⭐ Prüfungsfokus:</span>
         ${list.filter(f => cardsInScope("focus:" + f.id).length).map(f => `<a class="chip" href="#/${f.type === "math" ? "lernen" : "mc"}/focus:${encodeURIComponent(f.id)}">${esc(f.emoji || "📁")} ${esc(f.short || f.name)}</a>`).join("")}
       </div>` : ""}
@@ -897,6 +906,8 @@
             ${f.type === "math" ? "" : `<a class="btn small" href="#/mc/folder:${encodeURIComponent(fid)}">🧩 Multiple Choice</a>`}
             <a class="btn ${f.type === "math" ? "" : "secondary "}small" href="#/lernen/folder:${encodeURIComponent(fid)}">${f.type === "math" ? "✏️ Alle Aufgaben rechnen" : "📚 Karteikarten"}</a>
             ${f.type === "math" ? "" : `<a class="btn secondary small" href="#/quiz/folder:${encodeURIComponent(fid)}">🎯 Quiz</a>`}
+            ${lqItems(fid).length ? `<a class="btn secondary small" href="#/lernfragen/${encodeURIComponent(fid)}">🎯 Lernfragen</a>` : ""}
+            ${lzAll().some(z => z.fid === fid) ? `<a class="btn secondary small" href="#/lernzettel">📄 Lernzettel</a>` : ""}
           </div>
         </div>
         ${f.decks.some(d => lessonsAll()[lessonKey(fid, d.id)]) ? `<div style="margin-top:14px">${pathStrip(-1, f.type === "math")}</div>` : ""}
@@ -1452,6 +1463,7 @@
           <p class="small muted" style="margin:12px 0 0">Nächster Schritt: Erklär das Thema in eigenen Worten (Feynman-Methode). Wo du stockst, steckt eine Lücke – genau die findest du so, bevor sie in der Klausur auffällt.</p>
           <div class="row" style="margin-top:12px">
             <a class="btn" href="${lessonHref(key, 2)}">🗣️ Jetzt erklären (5–10 Min)</a>
+            ${lqItems(fid).some(q => q.ref === key) ? `<a class="btn secondary" href="#/lernfragen/${encodeURIComponent(fid)}/@${encodeURIComponent(did)}">🎯 Lernfragen dazu</a>` : ""}
             ${math ? "" : `<a class="btn secondary" href="#/mc/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">🧩 Multiple Choice</a>`}
             <a class="btn secondary" href="#/lernen/deck:${encodeURIComponent(fid)}:${encodeURIComponent(did)}">${math ? "✏️ Aufgaben rechnen" : "🧠 Karteikarten"}</a>
             ${nextKey ? `<a class="btn secondary" href="#/lektion/${nextKey.split("/").map(encodeURIComponent).join("/")}">Nächste Lektion →</a>` : ""}
@@ -1513,6 +1525,14 @@
     $("#lsAsk").addEventListener("click", () => openChat(`Erklär mir bitte das Thema „${L.title}“ (${f.name}) nochmal ganz einfach – mit einem Alltagsbeispiel und einer Eselsbrücke. Die Lernziele sind: ${L.goals.join("; ")}.`));
   }
 
+  function hubTiles() {
+    const lqAllItems = Object.keys(lfAll()).flatMap(lqItems), st = lqStats(lqAllItems), nz = lzAll().length;
+    if (!st.total && !nz) return "";
+    return `<div class="hub">
+      ${st.total ? `<a class="hub-tile" href="#/lernfragen"><span class="hub-i">🎯</span><span><b>Lernfragen</b><small>${st.safe} von ${st.total} sitzen${st.due ? ` · ${st.due} dran` : ""}</small></span></a>` : ""}
+      ${nz ? `<a class="hub-tile" href="#/lernzettel"><span class="hub-i">📄</span><span><b>Lernzettel</b><small>${nz} Blöcke zum Durchschauen</small></span></a>` : ""}
+    </div>`;
+  }
   function viewLessons() {
     const L = lessonsAll();
     const folders = getFolders().filter(f => f.decks.some(d => L[lessonKey(f.id, d.id)]))
@@ -1523,6 +1543,7 @@
     app().innerHTML = `
       <h1>📖 Lernen & Verstehen</h1>
       <p class="muted">Jedes Thema in fünf Schritten. ${done} von ${keys.length} Lektionen gelesen · ${expl} in eigenen Worten erklärt.</p>
+      ${hubTiles()}
       ${due.length ? `<div class="card next-step">
         <span class="tag">🔁 Heute wiederholen</span>
         <p class="small muted" style="margin:8px 0 0">Diese Themen solltest du heute nochmal in eigenen Worten erklären – so wandern sie ins Langzeitgedächtnis.</p>
@@ -1875,6 +1896,297 @@
       if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key geht Priming einfach hier auf der Seite."); return; }
       startMethodChat(`🧲 Priming · ${L.title}`, primingSystem(L, f, net, PQ), `Lass uns die Lektion „${L.title}“ primen. Ich habe sie noch nicht gelesen.`);
     });
+  }
+
+  // =========================================================
+  //  📄 Lernzettel – alles Wichtige eines Blocks auf einen Blick
+  //  (Aufbau wie Julians VBL-Lernzettel: Kopfband, nummerierte Abschnitte, Tabellen, Merke-Kästen)
+  // =========================================================
+  // Zu jeder Lektion entsteht automatisch ein Lernzettel aus ihren Merke-Kästen, Tabellen, Abläufen und Formeln;
+  // dazu kommen handgeschriebene Lernzettel (js/lernzettel.js) für Blöcke ohne Lektion.
+  function lzFromLesson(key, L, f, d) {
+    const out = [];
+    const add = (h, blocks) => { if (!blocks.length) return; if (h || !out.length) out.push({ h: h || "Überblick", b: blocks }); else out[out.length - 1].b.push(...blocks); };
+    if (L.goals && L.goals.length) add("Das musst du können", [{ ul: L.goals }]);
+    for (const sec of L.s) {
+      const H = sec.h;
+      switch (sec.t) {
+        case "intro": add("Worum geht's?", [{ p: sec.x }]); break;
+        case "text": add(H, [{ p: sec.x }]); break;
+        case "ex": add(null, [{ p: `💡 ${H ? `**${H}:** ` : ""}${sec.x}` }]); break;
+        case "merke": add(null, [{ merke: H && !/^merke$/i.test(H) ? `**${H}:** ${sec.x}` : sec.x }]); break;
+        case "cards": add(H, [{ ul: sec.items.map(([, t, x]) => `**${t}:** ${x}`) }]); break;
+        case "flow": add(H, [{ ol: sec.steps.map(([t, x, tag]) => `**${t}**${x ? ` – ${x}` : ""}${tag ? ` (${tag})` : ""}`) }]); break;
+        case "table": add(H, [{ table: [sec.head, ...sec.rows] }]); break;
+        case "matrix": add(H, [{ table: [[sec.corner || "", ...sec.cols], ...sec.rows.map(([lab, ...c]) => [lab, ...c.map(([t, x]) => `**${t}**${x ? ` – ${x}` : ""}`)])] }]); break;
+        case "bal": { const n = Math.max(sec.l[1].length, sec.r[1].length); add(H, [{ table: [[sec.l[0], sec.r[0]], ...Array.from({ length: n }, (_, i) => [sec.l[1][i] || "", sec.r[1][i] || ""])] }]); break; }
+        case "tree": add(H, [{ p: `**${sec.root}**` }, { ul: sec.kids.map(([t, l]) => `**${t}**${l && l.length ? `: ${l.join(" · ")}` : ""}`) }]); break;
+        case "pyr": add(H, [{ ol: sec.levels.map(([t, x]) => `**${t}**${x ? ` – ${x}` : ""}`) }]); break;
+        case "stairs": add(H, [{ ol: sec.steps.map(([t, sub, x]) => `**${t}** (${sub}) – ${x}`) }]); break;
+        case "formula": add(H, [{ f: sec.tex, fx: (sec.items || []).join(" · ") }]); break;
+        case "svg": if (sec.cap) add(H, [{ p: sec.cap }]); break;
+        default: break;
+      }
+    }
+    return { id: "l-" + key.replace("/", "-"), fid: f.id, part: `${f.short || f.name} · ${d.name}`, title: L.title, lessons: [key], auto: true, s: out };
+  }
+  let lzCache = null;
+  function lzAll() {
+    if (lzCache) return lzCache;
+    const L = lessonsAll(), out = [];
+    for (const f of getFolders()) {
+      for (const d of f.decks) { const k = lessonKey(f.id, d.id); if (L[k]) out.push(lzFromLesson(k, L[k], f, d)); }
+      out.push(...(window.LERNZETTEL || []).filter(z => z.fid === f.id));
+    }
+    return (lzCache = out);
+  }
+  function lzBlock(b) {
+    if (b.p) return `<p class="lz-p">${mdx(b.p)}</p>`;
+    if (b.ul) return `<ul class="lz-ul ${b.cols ? "cols" : ""}">${b.ul.map(i => `<li>${mdx(i)}</li>`).join("")}</ul>`;
+    if (b.ol) return `<ol class="lz-ol">${b.ol.map(i => `<li>${mdx(i)}</li>`).join("")}</ol>`;
+    if (b.table) {
+      const [h, ...rows] = b.table;
+      return `<div class="table-scroll"><table class="lz-t"><thead><tr>${h.map(c => `<th>${mdx(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, j) => j ? `<td>${mdx(c)}</td>` : `<th scope="row">${mdx(c)}</th>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    }
+    if (b.merke) return `<div class="lz-merke-row">${[].concat(b.merke).map(x => `<div class="lz-merke"><span>Merke</span><p>${mdx(x)}</p></div>`).join("")}</div>`;
+    if (b.chips) return `<div class="lz-chips">${b.chips.map(c => `<span>${mdx(c)}</span>`).join("")}</div>`;
+    if (b.flow) return `<div class="lz-flow">${b.flow.map((c, i) => `${i ? `<span class="lz-arr" aria-hidden="true">→</span>` : ""}<span class="lz-step">${mdx(c)}</span>`).join("")}</div>`;
+    if (b.f) return `<div class="lz-f">$$${esc(b.f)}$$${b.fx ? `<p>${mdx(b.fx)}</p>` : ""}</div>`;
+    return "";
+  }
+  function viewLernzettel(id) {
+    const all = lzAll();
+    const folders = getFolders();
+    if (!id) {
+      const groups = folders.filter(f => all.some(z => z.fid === f.id)).sort((a, b) => (a.examDate || "9999").localeCompare(b.examDate || "9999"));
+      app().innerHTML = `
+        <h1>📄 Lernzettel</h1>
+        <p class="muted">Pro Block alles Wichtige auf einen Blick – zum Durchschauen zwischendurch. Mit „🖨️ Als PDF“ kannst du jeden Lernzettel auch in GoodNotes importieren.</p>
+        ${groups.length ? groups.map(f => {
+          const zs = all.filter(z => z.fid === f.id);
+          const exam = f.examDate && daysUntil(f.examDate) >= 0 ? `<span class="badge due">📅 Prüfung in ${daysUntil(f.examDate)} Tagen</span>` : "";
+          return `<div class="card">
+            <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h2>${exam}</div>
+            <div class="lesson-list">${zs.map(z => {
+              const seen = (state.lz || {})[z.id];
+              return `<a class="lesson-item" href="#/lernzettel/${encodeURIComponent(z.id)}"><span class="li-n">📄</span><span class="li-t"><b>${esc(z.title)}</b><span class="small muted">${esc(z.part)} · ${z.s.length} Abschnitte</span></span><span class="li-go">${seen ? `angesehen ${fmtAgo(seen)}` : "Öffnen →"}</span></a>`;
+            }).join("")}</div>
+          </div>`;
+        }).join("") : `<div class="card empty"><div class="e">📄</div><p>Noch keine Lernzettel.</p></div>`}`;
+      return;
+    }
+    const Z = all.find(z => z.id === id);
+    if (!Z) { location.replace("#/lernzettel"); return; }
+    const f = folders.find(x => x.id === Z.fid);
+    if (!state.lz) state.lz = {};
+    state.lz[Z.id] = dayKey(); save();
+    const sib = all.filter(z => z.fid === Z.fid), pos = sib.indexOf(Z), next = sib[pos + 1], prev = sib[pos - 1];
+    const lq = lqItems(Z.fid).filter(q => !Z.lessons || !q.ref || Z.lessons.includes(q.ref));
+    window.chatContext = `Ich schaue mir gerade meinen Lernzettel „${Z.title}“ (${f ? f.name : ""}) an. Wenn ich frage, erklär mir die Punkte kurz, verständlich und mit einem Beispiel aus Spedition/Logistik.`;
+    app().innerHTML = `
+      <div class="row between no-print"><a href="#/lernzettel" class="small">← Alle Lernzettel</a><button type="button" class="btn-ghost small" id="lzPrint">🖨️ Als PDF</button></div>
+      <article class="lz">
+        <header class="lz-head"><span>${esc(Z.part)}</span><h1>${esc(Z.title)}</h1></header>
+        <div class="lz-toc no-print">${Z.s.map((s, i) => `<button type="button" data-jump="${i + 1}"><b>${i + 1}</b> ${mdx(s.h)}</button>`).join("")}</div>
+        ${Z.s.map((s, i) => `<section class="lz-sec" id="lz-${i + 1}"><h2><span class="lz-n">${i + 1}</span><span>${mdx(s.h)}</span></h2>${s.b.map(lzBlock).join("")}</section>`).join("")}
+      </article>
+      <div class="card no-print">
+        <h3 style="margin:0 0 6px">Weiter mit diesem Block</h3>
+        <div class="row" style="gap:8px">
+          ${lq.length ? `<a class="btn small" href="#/lernfragen/${encodeURIComponent(Z.fid)}/~${encodeURIComponent(Z.id)}">🎯 ${lq.length} Lernfragen beantworten</a>` : ""}
+          ${(Z.lessons || []).slice(0, 1).map(k => lessonsAll()[k]
+            ? `<a class="btn secondary small" href="#/lektion/${k.split("/").map(encodeURIComponent).join("/")}">📖 Lektion</a>`
+            : `<a class="btn secondary small" href="#/lernen/deck:${k.split("/").map(encodeURIComponent).join(":")}">🧠 Karteikarten</a>`).join("")}
+          ${f && f.type !== "math" ? `<a class="btn secondary small" href="#/mc/folder:${encodeURIComponent(Z.fid)}">🧩 Multiple Choice</a>` : ""}
+        </div>
+        <div class="row between" style="margin-top:14px">
+          ${prev ? `<a class="small" href="#/lernzettel/${encodeURIComponent(prev.id)}">← ${esc(prev.title)}</a>` : "<span></span>"}
+          ${next ? `<a class="small" href="#/lernzettel/${encodeURIComponent(next.id)}">${esc(next.title)} →</a>` : ""}
+        </div>
+      </div>`;
+    renderMath(app());
+    $$(".lz-toc [data-jump]").forEach(b => b.addEventListener("click", () => $("#lz-" + b.dataset.jump)?.scrollIntoView({ behavior: "smooth", block: "start" })));
+    $("#lzPrint").addEventListener("click", () => window.print());
+  }
+
+  // =========================================================
+  //  🎯 Lernfragen – offizielle Lernfragen der Profs + vermutete Prüfungsfragen
+  //  aus dem Kopf beantworten → mit den Kernpunkten der Musterantwort vergleichen
+  // =========================================================
+  const lfAll = () => window.LERNFRAGEN || {};
+  function lqItems(fid) {
+    const F = lfAll()[fid];
+    if (!F) return [];
+    return F.items.map(q => ({ ...q, key: `${fid}/${q.id}`, fid, official: !!(F.sources[q.src] || {}).official, srcLabel: (F.sources[q.src] || {}).label || "" }));
+  }
+  const lqOf = (key) => (state.lq || {})[key];
+  const lqIsDue = (key) => { const r = lqOf(key); return !r || r.due <= dayKey(); };
+  const LQ_GAPS = [3, 7, 14, 30];
+  function lqStats(items) {
+    const safe = items.filter(q => lqOf(q.key)?.r === 2).length;
+    const due = items.filter(q => lqIsDue(q.key)).length;
+    return { total: items.length, safe, due, pct: items.length ? Math.round(safe / items.length * 100) : 0 };
+  }
+  const lqDot = (key) => { const r = lqOf(key); return !r ? `<span class="lq-dot">○</span>` : `<span class="lq-dot r${r.r}">${["✗", "~", "✓"][r.r]}</span>`; };
+  function lqRefLink(ref) {
+    if (!ref) return "";
+    if (lessonsAll()[ref]) return `<p class="small" style="margin:6px 0 0"><a href="#/lektion/${ref.split("/").map(encodeURIComponent).join("/")}">📖 In der Lektion nachlesen</a></p>`;
+    const z = lzAll().find(x => (x.lessons || []).includes(ref));
+    return z ? `<p class="small" style="margin:6px 0 0"><a href="#/lernzettel/${encodeURIComponent(z.id)}">📄 Im Lernzettel „${esc(z.title)}“ nachlesen</a></p>` : "";
+  }
+  function lqSystem(q, f) {
+    return `MODUS: LERNFRAGE PRÜFEN. ${state.profile.name} beantwortet eine ${q.official ? `offizielle Lernfrage (${q.srcLabel})` : "vermutete Prüfungsfrage"} aus „${f.name}“:\n„${plainTxt(q.q)}“\n` +
+      `Der Prof hat gesagt: Wer die Lernfragen sicher beantworten kann, ist perfekt vorbereitet. Deine Rolle: strenger, fairer Prüfer an der DHBW.\n` +
+      `So gehst du vor:\n1. Gleiche seine Antwort mit den Kernpunkten unten ab: ✓ was drin und richtig ist, ✗ was fehlt, unklar oder falsch ist – konkret, ohne Floskeln.\n` +
+      `2. Schätze, wie viel Prozent der Punkte er in der Klausur bekäme, und begründe es in einem Satz.\n` +
+      `3. Gib ihm eine verbesserte, klausurreife Antwort in Stichpunkten – nicht länger als nötig, mit Fachbegriffen.\n` +
+      `4. Stell zum Schluss EINE Nachfrage, die zeigt, ob er es wirklich verstanden hat (z. B. ein kleiner Praxisfall).\n` +
+      `Kernpunkte der Musterantwort (nur zum Abgleich):\n${q.pts.map(p => "- " + plainTxt(p)).join("\n")}`;
+  }
+  function viewLernfragen(fid, one) {
+    const folders = getFolders();
+    if (!fid) {
+      const fs = folders.filter(f => lfAll()[f.id]).sort((a, b) => (a.examDate || "9999").localeCompare(b.examDate || "9999"));
+      app().innerHTML = `
+        <h1>🎯 Lernfragen</h1>
+        <p class="muted">Deine Profs sagen: Wer die Lernfragen sicher beantworten kann, ist perfekt vorbereitet. Beantworte jede Frage aus dem Kopf – mit dem Pencil, getippt oder laut – und vergleiche dann mit den Kernpunkten der Musterantwort. Wo es keine offiziellen Lernfragen gibt, stehen <b>vermutete Prüfungsfragen</b> im gleichen Stil.</p>
+        ${fs.map(f => {
+          const items = lqItems(f.id), st = lqStats(items), F = lfAll()[f.id];
+          const exam = f.examDate && daysUntil(f.examDate) >= 0 ? ` · Prüfung in ${daysUntil(f.examDate)} Tagen` : "";
+          return `<div class="card">
+            <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.short || f.name)}</h2><span class="small muted">${st.safe} von ${st.total} sitzen${exam}</span></div>
+            <div class="bar" style="margin-top:10px"><div style="width:${st.pct}%"></div></div>
+            <div class="row" style="margin-top:12px;gap:8px">
+              <a class="btn small" href="#/lernfragen/${encodeURIComponent(f.id)}">▶ Üben${st.due ? ` (${st.due} dran)` : ""}</a>
+              ${lzAll().some(z => z.fid === f.id) ? `<a class="btn secondary small" href="#/lernzettel">📄 Lernzettel</a>` : ""}
+            </div>
+            ${Object.entries(F.sources).map(([sk, s]) => {
+              const qs = items.filter(q => q.src === sk);
+              if (!qs.length) return "";
+              return `<details class="lq-group"><summary>${s.official ? "📋" : "🔮"} ${esc(s.label)} <span class="muted">(${qs.filter(q => lqOf(q.key)?.r === 2).length}/${qs.length})</span></summary>
+                <div class="lq-list">${qs.map(q => `<a class="lq-item" href="#/lernfragen/${encodeURIComponent(f.id)}/${encodeURIComponent(q.id)}">${lqDot(q.key)}<span>${mdx(q.q)}</span></a>`).join("")}</div>
+              </details>`;
+            }).join("")}
+          </div>`;
+        }).join("")}
+        <p class="small muted">✓ sitzt · ~ fast · ✗ nochmal · ○ noch nicht geübt. Was sitzt, kommt nach 3, 7, 14 und 30 Tagen zur Wiederholung.</p>`;
+      renderMath(app());
+      return;
+    }
+    const f = folders.find(x => x.id === fid);
+    const all = lqItems(fid);
+    if (!f || !all.length) { location.replace("#/lernfragen"); return; }
+    let queue;
+    if (one && one.startsWith("~")) {
+      const Z = lzAll().find(z => z.id === one.slice(1));
+      queue = all.filter(q => !Z || !Z.lessons || !q.ref || Z.lessons.includes(q.ref));
+    } else if (one && one.startsWith("@")) queue = all.filter(q => q.ref === `${fid}/${one.slice(1)}`);
+    else if (one) queue = all.filter(q => q.id === one);
+    else {
+      const prio = (q) => { const r = lqOf(q.key); return !r ? (q.official ? 1 : 2) : [0, 0.5, 3][r.r]; };
+      queue = shuffle(all.filter(q => lqIsDue(q.key))).sort((a, b) => prio(a) - prio(b));
+      if (!queue.length) queue = shuffle(all).sort((a, b) => (lqOf(a.key)?.d || "").localeCompare(lqOf(b.key)?.d || ""));
+      queue = queue.slice(0, 10);
+    }
+    if (!queue.length) { location.replace("#/lernfragen"); return; }
+    if (!state.lq) state.lq = {};
+    if (!state.lqDraft) state.lqDraft = {};
+    const session = { i: 0, done: 0, safe: 0, requeued: new Set() };
+
+    function render() {
+      if (session.i >= queue.length) return finish();
+      const q = queue[session.i], id = `lq:${q.key}`, rec = lqOf(q.key);
+      window.chatContext = `Ich übe gerade die Lernfrage „${plainTxt(q.q)}“ (${f.name}). Bitte verrate die Musterantwort nicht, sondern gib mir höchstens einen Denkanstoß, außer ich bitte ausdrücklich darum.`;
+      app().innerHTML = `
+        <div class="row between"><a href="#/lernfragen" class="small">← Beenden</a><span class="small muted">🎯 ${esc(f.short || f.name)} · ${session.i + 1} / ${queue.length}</span></div>
+        <div class="progress" style="margin-top:10px"><div style="width:${session.i / queue.length * 100}%"></div></div>
+        <div class="card lq-card">
+          <div class="row between"><span class="tag">${q.official ? `📋 Offizielle Lernfrage · ${esc(q.srcLabel)}` : "🔮 Vermutete Prüfungsfrage"}</span>${rec ? `<span class="small muted">zuletzt ${["✗ nochmal", "~ fast", "✓ sitzt"][rec.r]} · ${fmtAgo(rec.d)}</span>` : `<span class="badge">neu</span>`}</div>
+          <h2 class="lq-q">${mdx(q.q)}</h2>
+          ${q.tip ? `<button type="button" class="btn-ghost small" id="lqTipBtn">💡 Wie baue ich die Antwort auf?</button><div id="lqTip" class="explain hidden">${mdx(q.tip)}</div>` : ""}
+          <div class="row between" style="align-items:center;gap:10px;margin-top:16px"><b class="small">Deine Antwort – aus dem Kopf, Stichpunkte reichen</b>${modeSwitch()}</div>
+          ${writeField(id, state.lqDraft[q.key] || "", { rows: 6, ph: "Wie in der Klausur: Fachbegriffe, Aufzählung, kurze Begründung …", attrs: `id="lqTxt"` })}
+          <div class="row" style="margin-top:14px;gap:8px">
+            <button type="button" class="btn" id="lqShow">✓ Musterantwort zeigen</button>
+            <button type="button" class="btn secondary small" id="lqClaude">🤖 Claude prüfen lassen</button>
+          </div>
+        </div>
+        <div class="card hidden" id="lqSol">
+          <span class="tag">✅ Musterantwort – Kernpunkte</span>
+          <p class="small muted" style="margin:8px 0 10px">Tippe alle Punkte an, die in deiner Antwort vorkommen – ehrlich, wie ein Prüfer.</p>
+          <div class="fy-gaps">${q.pts.map((p, k) => `<label class="fy-gap"><input type="checkbox" data-pt="${k}"><span>${mdx(p)}</span></label>`).join("")}</div>
+          <p class="lq-score" id="lqScore"></p>
+          ${lqRefLink(q.ref)}
+          <p class="center small muted" style="margin:14px 0 8px">Wie gut konntest du die Frage beantworten?</p>
+          <div class="rate">
+            <button class="btn bad" data-r="0">😵 Nochmal<small>+2 ⭐</small></button>
+            <button class="btn warn" data-r="1">🤔 Fast<small>+5 ⭐</small></button>
+            <button class="btn good" data-r="2">😎 Sitzt<small>+10 ⭐</small></button>
+          </div>
+        </div>`;
+      renderMath(app());
+      bindInputMode(app());
+      const txt = $("#lqTxt");
+      txt?.addEventListener("input", () => { state.lqDraft[q.key] = txt.value; saveSoon(); });
+      $("#lqTipBtn")?.addEventListener("click", e => { $("#lqTip").classList.remove("hidden"); e.currentTarget.remove(); });
+      const answered = () => (txt && txt.value.trim().length >= 3) || hasInk(id);
+      const score = () => {
+        const n = $$("#lqSol [data-pt]:checked").length, pct = Math.round(n / q.pts.length * 100);
+        $("#lqScore").innerHTML = `<b>${n} von ${q.pts.length} Kernpunkten</b> (${pct} %) – ${pct >= 80 ? "das sitzt! 😎" : pct >= 50 ? "fast – lies die fehlenden Punkte nach und sag sie einmal laut. 🤔" : "noch nicht – nochmal nachlesen und morgen wieder versuchen. 💪"}`;
+        $$("#lqSol [data-r]").forEach(b => b.classList.toggle("suggested", +b.dataset.r === (pct >= 80 ? 2 : pct >= 50 ? 1 : 0)));
+      };
+      $("#lqShow").addEventListener("click", e => {
+        if (!answered()) { toast("✍️ Erst selbst antworten – auch Stichpunkte oder laut reichen. Dann vergleichen."); }
+        $("#lqSol").classList.remove("hidden");
+        e.currentTarget.textContent = "✓ Musterantwort unten";
+        score();
+        $("#lqSol").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      $$("#lqSol [data-pt]").forEach(c => c.addEventListener("change", score));
+      $("#lqClaude").addEventListener("click", () => {
+        if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key: „Musterantwort zeigen“."); return; }
+        if (!answered()) { toast("✍️ Schreib zuerst deine Antwort – dann prüft Claude sie."); return; }
+        const typed = txt && txt.value.trim() ? txt.value.trim() : "";
+        const img = hasInk(id) ? Ink.image(id) : null;
+        const msg = `Lernfrage: ${plainTxt(q.q)}\n\n` + (img ? `Meine Antwort habe ich mit dem Apple Pencil geschrieben – sie ist als Bild angehängt.${typed ? `\nGetippt habe ich noch:\n${typed}` : ""}` : `Meine Antwort:\n${typed}`);
+        startMethodChat(`🎯 Lernfrage · ${f.short || f.name}`, lqSystem(q, f) + (img ? "\nWichtig: Die Antwort ist handschriftlich als Bild angehängt. Lies sie sorgfältig; wenn ein Wort unleserlich ist, frag kurz nach, statt zu raten." : ""), msg, img);
+        $("#lqSol").classList.remove("hidden"); score();
+      });
+      $$("#lqSol [data-r]").forEach(b => b.addEventListener("click", e => {
+        const r = +b.dataset.r, old = lqOf(q.key) || { n: 0, streak: 0 };
+        const streak = r === 2 ? (old.streak || 0) + 1 : 0;
+        state.lq[q.key] = { r, d: dayKey(), n: (old.n || 0) + 1, streak, hit: `${$$("#lqSol [data-pt]:checked").length}/${q.pts.length}`,
+          due: r === 0 ? dayKey() : addDays(dayKey(), r === 1 ? 1 : LQ_GAPS[Math.min(streak - 1, LQ_GAPS.length - 1)]) };
+        delete state.lqDraft[q.key];
+        if (window.Ink) Ink.clear(id);
+        const tl = todayLog(); tl.reviewed++; if (r === 2) tl.good++;
+        save();
+        addPoints([2, 5, 10][r], e);
+        session.done++; if (r === 2) session.safe++;
+        if (r === 0 && !session.requeued.has(q.key) && queue.length > 1) { session.requeued.add(q.key); queue.push(q); }
+        endMethodChat();
+        session.i++; render();
+      }));
+    }
+    function finish() {
+      window.chatContext = null;
+      const st = lqStats(all);
+      if (session.safe === session.done && session.done >= 5) confetti(80);
+      app().innerHTML = `
+        <div class="card center">
+          <div style="font-size:3rem">${session.safe === session.done ? "🏆" : "💪"}</div>
+          <h1>Runde geschafft!</h1>
+          <p class="muted">${session.done} ${session.done === 1 ? "Lernfrage" : "Lernfragen"} beantwortet · ${session.safe} sitzen sicher</p>
+          <div class="score" style="--p:${st.pct};--ring:var(--good)"><div>${st.pct}%</div></div>
+          <p class="small muted">${st.safe} von ${st.total} Lernfragen in ${esc(f.short || f.name)} sitzen.</p>
+        </div>
+        <div class="row">
+          <a class="btn" href="#/lernfragen/${encodeURIComponent(fid)}" id="lqAgain">🔁 Nächste Runde</a>
+          <a class="btn secondary" href="#/lernfragen">Alle Lernfragen</a>
+        </div>`;
+      $("#lqAgain").addEventListener("click", ev => { ev.preventDefault(); viewLernfragen(fid); });
+    }
+    render();
   }
 
   // ---------- Schreiben: Handschrift (Apple Pencil) oder Tippen ----------
