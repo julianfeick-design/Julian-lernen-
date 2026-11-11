@@ -1049,7 +1049,7 @@ details.hid-list li > span { flex: 1 1 220px; min-width: 0; overflow-wrap: anywh
    ========================================================= */
 .lz { background: var(--surface-solid); border: 1px solid var(--line); border-radius: 22px; padding: 16px 16px 8px; box-shadow: var(--shadow-sm); margin: 12px 0 16px; }
 .lz-head { background: var(--grad); color: var(--on-accent); border-radius: 16px; padding: 14px 18px; margin-bottom: 14px; }
-.lz-head span { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; opacity: .92; }
+.lz-head > span { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; opacity: .92; }
 .lz-head h1 { margin: 4px 0 0; font-size: 1.45rem; color: inherit; line-height: 1.2; }
 div.lz-toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .lz-toc button { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; font-size: .78rem; font-weight: 600; padding: 5px 10px; border-radius: 999px; cursor: pointer; text-align: left; }
@@ -1070,10 +1070,10 @@ div.lz-toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .lz-t tr:last-child th, .lz-t tr:last-child td { border-bottom: 0; }
 .lz-merke-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 10px 0; }
 .lz-merke { background: color-mix(in srgb, #f2b705 17%, var(--surface-solid)); border-left: 4px solid #f2b705; border-radius: 12px; padding: 10px 14px; }
-.lz-merke span { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #b98a00; }
+.lz-merke > span { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #b98a00; }
 .lz-merke p { margin: 4px 0 0; line-height: 1.5; font-size: .93rem; }
 .lz-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.lz-chips span { border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); background: var(--primary-soft); font-size: .82rem; padding: 4px 10px; border-radius: 999px; }
+.lz-chips > span { border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); background: var(--primary-soft); font-size: .82rem; padding: 4px 10px; border-radius: 999px; }
 .lz-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0; }
 .lz-step { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: .88rem; font-weight: 600; line-height: 1.35; }
 .lz-arr { color: var(--primary); font-weight: 800; }
@@ -1153,7 +1153,7 @@ details.lz-toc > div { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px
 .lz-fig { margin: 14px 0 16px; display: grid; gap: 12px; }
 .lz-fig-main { border: 1px solid var(--line); border-radius: 18px; background: var(--surface-solid); padding: 12px 12px 14px; box-shadow: var(--shadow-sm); min-width: 0; }
 .lz-fig-t { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 800; font-size: .95rem; margin: 2px 4px 10px; }
-.lz-fig-t span { font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--on-accent); background: var(--primary); padding: 3px 8px; border-radius: 999px; }
+.lz-fig-t > span { font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--on-accent); background: var(--primary); padding: 3px 8px; border-radius: 999px; }
 .lz-fig .dg svg { max-width: 640px; }
 .lz-fig figcaption { position: relative; background: color-mix(in srgb, var(--primary) 7%, var(--surface-solid)); border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent); border-left: 5px solid var(--primary); border-radius: 14px; padding: 12px 14px; font-size: .93rem; line-height: 1.6; }
 .lz-fig figcaption b:first-child { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
