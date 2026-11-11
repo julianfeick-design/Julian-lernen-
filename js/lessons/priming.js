@@ -98,6 +98,11 @@
       { q: "Bank A zahlt 8 % Zinsen einmal im Jahr, Bank B jeden Monat ein Zwölftel davon. Wo bekommst du mehr – oder ist es gleich?", ph: "Bei Bank …, weil …", a: "Bei **Bank B** etwas mehr (≈ **8,30 %** effektiv), weil schon während des Jahres Zinsen auf Zinsen anfallen." },
       { q: "Was passiert deiner Meinung nach, wenn man noch öfter verzinst – täglich, stündlich, jede Sekunde?", ph: "Dann …", a: "Der Zuwachs wird immer kleiner und nähert sich einer Grenze: der **stetigen Verzinsung** mit der Zahl **e**." },
       { q: "Woran würdest du in einer Aufgabe erkennen, welche Zinsformel du brauchst?", ph: "am Wort …", a: R`„jährlich“ → $K_0 q^n$ · „monatlich/vierteljährlich“ → $K_0(1+\frac{p}{100m})^{mn}$ · „stetig“ → $e$ · „effektiv“ → $p^*$` }
+    ],
+    "mathe/m-renten": [
+      { q: "Du zahlst 10 Jahre lang jedes Jahr 1.000 € auf ein Sparkonto mit 3 % Zinsen. Hast du am Ende mehr oder weniger als 10.000 €?", ph: "Ich schätze …", a: "**Mehr:** ≈ 11.463,88 € bei Einzahlung am Jahresende, ≈ 11.807,80 € am Jahresanfang – jede Rate bekommt Zinseszins." },
+      { q: "Ist es besser, am Jahresanfang oder am Jahresende einzuzahlen – und warum?", ph: "Besser ist …, weil …", a: R`Am **Anfang (vorschüssig)**: Jede Rate liegt ein Jahr länger auf dem Konto → genau $q$-mal so viel.` },
+      { q: "Du willst in 10 Jahren 20.000 € haben. Wie könntest du die nötige jährliche Sparrate finden?", ph: "Ich würde …", a: R`Die **Rentenendwert-Formel nach $E$ umstellen**: $E = K_n$ geteilt durch den Rentenfaktor.` }
     ]
   };
 })();

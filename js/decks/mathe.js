@@ -221,6 +221,23 @@ $8.000$ € wachsen in 9 Jahren auf $11.000$ €. Wie hoch war der jährliche Zi
               R`$p = 0{,}03602 \cdot 100$`
             ],
             a: R`$p \approx 3{,}60\,\%$`
+          },
+          {
+            id: "nz07",
+            q: R`Typ: Bankvergleich – dreimal so groß (in deiner Mitschrift als **„Klausur!“** markiert)
+Bank 1 und Bank 2 verzinsen dasselbe Startkapital $K_0$ jährlich, Bank 1 mit $p_1$, Bank 2 mit $p_2 > p_1$.
+a) Nach wie vielen Jahren ist der Endbetrag der besseren Bank **dreimal so groß** wie der der schlechteren? Stelle die allgemeine Formel für $n$ auf.
+b) Berechne $n$ für $p_1 = 2\,\%$ und $p_2 = 5\,\%$.`,
+            hint: R`Ansatz: $3 \cdot K_0 \cdot q_1^n = K_0 \cdot q_2^n$ – $K_0$ kürzt sich weg.`,
+            steps: [
+              R`$3 \cdot q_1^n = q_2^n$ $\quad | \ln$`,
+              R`$\ln 3 + n \cdot \ln q_1 = n \cdot \ln q_2$ $\quad | - n \ln q_1$`,
+              R`$\ln 3 = n \cdot (\ln q_2 - \ln q_1)$`,
+              R`a) $n = \frac{\ln 3}{\ln q_2 - \ln q_1}$`,
+              R`b) $n = \frac{1{,}0986}{\ln 1{,}05 - \ln 1{,}02} = \frac{1{,}0986}{0{,}04879 - 0{,}01980} = \frac{1{,}0986}{0{,}02899}$`
+            ],
+            a: R`$n = \frac{\ln 3}{\ln q_2 - \ln q_1}$ · bei 2 % und 5 %: $n \approx 37{,}9$ Jahre`,
+            important: true
           }
         ],
         quiz: []
@@ -374,6 +391,117 @@ Welchem effektiven Jahreszins entsprechen $7\,\%$ stetige Verzinsung?`,
               R`$p^* = (1{,}072508 - 1) \cdot 100$`
             ],
             a: R`$p^* \approx 7{,}25\,\%$`
+          }
+        ],
+        quiz: []
+      },
+      // ------------------------------------------------------------------
+      {
+        id: "m-renten",
+        name: "2.3.1 Rentenrechnung",
+        description: "Neue Übungsaufgaben: Rentenendwert vorschüssig/nachschüssig, Rate und Laufzeit gesucht",
+        cards: [
+          {
+            id: "nr01",
+            q: R`Typ: Rentenendwert vorschüssig
+Ein Azubi zahlt 10 Jahre lang **jeweils zu Jahresbeginn** $1.200$ € auf ein Sparkonto ein ($p = 3\,\%$). Wie hoch ist der Rentenendwert nach 10 Jahren?`,
+            hint: R`Vorschüssig (am Anfang): $K_n = E \cdot q \cdot \frac{q^n - 1}{q - 1}$`,
+            steps: [
+              R`$q = 1{,}03$, $n = 10$`,
+              R`$\frac{q^n - 1}{q - 1} = \frac{1{,}03^{10} - 1}{0{,}03} = \frac{0{,}343916}{0{,}03} \approx 11{,}46388$`,
+              R`$K_{10} = 1.200 \cdot 1{,}03 \cdot 11{,}46388$`
+            ],
+            a: R`$K_{10} \approx 14.169{,}35$ €`,
+            important: true
+          },
+          {
+            id: "nr02",
+            q: R`Typ: Rentenendwert nachschüssig
+Eine Spedition legt 8 Jahre lang **jeweils am Jahresende** $2.000$ € für einen neuen Gabelstapler zurück ($p = 2\,\%$). Wie viel ist nach der letzten Einzahlung angespart?`,
+            hint: R`Nachschüssig (am Ende): $K_n = E \cdot \frac{q^n - 1}{q - 1}$ – die letzte Rate bekommt keine Zinsen mehr.`,
+            steps: [
+              R`$q = 1{,}02$, $n = 8$`,
+              R`$\frac{1{,}02^8 - 1}{0{,}02} = \frac{0{,}171659}{0{,}02} \approx 8{,}58297$`,
+              R`$K_8 = 2.000 \cdot 8{,}58297$`
+            ],
+            a: R`$K_8 \approx 17.165{,}94$ €`
+          },
+          {
+            id: "nr03",
+            q: R`Typ: Vorschüssig vs. nachschüssig
+Jemand spart 12 Jahre lang $1.500$ € pro Jahr bei $4\,\%$. Wie viel mehr hat er am Ende, wenn er **vorschüssig** statt **nachschüssig** einzahlt?`,
+            hint: R`Vorschüssig = nachschüssig $\cdot\, q$ – jede Rate wird ein Jahr länger verzinst.`,
+            steps: [
+              R`Nachschüssig: $1.500 \cdot \frac{1{,}04^{12} - 1}{0{,}04} = 1.500 \cdot 15{,}02581 \approx 22.538{,}71$ €`,
+              R`Vorschüssig: $22.538{,}71 \cdot 1{,}04 \approx 23.440{,}26$ €`,
+              R`Differenz: $23.440{,}26 - 22.538{,}71$`
+            ],
+            a: R`Vorschüssig $\approx 901{,}55$ € mehr (genau ein Jahr Zinsen auf den nachschüssigen Endwert)`
+          },
+          {
+            id: "nr04",
+            q: R`Typ: Rate gesucht (vorschüssig)
+Welcher gleiche Betrag muss **vorschüssig** jährlich eingezahlt werden, um in 12 Jahren bei $2{,}5\,\%$ einen Endwert von $30.000$ € zu erreichen?`,
+            hint: R`Formel nach $E$ umstellen: $E = \frac{K_n}{q \cdot \frac{q^n - 1}{q - 1}}$`,
+            steps: [
+              R`$1{,}025^{12} \approx 1{,}344889$`,
+              R`$q \cdot \frac{q^n - 1}{q - 1} = 1{,}025 \cdot \frac{0{,}344889}{0{,}025} \approx 14{,}14044$`,
+              R`$E = \frac{30.000}{14{,}14044}$`
+            ],
+            a: R`$E \approx 2.121{,}57$ € pro Jahr`,
+            important: true
+          },
+          {
+            id: "nr05",
+            q: R`Typ: Rate gesucht (nachschüssig)
+Ein Unternehmen will in 15 Jahren $50.000$ € für einen Ersatz-Lkw haben. Welche Rate muss es **nachschüssig** jährlich zurücklegen ($p = 3{,}5\,\%$)?`,
+            hint: R`$E = \frac{K_n}{\frac{q^n - 1}{q - 1}}$`,
+            steps: [
+              R`$1{,}035^{15} \approx 1{,}675349$`,
+              R`$\frac{q^n - 1}{q - 1} = \frac{0{,}675349}{0{,}035} \approx 19{,}29568$`,
+              R`$E = \frac{50.000}{19{,}29568}$`
+            ],
+            a: R`$E \approx 2.591{,}25$ € pro Jahr`
+          },
+          {
+            id: "nr06",
+            q: R`Typ: Laufzeit gesucht (nachschüssig)
+Wie viele Jahre muss man **nachschüssig** jährlich $2.500$ € einzahlen ($p = 4\,\%$), bis $25.000$ € angespart sind?`,
+            hint: R`Erst $q^n$ alleine stellen (durch $E$ teilen, mal $(q-1)$, plus 1), **dann** $\ln$.`,
+            steps: [
+              R`$25.000 = 2.500 \cdot \frac{1{,}04^n - 1}{0{,}04}$ $\quad | :2.500$`,
+              R`$10 = \frac{1{,}04^n - 1}{0{,}04}$ $\quad | \cdot 0{,}04$`,
+              R`$0{,}4 = 1{,}04^n - 1$ $\quad | +1$`,
+              R`$1{,}4 = 1{,}04^n$ $\quad | \ln$`,
+              R`$n = \frac{\ln 1{,}4}{\ln 1{,}04} = \frac{0{,}33647}{0{,}03922}$`
+            ],
+            a: R`$n \approx 8{,}58$ Jahre → mit der 9. Einzahlung sind 25.000 € erreicht`,
+            important: true
+          },
+          {
+            id: "nr07",
+            q: R`Typ: Laufzeit gesucht (vorschüssig)
+Wie lange muss man **vorschüssig** jährlich $1.000$ € einzahlen ($p = 3\,\%$), um $15.000$ € zu erreichen?`,
+            hint: R`Vorschüssig: zuerst durch $E \cdot q$ teilen, dann wie gewohnt $q^n$ freistellen und $\ln$.`,
+            steps: [
+              R`$15.000 = 1.000 \cdot 1{,}03 \cdot \frac{1{,}03^n - 1}{0{,}03}$ $\quad | :1.030$`,
+              R`$14{,}56311 = \frac{1{,}03^n - 1}{0{,}03}$ $\quad | \cdot 0{,}03$`,
+              R`$0{,}43689 = 1{,}03^n - 1$ $\quad | +1$`,
+              R`$1{,}43689 = 1{,}03^n$ $\quad | \ln$`,
+              R`$n = \frac{\ln 1{,}43689}{\ln 1{,}03} = \frac{0{,}36248}{0{,}02956}$`
+            ],
+            a: R`$n \approx 12{,}26$ Jahre`
+          },
+          {
+            id: "nr08",
+            q: R`Typ: Ansparen und danach liegen lassen
+Jemand zahlt 10 Jahre lang **nachschüssig** $1.500$ € pro Jahr ein ($p = 2\,\%$). Danach lässt er das Geld noch 5 Jahre ohne weitere Einzahlungen liegen. Wie hoch ist das Endkapital?`,
+            hint: R`Erst den Rentenendwert, dann wie beim Zinseszins mit $q^5$ weiterverzinsen.`,
+            steps: [
+              R`Rentenendwert: $1.500 \cdot \frac{1{,}02^{10} - 1}{0{,}02} = 1.500 \cdot 10{,}94972 \approx 16.424{,}58$ €`,
+              R`Weiterverzinsen: $16.424{,}58 \cdot 1{,}02^5 = 16.424{,}58 \cdot 1{,}104081$`
+            ],
+            a: R`$K_{15} \approx 18.134{,}07$ €`
           }
         ],
         quiz: []

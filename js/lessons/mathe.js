@@ -8,6 +8,21 @@
   window.LESSONS = window.LESSONS || {};
   const R = String.raw;
 
+  // Zeitstrahl Rentenrechnung: vorschüssig (Anfang) vs. nachschüssig (Ende)
+  const SVG_RENTE = (() => {
+    const x = (k) => 60 + k * 75;
+    const row = (y0, title, pays, years) => {
+      let s = `<text x="0" y="${y0}" text-anchor="start" class="dg-at">${title}</text>`;
+      s += `<line x1="40" y1="${y0 + 42}" x2="392" y2="${y0 + 42}" class="dg-l" marker-end="url(#ah)"/>`;
+      for (let k = 0; k <= 4; k++) s += `<line x1="${x(k)}" y1="${y0 + 38}" x2="${x(k)}" y2="${y0 + 46}" class="dg-l"/><text x="${x(k)}" y="${y0 + 58}" text-anchor="middle" class="dg-xs">${k ? "Jahr " + k : "heute"}</text>`;
+      pays.forEach((k, i) => { s += `<rect x="${x(k) - 13}" y="${y0 + 12}" width="26" height="20" rx="6" class="dg-a"/><text x="${x(k)}" y="${y0 + 26}" text-anchor="middle" class="dg-tm">E</text><text x="${x(k)}" y="${y0 + 74}" text-anchor="middle" class="dg-at">${years[i]}</text>`; });
+      return s + `<text x="406" y="${y0 + 46}" text-anchor="middle" class="dg-tm">Kₙ</text>`;
+    };
+    return `<svg viewBox="0 0 420 196" role="img" aria-label="Zeitstrahl: vorschüssige Raten am Jahresanfang, nachschüssige am Jahresende">{{defs}}` +
+      row(14, "vorschüssig – Einzahlung am Anfang jedes Jahres", [0, 1, 2, 3], ["4 J.", "3 J.", "2 J.", "1 J."]) +
+      row(112, "nachschüssig – Einzahlung am Ende jedes Jahres", [1, 2, 3, 4], ["3 J.", "2 J.", "1 J.", "0 J."]) + `</svg>`;
+  })();
+
   Object.assign(window.LESSONS, {
     "mathe/m-abschreibung": {
       title: "Degressive Abschreibung verstehen",
@@ -47,6 +62,7 @@ $\frac{R_4}{A} = q^4 = 0{,}8^4 = 0{,}4096$ → Restwert **40,96 %** (abgeschrieb
           [R`Durch $\ln q$ teilen`, R`$\displaystyle n = \frac{\ln(R_n / A)}{\ln q}$`]
         ], cap: R`Beide $\ln$-Werte sind **negativ** (weil $\frac{R_n}{A} < 1$ und $q < 1$) → minus durch minus = **plus**. Wird nach dem **ersten vollen Jahr** gefragt, rundest du **auf**.` },
         { t: "merke", h: "Die eine Logarithmus-Regel, die du brauchst", x: R`$\ln(q^n) = n \cdot \ln q$ – der Logarithmus holt den Exponenten **nach vorne**. Nur so bekommst du $n$ aus dem Exponenten heraus.` },
+        { t: "merke", h: "Der Restwert wird nie 0", x: R`$R_n = A \cdot q^n$ ist immer **größer als 0** – und $\ln 0$ gibt es nicht. Fragt eine Aufgabe, wann etwas „nichts mehr wert“ ist, rechnet man mit einem **kleinen Restwert** (z. B. 0,01 €) statt mit 0 – so auch in deiner Mitschrift.` },
         { t: "ex", h: "Beispiel: Wann ist der Lkw weniger als 20.000 € wert?", x: R`$20.000 = 100.000 \cdot 0{,}8^n$ $\quad | :100.000$
 $0{,}2 = 0{,}8^n$ $\quad | \ln$
 $\ln 0{,}2 = n \cdot \ln 0{,}8$
@@ -108,9 +124,10 @@ $K_0 = \frac{10.000}{1{,}03^5} = \frac{10.000}{1{,}159274} \approx 8.626{,}09$ �
           "Wie bei der Abschreibung: Faktoren **hintereinander multiplizieren**",
           R`Beispiel: 10.000 € erst 2 Jahre zu 2 %, dann 3 Jahre zu 3 %: $10.000 \cdot 1{,}02^2 \cdot 1{,}03^3 \approx 11.368{,}73$ €`
         ] },
-        { t: "text", h: "Bankvergleich – der Trick mit dem ln", x: R`Frage: Wann ist das Guthaben bei Bank 2 **doppelt so hoch** wie bei Bank 1?
-Ansatz: $2 \cdot K_0 \cdot q_1^n = K_0 \cdot q_2^n$ → $K_0$ kürzen → $\ln$ auf beiden Seiten:
-$\ln 2 + n \cdot \ln q_1 = n \cdot \ln q_2$ → $n = \frac{\ln 2}{\ln q_2 - \ln q_1}$
+        { t: "text", h: "Bankvergleich – der Trick mit dem ln", x: R`Frage aus der Vorlesung (**„Klausur!“**): Wann ist der Endbetrag der besseren Bank **dreimal so groß** wie der der schlechteren?
+Ansatz: $3 \cdot K_0 \cdot q_1^n = K_0 \cdot q_2^n$ → $K_0$ kürzen → $\ln$ auf beiden Seiten:
+$\ln 3 + n \cdot \ln q_1 = n \cdot \ln q_2$ → $n = \frac{\ln 3}{\ln q_2 - \ln q_1}$
+Für „doppelt so hoch“ steht statt $\ln 3$ einfach $\ln 2$ – allgemein $\ln k$ für das $k$-Fache.
 **Merke:** Beim $\ln$ wird aus „mal“ ein „plus“: $\ln(a \cdot b) = \ln a + \ln b$.` },
         { t: "check", q: R`Wie groß ist der Zinsfaktor $q$ bei $p = 2{,}5\,\%$?`, o: ["1,025", "0,975", "1,25", "2,5"], why: R`$q = 1 + \frac{2{,}5}{100} = 1{,}025$.` },
         { t: "check", q: "5.000 € werden 2 Jahre mit 10 % verzinst (Zinseszins). Wie hoch ist das Endkapital?", o: ["6.050 €", "6.000 €", "5.500 €", "6.100 €"], why: R`$5.000 \cdot 1{,}1^2 = 5.000 \cdot 1{,}21 = 6.050$ €. 6.000 € wäre einfache Verzinsung.` },
@@ -163,11 +180,18 @@ $\ln 2 + n \cdot \ln q_1 = n \cdot \ln q_2$ → $n = \frac{\ln 2}{\ln q_2 - \ln 
           [R`$(m \cdot n)$-te Wurzel ziehen`, R`$\displaystyle 1 + \frac{p}{100m} = \sqrt[mn]{\frac{K_n}{K_0}}$`],
           [R`Nach $p$ auflösen`, R`$\displaystyle p = \left(\sqrt[mn]{\frac{K_n}{K_0}} - 1\right) \cdot 100 \cdot m$`]
         ], cap: R`Beispiel: 10.000 € → 11.000 € in 4 Jahren bei vierteljährlicher Verzinsung ($m \cdot n = 16$): $p = \left(\sqrt[16]{1{,}1} - 1\right) \cdot 400 \approx 2{,}39\,\%$.` },
+        { t: "ex", h: "Klausur-Typ: Bankvergleich mit unterschiedlichem m", x: R`Bank 1 verzinst **halbjährlich** mit $p_1$, Bank 2 **monatlich** mit $p_2$ (gleiches $K_0$, gleiches $n$). Wann ist das Guthaben bei Bank 2 **doppelt so hoch**?
+$2 \cdot K_0 \left(1 + \frac{p_1}{200}\right)^{2n} = K_0 \left(1 + \frac{p_2}{1200}\right)^{12n}$ $\quad | :K_0$ und $\ln$
+$\ln 2 + 2n \cdot \ln\left(1 + \frac{p_1}{200}\right) = 12n \cdot \ln\left(1 + \frac{p_2}{1200}\right)$
+$n = \frac{\ln 2}{12 \cdot \ln\left(1 + \frac{p_2}{1200}\right) - 2 \cdot \ln\left(1 + \frac{p_1}{200}\right)}$` },
         { t: "text", h: "Stetige Verzinsung – unendlich oft verzinsen", x: R`Lässt man $m$ immer größer werden (jede Stunde, jede Sekunde …), nähert sich der Wachstumsfaktor der **Eulerschen Zahl** $e \approx 2{,}71828$. Daraus wird die Formel der **stetigen Verzinsung**. Das Schöne: Umstellen ist hier **leichter**, weil der $\ln$ das $e$ einfach aufhebt: $\ln(e^x) = x$.` },
         { t: "formula", h: "Stetige Verzinsung", tex: R`\begin{aligned} K_n &= K_0 \cdot e^{\frac{p \cdot n}{100}} \\[6pt] p^* &= \left(e^{\frac{p}{100}} - 1\right) \cdot 100 \end{aligned}`, items: [
           R`Verdopplung bei 5 % stetig: $2 = e^{0{,}05 n}$ → $\ln 2 = 0{,}05 n$ → $n = \frac{\ln 2}{0{,}05} \approx 13{,}86$ Jahre`,
           R`Effektivzins bei 8 % stetig: $p^* = (e^{0{,}08} - 1) \cdot 100 \approx 8{,}33\,\%$`
         ] },
+        { t: "ex", h: "Klausur-Typ: drei Phasen mit verschiedener Verzinsung + effektiver Jahreszins", x: R`$5.500$ €: 10 Jahre jährlich mit 2,5 %, dann 8 Jahre monatlich mit 2,75 %, dann 5 Jahre stetig mit 3 %:
+$K_{23} = 5.500 \cdot 1{,}025^{10} \cdot \left(1 + \frac{2{,}75}{1200}\right)^{12 \cdot 8} \cdot e^{\frac{5 \cdot 3}{100}} \approx 10.190{,}16$ €
+Effektiver Jahreszins über alle 23 Jahre: $p^* = \left(\sqrt[23]{\frac{10.190{,}16}{5.500}} - 1\right) \cdot 100 \approx 2{,}72\,\%$` },
         { t: "table", h: "Welche Formel wann?", head: ["Stichwort in der Aufgabe", "Formel"], rows: [
           ["„jährlich“ oder keine Angabe", R`$K_n = K_0 \cdot q^n$`],
           ["„halbjährlich, vierteljährlich, monatlich, täglich“", R`$K_n = K_0 \left(1+\frac{p}{100m}\right)^{mn}$`],
@@ -178,6 +202,63 @@ $\ln 2 + n \cdot \ln q_1 = n \cdot \ln q_2$ → $n = \frac{\ln 2}{\ln q_2 - \ln 
         { t: "check", q: "Monatliche Verzinsung mit 6 % – wie hoch ist der Zins **pro Monat**?", o: ["0,5 %", "6 %", "0,6 %", "72 %"], why: R`$\frac{6\,\%}{12} = 0{,}5\,\%$ pro Monat.` },
         { t: "check", q: R`Der effektive Jahreszins $p^*$ ist bei monatlicher Verzinsung …`, o: ["etwas höher als der Nominalzins", "genauso hoch wie der Nominalzins", "etwas niedriger als der Nominalzins", "zwölfmal so hoch wie der Nominalzins"], why: R`Durch den Zinseszins **innerhalb** des Jahres ist $p^*$ etwas höher – z. B. 8 % monatlich → 8,30 % effektiv.` },
         { t: "check", q: R`Wie löst du $3 = e^{0{,}04 n}$ nach $n$ auf?`, o: [R`$n = \frac{\ln 3}{0{,}04}$`, R`$n = \frac{3}{\ln 0{,}04}$`, R`$n = \sqrt[0{,}04]{3}$`, R`$n = 3 \cdot 0{,}04$`], why: R`$\ln$ anwenden: $\ln 3 = 0{,}04 n$ → $n = \frac{\ln 3}{0{,}04} \approx 27{,}47$ Jahre.` }
+      ]
+    },
+
+    "mathe/m-renten": {
+      title: "Rentenrechnung: regelmäßig einzahlen – vorschüssig & nachschüssig",
+      min: 8,
+      goals: [
+        "Vorschüssige und nachschüssige Einzahlungen unterscheiden",
+        R`Den Rentenendwert (REW) berechnen: $K_n = E \cdot q \cdot \frac{q^n - 1}{q - 1}$ bzw. $K_n = E \cdot \frac{q^n - 1}{q - 1}$`,
+        R`Die Rate $E$ aus einem gewünschten Endwert berechnen`,
+        R`Die Laufzeit $n$ mit dem Logarithmus bestimmen – ohne Rechenfalle`
+      ],
+      s: [
+        { t: "intro", x: R`Bisher hast du **einmal** Geld angelegt ($K_0$). Bei der **Rentenrechnung** zahlst du **regelmäßig denselben Betrag** $E$ ein – z. B. jedes Jahr 500 € in einen Sparplan. Jede Einzahlung wird ab ihrem Einzahlungstag mit Zinseszins verzinst. Der Endwert aller Einzahlungen heißt **Rentenendwert (REW)**. Wichtig ist nur: Wird **am Anfang** (vorschüssig) oder **am Ende** (nachschüssig) jeder Periode eingezahlt?` },
+        { t: "svg", h: "Schaubild: vorschüssig und nachschüssig", svg: SVG_RENTE, cap: "Vorschüssig wird am **Anfang** jedes Jahres eingezahlt, nachschüssig am **Ende**. Die Zahl unter jeder Rate zeigt, **wie viele Jahre** sie verzinst wird: Vorschüssig bekommt jede Rate **ein Jahr mehr** Zinsen – die letzte nachschüssige Rate gar keine." },
+        { t: "table", h: "Ein Beispiel durchgerechnet: 3 × 500 € bei 2,5 %", head: ["Rate", "vorschüssig (Anfang)", "nachschüssig (Ende)"], rows: [
+          ["1. Rate", R`$500 \cdot 1{,}025^3 = 538{,}45$ €`, R`$500 \cdot 1{,}025^2 = 525{,}31$ €`],
+          ["2. Rate", R`$500 \cdot 1{,}025^2 = 525{,}31$ €`, R`$500 \cdot 1{,}025 = 512{,}50$ €`],
+          ["3. Rate", R`$500 \cdot 1{,}025 = 512{,}50$ €`, "500,00 € (keine Zinsen mehr)"],
+          ["**Summe = REW**", "**1.576,26 €**", "**1.537,81 €**"]
+        ], cap: "Jede Rate wird einzeln mit Zinseszins aufgezinst – die Summe ist der **Rentenendwert**. Die Formel nimmt dir das Addieren ab." },
+        { t: "formula", h: "Die zwei Formeln für den Rentenendwert", tex: R`\begin{aligned} \text{vorschüssig:} \quad K_n &= E \cdot q \cdot \frac{q^n - 1}{q - 1} \\[6pt] \text{nachschüssig:} \quad K_n &= E \cdot \frac{q^n - 1}{q - 1} \end{aligned}`, items: [
+          R`$E$ = gleiche Einzahlung (Rate), $q = 1 + \frac{p}{100}$, $n$ = Anzahl der Einzahlungen`,
+          R`Vorschüssig = nachschüssig $\cdot\, q$ – jede Rate wird **eine Periode länger** verzinst`,
+          R`Kontrolle mit dem Beispiel: $500 \cdot 1{,}025 \cdot \frac{1{,}025^3 - 1}{0{,}025} \approx 1.576{,}26$ €`
+        ] },
+        { t: "merke", h: "Aus deiner Mitschrift", x: R`Der Endwert bei regelmäßig gleichen Einzahlungen heißt **Rentenendwert (REW)**. **Vorschüssig** = Einzahlung am **Anfang** der Verzinsungsperiode, **nachschüssig** = am **Ende**.` },
+        { t: "ex", h: "Beispiel aus der Vorlesung", x: R`Rente $E = 500$ €, $p = 2{,}5\,\%$, $n = 15$ Jahre, vorschüssig:
+$K_{15} = 500 \cdot 1{,}025 \cdot \frac{1{,}025^{15} - 1}{1{,}025 - 1} \approx 9.190{,}11$ €` },
+        { t: "flow", h: R`Rezept: Rate $E$ gesucht`, steps: [
+          ["Formel hinschreiben", R`vorschüssig $K_n = E \cdot q \cdot \frac{q^n - 1}{q - 1}$, nachschüssig ohne das $q$ vorne`],
+          ["Rentenfaktor ausrechnen", R`alles außer $E$ zu **einer Zahl** zusammenrechnen`],
+          ["Durch den Faktor teilen", R`$E = \frac{K_n}{\text{Rentenfaktor}}$`]
+        ] },
+        { t: "ex", h: "Beispiel: Welche Rate bringt 45.000 € in 16 Jahren?", x: R`vorschüssig, $p = 3\,\%$: Rentenfaktor $= 1{,}03 \cdot \frac{1{,}03^{16} - 1}{0{,}03} \approx 20{,}76159$
+$E = \frac{45.000}{20{,}76159} \approx 2.167{,}46$ € pro Jahr
+➜ **Achtung:** Der Exponent ist die Zahl der Jahre – hier $1{,}03^{16}$. Mit $1{,}03^{6}$ käme fälschlich 6.754,26 € heraus.` },
+        { t: "flow", h: R`Rezept: Laufzeit $n$ gesucht (nachschüssig)`, steps: [
+          [R`Durch $E$ teilen`, R`$\frac{K_n}{E} = \frac{q^n - 1}{q - 1}$`],
+          [R`Mal $(q - 1)$, dann $+1$`, R`$\frac{K_n}{E} \cdot (q - 1) + 1 = q^n$`, "erst qⁿ freistellen!"],
+          [R`$\ln$ anwenden`, R`$n = \frac{\ln\left(\frac{K_n}{E}(q - 1) + 1\right)}{\ln q}$`]
+        ] },
+        { t: "ex", h: "Beispiel: Wie lange 3.000 € einzahlen, bis 20.000 € da sind?", x: R`nachschüssig, $p = 3\,\%$:
+$20.000 = 3.000 \cdot \frac{1{,}03^n - 1}{0{,}03}$ $\quad | :3.000$ und $\cdot\, 0{,}03$
+$0{,}2 = 1{,}03^n - 1$ $\quad | +1$
+$1{,}2 = 1{,}03^n$ $\quad | \ln$
+$n = \frac{\ln 1{,}2}{\ln 1{,}03} \approx 6{,}17$ Jahre` },
+        { t: "merke", h: "Rechenfalle: erst qⁿ freistellen, dann ln", x: R`$\ln\left(\frac{q^n - 1}{q - 1}\right)$ ist **nicht** $n \cdot \ln(\ldots)$ – die Logarithmus-Regel gilt nur für eine **reine Potenz**. Darum zuerst durch $E$ teilen, mit $(q - 1)$ malnehmen und $+1$ rechnen, bis $q^n$ **alleine** steht. Erst dann $\ln$. (Genau diesen Weg hast du in der Mitschrift nach dem Durchstreichen richtig gerechnet.)` },
+        { t: "table", h: "Vorschüssig oder nachschüssig? – Stichworte", head: ["Stichwort in der Aufgabe", "Art", "Formel"], rows: [
+          ["„zu Beginn“, „am Anfang“, „vorschüssig“", "vorschüssig", R`$K_n = E \cdot q \cdot \frac{q^n - 1}{q - 1}$`],
+          ["„am Ende“, „zum Jahresende“, „nachschüssig“", "nachschüssig", R`$K_n = E \cdot \frac{q^n - 1}{q - 1}$`],
+          ["„danach noch liegen lassen“", "REW + Zinseszins", R`$K = \text{REW} \cdot q^k$`]
+        ] },
+        { t: "check", q: "Was bedeutet „vorschüssig“?", o: ["Einzahlung am Anfang jeder Periode", "Einzahlung am Ende jeder Periode", "Nur eine Einzahlung zu Beginn", "Die Zinsen werden vorab abgezogen"], why: "Vorschüssig = am **Anfang** der Verzinsungsperiode. Dadurch wird jede Rate eine Periode länger verzinst." },
+        { t: "check", q: "Warum ist der vorschüssige Rentenendwert größer als der nachschüssige?", o: ["Jede Rate wird eine Periode länger verzinst", "Es wird insgesamt mehr eingezahlt", "Der Zinssatz ist höher", "Am Ende gibt es einen Bonus"], why: R`Gleiche Raten, gleicher Zins – aber jede Rate liegt ein Jahr länger auf dem Konto. Deshalb: vorschüssig = nachschüssig $\cdot\, q$.` },
+        { t: "check", q: R`Nachschüssig, $E = 1.000$ €, $q = 1{,}05$, $n = 2$: Wie hoch ist der Rentenendwert?`, o: ["2.050 €", "2.152,50 €", "2.000 €", "2.100 €"], why: R`$1.000 \cdot \frac{1{,}05^2 - 1}{0{,}05} = 1.000 \cdot 2{,}05 = 2.050$ €. Die 2. Rate kommt am Ende und bekommt keine Zinsen. (2.152,50 € wäre vorschüssig.)` },
+        { t: "check", q: R`Du hast $1{,}2 = 1{,}03^n$ erreicht. Wie geht es weiter?`, o: [R`$\ln$ auf beiden Seiten: $n = \frac{\ln 1{,}2}{\ln 1{,}03}$`, R`$n$-te Wurzel ziehen`, R`durch $1{,}03$ teilen`, R`mal $0{,}03$ nehmen`], why: R`Jetzt steht $q^n$ alleine → $\ln$ holt $n$ nach vorne: $n \approx 6{,}17$ Jahre.` }
       ]
     }
   });

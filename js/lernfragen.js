@@ -880,6 +880,34 @@ window.LERNFRAGEN.bwl = {
           R`Vielfaches: $K_0 \cdot q_2^n = 2 \cdot K_0 \cdot q_1^n$ → $K_0$ **kürzt sich weg**`,
           R`$\left(\frac{q_2}{q_1}\right)^n = 2$ → $n = \frac{\ln 2}{\ln(q_2/q_1)}$`,
           R`Bei unterschiedlichem $m$: $q$ jeweils als Jahresfaktor $\left(1 + \frac{p}{100\,m}\right)^m$ einsetzen`
+        ] },
+      { id: "q07", src: "pred", ref: "mathe/m-renten",
+        q: "Was ist der Rentenendwert und wie unterscheiden sich vorschüssige und nachschüssige Einzahlungen?",
+        tip: "Definition, beide Formeln, warum vorschüssig mehr bringt, ein Zahlenbeispiel.",
+        pts: [
+          R`**Rentenendwert (REW)** = Endwert regelmäßig gleicher Einzahlungen $E$`,
+          R`**Vorschüssig** (am Periodenanfang): $K_n = E \cdot q \cdot \frac{q^n - 1}{q - 1}$`,
+          R`**Nachschüssig** (am Periodenende): $K_n = E \cdot \frac{q^n - 1}{q - 1}$`,
+          R`Vorschüssig ist genau $q$-mal so viel – jede Rate wird **eine Periode länger** verzinst`,
+          R`Beispiel Vorlesung: 500 €, 2,5 %, 15 Jahre vorschüssig → $K_{15} \approx 9.190{,}11$ €`
+        ] },
+      { id: "q08", src: "pred", ref: "mathe/m-renten",
+        q: "Wie bestimmen Sie bei der Rentenrechnung die Rate E und die Laufzeit n?",
+        tip: "Nach E umstellen (durch den Rentenfaktor teilen) und nach n (erst qⁿ freistellen, dann ln) – mit der typischen Falle.",
+        pts: [
+          R`Rate: $E = \frac{K_n}{q \cdot \frac{q^n - 1}{q - 1}}$ (vorschüssig) bzw. $E = \frac{K_n}{\frac{q^n - 1}{q - 1}}$ (nachschüssig)`,
+          R`Laufzeit (nachschüssig): $\frac{K_n}{E}(q - 1) + 1 = q^n$ → $n = \frac{\ln\left(\frac{K_n}{E}(q - 1) + 1\right)}{\ln q}$`,
+          R`Vorschüssig: zuerst durch $E \cdot q$ teilen, dann genauso weiter`,
+          R`**Falle:** $\ln$ nicht auf den ganzen Bruch anwenden – erst $q^n$ alleine stellen`
+        ] },
+      { id: "q09", src: "pred", ref: "mathe/m-zinseszins",
+        q: "Nach wie vielen Jahren ist der Endbetrag der besseren Bank dreimal so groß wie der der schlechteren? Leiten Sie die allgemeine Formel her.",
+        tip: "In deiner Mitschrift als „Klausur!“ markiert. Ansatz aufschreiben, K₀ kürzen, ln, nach n auflösen.",
+        pts: [
+          R`Ansatz: $3 \cdot K_0 \cdot q_1^n = K_0 \cdot q_2^n$ (gleiches $K_0$ und $n$, $p_1 < p_2$)`,
+          R`$K_0$ **kürzt sich weg**: $3 \cdot q_1^n = q_2^n$`,
+          R`$\ln$: $\ln 3 + n \ln q_1 = n \ln q_2$ → $n = \frac{\ln 3}{\ln q_2 - \ln q_1}$`,
+          R`Allgemein für das $k$-Fache: $n = \frac{\ln k}{\ln q_2 - \ln q_1}$; bei unterjähriger Verzinsung $m \cdot \ln\left(1 + \frac{p}{100m}\right)$ statt $\ln q$`
         ] }
     ]
   };

@@ -37,7 +37,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 |---|---|---|---|
 | 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | Nehm (Grundlagen) + **Schröder (Beschaffungslogistik)**: 6 Stapel, 97 Karten, 72 Lernfragen |
 | 💼 Grundlagen der BWL | 11. Januar | 4 | BWL + Marketing, 100 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
-| 🧮 Mathematik & Statistik | 13. Januar | 3 | **Aufgabenmodus**: 25 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg |
+| 🧮 Mathematik & Statistik | 13. Januar | 4 | **Aufgabenmodus**: 34 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg – Abschreibung, Zinseszins, unterjährig/stetig und **Rentenrechnung** (vorschüssig/nachschüssig) |
 | 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | Nehm, Hasselberg, **Bahnverkehr, Kombinierter Verkehr, KEP** (KV/KEP vorläufig aus Notizen): 10 Stapel, 205 Karten, 57 Lernfragen |
 | 🎓 Bonus: Praxiswissen | – | – | **kein Klausurstoff:** Fachbegriffe, Incoterms 2020, BWL-Basics (z. B. Rechtsformen), Klausur-Technik (49 Karten) |
 

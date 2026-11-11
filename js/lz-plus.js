@@ -1019,6 +1019,16 @@
     });
     return svg(178, "72er-Regel: Die Faustformel 72 geteilt durch p liegt sehr nah an der exakten Verdopplungszeit", b);
   };
+  const bankDreimal = () => {
+    const P = SB.plot({ x0: 46, y0: 170, w: 320, h: 140, xr: [0, 45], yr: [0, 9] }), { X: x, Y: y } = P, ns = Math.log(3) / Math.log(1.05 / 1.02);
+    let b = P.axes("", "Endbetrag (× K₀)") + P.yt([[1, "1"], [3, "3"], [6, "6"], [9, "9"]]) + P.xt([[0, "0"], [20, "20"], [ns, "≈ 37,9"], [45, "45 Jahre"]]);
+    b += p(P.curve((n) => Math.pow(1.05, n)), "dg-lp") + p(P.curve((n) => Math.pow(1.02, n)), "dg-l");
+    const a = Math.pow(1.02, ns), c = Math.pow(1.05, ns);
+    b += ln(x(ns), y(0), x(ns), y(c), "dg-l dg-d") + ci(x(ns), y(a), 4, "dg-b") + ci(x(ns), y(c), 4.5, "dg-a");
+    b += ln(x(ns) + 8, y(a) - 3, x(ns) + 8, y(c) + 4, "dg-l", "ah") + t(x(ns) + 12, (y(a) + y(c)) / 2 + 4, "× 3", "dg-at", "start");
+    b += t(x(45) + 4, y(Math.pow(1.05, 45)) + 4, "5 %", "dg-at", "start") + t(x(45) + 4, y(Math.pow(1.02, 45)) + 4, "2 %", "dg-s", "start");
+    return svg(P.y0 + 24, "Bankvergleich: Nach rund 37,9 Jahren ist der Endbetrag bei 5 Prozent dreimal so groß wie bei 2 Prozent", b);
+  };
   X["mathe/m-zinseszins"] = {
     sum: [
       "Zinseszins: **Zinsen auf Zinsen** → das Kapital wächst exponentiell.",
@@ -1026,6 +1036,7 @@
       "Abzinsen: $K_0 = \\frac{K_n}{q^n}$.",
       "$p$ gesucht → $n$-te Wurzel · $n$ gesucht → $\\ln$ (Verdopplung bei 5 %: ≈ 14,21 Jahre).",
       "Kontrolle mit der **72er-Regel**: Verdopplung nach ≈ $\\frac{72}{p}$ Jahren.",
+      "**Klausur!** Bankvergleich „dreimal so groß“: $n = \\frac{\\ln 3}{\\ln q_2 - \\ln q_1}$ – $K_0$ kürzt sich weg.",
     ],
     after: {
       "Einfache Verzinsung vs. Zinseszins (10.000 € zu 10 %)": [{ fig: zinsVergleich(), t: "Gerade gegen Kurve",
@@ -1034,6 +1045,8 @@
         read: "Beide Kurven folgen **Startwert · qⁿ**. Ist $q > 1$ (Zins, hier 1,2), **wächst** der Wert immer schneller. Ist $q < 1$ (Abschreibung, hier 0,8), **schrumpft** er – erst schnell, dann langsamer. Wer die Abschreibung kann, kann also auch den Zinseszins: nur das Vorzeichen in $q = 1 \\pm \\frac{p}{100}$ ändert sich." }],
       "Beispiel: Abzinsen": [{ fig: zeitstrahl(), t: "Aufzinsen und Abzinsen",
         read: "Der Zeitstrahl verbindet **heute** und **in 5 Jahren**. **Aufzinsen** (oben) heißt: mit $q^5$ malnehmen – aus 8.626,09 € werden 10.000 €. **Abzinsen** (unten) ist der Rückweg: durch $q^5$ teilen. So findest du heraus, wie viel du **heute** anlegen musst." }],
+      "Bankvergleich – der Trick mit dem ln": [{ fig: bankDreimal(), t: "Wann ist die bessere Bank dreimal so groß?",
+        read: "Beide Kurven starten beim selben Startkapital (= 1). Die **bessere Bank** (5 %, farbig) wächst schneller als die **schlechtere** (2 %, grau), der Abstand wird immer größer. Nach **≈ 37,9 Jahren** ist sie genau **dreimal so groß** (Pfeil). Rechnung: $n = \\frac{\\ln 3}{\\ln 1{,}05 - \\ln 1{,}02}$ – das Startkapital spielt keine Rolle, es kürzt sich weg." }],
       "Profi-Tipp: die 72er-Regel zum Überprüfen": [{ fig: regel72(), t: "Wie gut ist die 72er-Regel?",
         read: "Je Zinssatz zwei Balken: **oben** die exakte Verdopplungszeit ($\\frac{\\ln 2}{\\ln q}$), **unten** die Faustregel $\\frac{72}{p}$. Sie liegen fast gleich auf – darum eignet sich die Regel perfekt, um ein Ergebnis in Sekunden auf **Plausibilität** zu prüfen. Rechnen musst du aber mit $\\ln$." }],
     },
@@ -1087,6 +1100,37 @@
         read: "Stell dir **100 % Zins** für ein Jahr vor. Einmal verzinst wird aus 1 € genau **2 €**. Verzinst man öfter, wächst der Faktor – aber immer langsamer: 2,25 → 2,44 → 2,61 → 2,71 … Er nähert sich der **Eulerschen Zahl e ≈ 2,718**, überschreitet sie aber nie. Das ist die **stetige Verzinsung**." }],
       "Welche Formel wann?": [{ fig: formelwahl(), t: "Vom Stichwort zur Formel",
         read: "Lies in der Aufgabe zuerst das **Stichwort** (links) und nimm dann die passende **Formel** (rechts): nichts oder „jährlich“ → normale Zinseszinsformel, „monatlich“ & Co. → unterjährige Formel mit $m$, „stetig“ → $e$-Formel, „effektiv“ oder „Angebote vergleichen“ → $p^*$ berechnen." }],
+    },
+  };
+
+  // ---------- Rentenrechnung
+  const renteTreppe = () => SB.gantt({ label: "Rentenendwert als Summe: Jede Rate wächst unterschiedlich lange", tmax: 1700, lw: 72, room: 70, rh: 30, rows: [
+    { l: "1. Rate", segs: [[0, 1000, "1.000 €", "dg-b"], [1000, 1610.51, "Zinsen", "dg-a"]], end: "1.610,51" },
+    { l: "2. Rate", segs: [[0, 1000, "1.000 €", "dg-b"], [1000, 1464.10, "Zinsen", "dg-a"]], end: "1.464,10" },
+    { l: "3. Rate", segs: [[0, 1000, "1.000 €", "dg-b"], [1000, 1331, "Zinsen", "dg-a"]], end: "1.331,00" },
+    { l: "4. Rate", segs: [[0, 1000, "1.000 €", "dg-b"], [1000, 1210, "", "dg-a"]], end: "1.210,00" },
+    { l: "5. Rate", segs: [[0, 1000, "1.000 €", "dg-b"], [1000, 1100, "", "dg-a"]], end: "1.100,00" }],
+    note: "Summe = Rentenendwert 6.715,61 € (5 × 1.000 € vorschüssig, 10 %)" });
+  X["mathe/m-renten"] = {
+    sum: [
+      "**Rente** = regelmäßig gleiche Einzahlungen $E$; ihr Endwert heißt **Rentenendwert (REW)**.",
+      "**Vorschüssig** (Periodenanfang): $K_n = E \\cdot q \\cdot \\frac{q^n - 1}{q - 1}$",
+      "**Nachschüssig** (Periodenende): $K_n = E \\cdot \\frac{q^n - 1}{q - 1}$ – vorschüssig ist genau **q-mal** so viel.",
+      "Rate gesucht: $E = K_n$ ÷ Rentenfaktor · Laufzeit gesucht: erst $q^n$ alleine stellen, **dann** $\\ln$.",
+      "Beispiel Vorlesung: 500 €, 2,5 %, 15 Jahre vorschüssig → **9.190,11 €**.",
+    ],
+    after: {
+      "Ein Beispiel durchgerechnet: 3 × 500 € bei 2,5 %": [{ fig: renteTreppe(), t: "Der Rentenendwert als Treppe",
+        read: "Jede Zeile ist **eine Einzahlung** von 1.000 € (grau) plus die **Zinsen**, die sie bis zum Ende bekommt (farbig). Die **erste Rate** liegt am längsten auf dem Konto und wächst am meisten, die letzte am wenigsten. **Addiert** man alle Zeilen, erhält man den **Rentenendwert** – genau das rechnet die Formel in einem Schritt (Beispiel mit 10 %, damit man die Zinsen gut sieht)." }],
+      "Die zwei Formeln für den Rentenendwert": [{
+        fig: SB.bars({ label: "Gleiche Raten: Vorschüssig ergibt genau q-mal so viel wie nachschüssig", max: 6715.61, lw: 96, room: 150, items: [
+          { l: "nachschüssig", v: 6105.10, txt: "6.105,10 €" }, { l: "vorschüssig", v: 6715.61, txt: "6.715,61 € (× 1,1)", a: true }] }),
+        t: "Vorschüssig ist q-mal so viel",
+        read: "Beide Balken: 5 × 1.000 € bei 10 %. Der einzige Unterschied ist der **Zeitpunkt** der Einzahlung. Vorschüssig liegt jede Rate ein Jahr länger auf dem Konto – deshalb ist der Endwert genau um den Faktor $q = 1{,}1$ größer. In der Formel steht dafür das zusätzliche $q$ vorne." }],
+      "Rezept: Laufzeit $n$ gesucht (nachschüssig)": [{
+        fig: SB.chain([{ t: "1. durch E teilen", s: "20.000 ÷ 3.000 = 6,667" }, { t: "2. mal (q − 1)", s: "6,667 · 0,03 = 0,2" }, { t: "3. plus 1", s: "1,2 = 1,03ⁿ" }, { t: "4. ln anwenden", s: "n = ln 1,2 ÷ ln 1,03 ≈ 6,17", a: true }], { per: 2, label: "Laufzeit gesucht bei nachschüssiger Rente in vier Schritten" }),
+        t: "Vier Schritte zur Laufzeit",
+        read: "Lies die Kästen wie einen Weg (erst oben, dann unten). Schritte **1 bis 3** stellen $q^n$ **alleine** – erst dann darf der $\\ln$ kommen (Schritt 4). Wer den $\\ln$ schon auf den Bruch anwendet, rechnet falsch. Zahlen aus deiner Mitschrift: 3.000 € nachschüssig, 3 %, Ziel 20.000 € → **n ≈ 6,17 Jahre**." }],
     },
   };
 

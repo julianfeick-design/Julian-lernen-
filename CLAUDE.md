@@ -31,10 +31,10 @@ Diese Datei liest Claude Code zu Beginn jeder Sitzung automatisch. Hier steht, w
 |---|---|---|---|
 | `logistik` Grundlagen & Funktionen der Logistik | 7. Jan. | Nehm (Grundlagen, 20 Lernfragen Folie 64) · **Schröder** (Teil 1 Beschaffungslogistik, 48 Lernziele) | Schröder Teil 2 Produktions- und Teil 3 Distributionslogistik fehlen noch |
 | `bwl` Grundlagen der BWL | 11. Jan. | von Medem (BWL, 80 Min.) · Stenger (Marketing, 40 Min.) | nur BWL-Block 1–2 vorhanden, Blöcke 3–10 fehlen |
-| `mathe` Mathematik & Statistik | 13. Jan. | Finanzmathematik | Statistik-Teil fehlt noch |
+| `mathe` Mathematik & Statistik | 13. Jan. | Finanzmathematik 2.1–2.3.1 (Abschreibung, Zinseszins, unterjährig/stetig, Rentenrechnung) – Mitschrift vom 11.11. | Tilgungsrechnung (Rest von 2.3) und Statistik fehlen noch |
 | `vbl1` VBL 1 | 15. Jan. | Nehm (Spedition, 21 Lernfragen Folie 51) · Hasselberg (Straße/Europa) · Bahnverkehr (Dräger, Hanisch, Hackelberg) · KV · KEP | **KV- und KEP-Foliensätze fehlen** – bisher nur Julians Notizen; Zuordnung Bahn/KV/KEP zu VBL 1 von Julian noch zu bestätigen |
 
-Wichtige Prof-Hinweise aus Notizen: Logistik „Klausurfrage: Umsatz KEP-Bereich“, „Folie 21 nochmal angucken“ · Schröder: ABC-Analyse „verstehen, aber keine Klausurfrage“, Nutzwert-Rechenbeispiel „nicht klausurrelevant“, Folie 78 (z-Wert/Φ) „ganz wichtig“ · Bahn: Trassen, Lastgrenze, Privatgüterwagen „wichtig“, AVV/RIV „sehr wichtig“ · KEP: Quelle BIEK wichtig, Folie 21 Überschrift, Folie 41, Folie 63.
+Wichtige Prof-Hinweise aus Notizen: Logistik „Klausurfrage: Umsatz KEP-Bereich“, „Folie 21 nochmal angucken“ · Schröder: ABC-Analyse „verstehen, aber keine Klausurfrage“, Nutzwert-Rechenbeispiel „nicht klausurrelevant“, Folie 78 (z-Wert/Φ) „ganz wichtig“ · Bahn: Trassen, Lastgrenze, Privatgüterwagen „wichtig“, AVV/RIV „sehr wichtig“ · KEP: Quelle BIEK wichtig, Folie 21 Überschrift, Folie 41, Folie 63. · Mathe: Bankvergleich „Endbetrag der besseren Bank dreimal so groß – allgemeine Formel für n“ = **„Klausur!“**
 
 ## Arbeitsweise
 - Neue Folien: Text mit `pdftotext` holen, Handschrift-Seiten als Bild ansehen, dann einarbeiten: Lernfragen → Lernzettel (mit Schaubildern + „So liest du das“) → Karteikarten + MC → (Lektion + Einträge in `js/lz-plus.js`) → README.

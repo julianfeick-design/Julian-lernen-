@@ -574,6 +574,49 @@ c) Nach wie vielen Jahren hätte sich das Kapital verdoppelt? (2 P.)`,
           R`c) $2 = e^{0{,}04505 n}$ → $n = \frac{\ln 2}{0{,}04505} \approx 15{,}39$ Jahre`
         ],
         a: R`$p \approx 4{,}51\,\%$ · $p^* \approx 4{,}61\,\%$ · Verdopplung nach ≈ 15,39 Jahren`
+      },
+      {
+        id: "km06", important: true,
+        q: R`(In deiner Mitschrift als **„Klausur!“** markiert.) Bank 1 und Bank 2 verzinsen dasselbe Startkapital jährlich mit $p_1 < p_2$.
+a) Leiten Sie allgemein her, nach wie vielen Jahren der Endbetrag der besseren Bank **dreimal so groß** ist wie der der schlechteren. (4 P.)
+b) Berechnen Sie $n$ für $p_1 = 2\,\%$ und $p_2 = 5\,\%$. (2 P.)`,
+        hint: R`$3 \cdot K_0 q_1^n = K_0 q_2^n$ – $K_0$ kürzen, dann $\ln$.`,
+        steps: [
+          R`a) $3 \cdot q_1^n = q_2^n$ $\quad | \ln$ → $\ln 3 + n \ln q_1 = n \ln q_2$`,
+          R`a) $\ln 3 = n (\ln q_2 - \ln q_1)$ → $n = \frac{\ln 3}{\ln q_2 - \ln q_1}$`,
+          R`b) $n = \frac{1{,}0986}{0{,}04879 - 0{,}01980} = \frac{1{,}0986}{0{,}02899} \approx 37{,}9$`
+        ],
+        a: R`$n = \dfrac{\ln 3}{\ln q_2 - \ln q_1}$ · b) $n \approx 37{,}9$ Jahre`
+      },
+      {
+        id: "km07", important: true,
+        q: R`Ein Startkapital von $8.000$ € wird zuerst 6 Jahre **jährlich** mit $2\,\%$ verzinst, danach 5 Jahre **monatlich** mit $3\,\%$ p. a. und zum Schluss 4 Jahre **stetig** mit $3{,}5\,\%$.
+a) Berechnen Sie den Endwert nach 15 Jahren. (4 P.)
+b) Wie hoch ist der effektive Jahreszins über die gesamte Laufzeit? (3 P.)`,
+        hint: R`Jede Phase mit ihrer eigenen Formel – Faktoren multiplizieren. $p^* = \left(\sqrt[15]{K_{15}/K_0} - 1\right) \cdot 100$`,
+        steps: [
+          R`a) Phase 1: $1{,}02^6 \approx 1{,}126162$`,
+          R`a) Phase 2: $\left(1 + \frac{3}{1200}\right)^{12 \cdot 5} = 1{,}0025^{60} \approx 1{,}161617$`,
+          R`a) Phase 3: $e^{\frac{4 \cdot 3{,}5}{100}} = e^{0{,}14} \approx 1{,}150274$`,
+          R`a) $K_{15} = 8.000 \cdot 1{,}126162 \cdot 1{,}161617 \cdot 1{,}150274 \approx 12.038{,}02$ €`,
+          R`b) $p^* = \left(\sqrt[15]{\frac{12.038{,}02}{8.000}} - 1\right) \cdot 100 \approx 2{,}76\,\%$`
+        ],
+        a: R`$K_{15} \approx 12.038{,}02$ € · $p^* \approx 2{,}76\,\%$`
+      },
+      {
+        id: "km08", important: true,
+        q: R`Ein Azubi zahlt 6 Jahre lang **jeweils zu Jahresbeginn** $1.800$ € auf ein Sparkonto ($p = 2{,}5\,\%$).
+a) Welcher Rentenendwert ergibt sich? (2 P.)
+b) Welche **nachschüssige** Rate hätte zum selben Endwert geführt? (2 P.)
+c) Wie viele Jahre müsste er **nachschüssig** $2.000$ € einzahlen, um $15.000$ € zu erreichen? (3 P.)`,
+        hint: R`Vorschüssig $K_n = E q \frac{q^n - 1}{q - 1}$, nachschüssig ohne $q$. Für c) erst $q^n$ freistellen, dann $\ln$.`,
+        steps: [
+          R`a) $\frac{1{,}025^6 - 1}{0{,}025} \approx 6{,}38774$ → $K_6 = 1.800 \cdot 1{,}025 \cdot 6{,}38774 \approx 11.785{,}37$ €`,
+          R`b) $E = \frac{11.785{,}37}{6{,}38774} \approx 1.845{,}00$ € (= $1.800 \cdot 1{,}025$)`,
+          R`c) $15.000 = 2.000 \cdot \frac{1{,}025^n - 1}{0{,}025}$ → $1{,}025^n = 1 + \frac{15.000 \cdot 0{,}025}{2.000} = 1{,}1875$`,
+          R`c) $n = \frac{\ln 1{,}1875}{\ln 1{,}025} \approx 6{,}96$ → nach 7 Einzahlungen`
+        ],
+        a: R`a) ≈ 11.785,37 € · b) ≈ 1.845,00 € · c) $n \approx 6{,}96$ → 7 Jahre`
       }
     ],
     quiz: []
