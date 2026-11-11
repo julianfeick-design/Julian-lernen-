@@ -1051,7 +1051,7 @@ details.hid-list li > span { flex: 1 1 220px; min-width: 0; overflow-wrap: anywh
 .lz-head { background: var(--grad); color: var(--on-accent); border-radius: 16px; padding: 14px 18px; margin-bottom: 14px; }
 .lz-head span { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; opacity: .92; }
 .lz-head h1 { margin: 4px 0 0; font-size: 1.45rem; color: inherit; line-height: 1.2; }
-.lz-toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+div.lz-toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .lz-toc button { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; font-size: .78rem; font-weight: 600; padding: 5px 10px; border-radius: 999px; cursor: pointer; text-align: left; }
 .lz-toc button b { color: var(--primary); margin-right: 2px; }
 .lz-sec { margin: 20px 0 6px; scroll-margin-top: 84px; }
@@ -1117,3 +1117,88 @@ details.hid-list li > span { flex: 1 1 220px; min-width: 0; overflow-wrap: anywh
 .hub-tile b { display: block; font-size: 1.05rem; }
 .hub-tile small { display: block; color: var(--muted); font-size: .84rem; margin-top: 2px; }
 .hub-i { font-size: 1.6rem; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--primary-soft); color: var(--primary); flex: none; }
+
+/* =========================================================
+   📄 Lernzettel 2.0 – Schaubilder mit Erklärung
+   ========================================================= */
+.lz { padding: 18px 18px 10px; }
+.lz-head { position: relative; overflow: hidden; padding: 18px 20px 16px; }
+.lz-head::after { content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255, 255, 255, .12); }
+.lz-head small { display: block; margin-top: 6px; font-size: .78rem; font-weight: 600; opacity: .9; }
+.lz-sum { margin: 4px 0 14px; padding: 14px 16px 10px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 9%, var(--surface-solid)); border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent); }
+.lz-sums { display: grid; gap: 12px; margin: 4px 0 14px; }
+.lz-sums:empty { display: none; }
+.lz-sums > .lz-sum { margin: 0; }
+@media (min-width: 900px) { .lz-sums:has(> .lz-goals) { grid-template-columns: 1.15fr 1fr; align-items: start; } }
+.lz-sum.lz-goals { background: var(--surface-2); border-color: var(--line); }
+.lz-sum.lz-goals > b { color: var(--muted); }
+.lz-sum.lz-goals li::before { background: color-mix(in srgb, var(--primary) 55%, var(--muted)); }
+.lz-sum > b { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+.lz-sum ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.lz-sum li { position: relative; padding-left: 26px; line-height: 1.5; font-size: .95rem; }
+.lz-sum li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 6px; background: var(--primary); color: var(--on-accent); font-size: .72rem; font-weight: 900; display: grid; place-items: center; margin-top: 2px; }
+details.lz-toc { margin: 0 0 4px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); }
+details.lz-toc > summary { cursor: pointer; padding: 10px 14px; font-weight: 700; font-size: .9rem; list-style: none; }
+details.lz-toc > summary::-webkit-details-marker { display: none; }
+details.lz-toc > summary::after { content: "▾"; float: right; color: var(--muted); }
+details.lz-toc[open] > summary::after { content: "▴"; }
+details.lz-toc > div { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 12px; min-width: 0; }
+.lz-toc button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.lz-sec { margin: 26px 0 8px; padding-top: 18px; border-top: 1px dashed var(--line-strong); }
+.lz-sec:first-of-type { border-top: 0; padding-top: 4px; }
+.lz-sec h2 { font-size: 1.18rem; }
+.lz-n { min-width: 30px; height: 30px; border-radius: 10px; font-size: .9rem; box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--primary) 90%, transparent); }
+
+/* Schaubild + „So liest du das“ */
+.lz-fig { margin: 14px 0 16px; display: grid; gap: 12px; }
+.lz-fig-main { border: 1px solid var(--line); border-radius: 18px; background: var(--surface-solid); padding: 12px 12px 14px; box-shadow: var(--shadow-sm); min-width: 0; }
+.lz-fig-t { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 800; font-size: .95rem; margin: 2px 4px 10px; }
+.lz-fig-t span { font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--on-accent); background: var(--primary); padding: 3px 8px; border-radius: 999px; }
+.lz-fig .dg svg { max-width: 640px; }
+.lz-fig figcaption { position: relative; background: color-mix(in srgb, var(--primary) 7%, var(--surface-solid)); border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent); border-left: 5px solid var(--primary); border-radius: 14px; padding: 12px 14px; font-size: .93rem; line-height: 1.6; }
+.lz-fig figcaption b:first-child { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+@media (min-width: 900px) {
+  .lz-fig.has-read { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: center; }
+}
+/* Lektions-Bausteine im Lernzettel ohne eigene Karte */
+.lz-ls > section.card.ls { background: transparent; border: 0; box-shadow: none; padding: 0; margin: 10px 0; }
+.lz-ls > section.card.ls::before { display: none; }
+
+/* Zusätzliche Schaubild-Farben (hell & dunkel) */
+.dg .dg-xs { fill: var(--muted); font-family: var(--font); font-weight: 600; font-size: 10.5px; }
+.dg .dg-q1 { fill: color-mix(in srgb, var(--primary) 20%, var(--surface-solid)); stroke: color-mix(in srgb, var(--primary) 45%, transparent); stroke-width: 1.2; }
+.dg .dg-q2 { fill: color-mix(in srgb, var(--primary) 10%, var(--surface-solid)); stroke: color-mix(in srgb, var(--primary) 30%, transparent); stroke-width: 1.2; }
+.dg .dg-q3 { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.2; }
+.dg .dg-q4 { fill: color-mix(in srgb, var(--warn) 14%, var(--surface-solid)); stroke: color-mix(in srgb, var(--warn) 45%, transparent); stroke-width: 1.2; }
+.dg .dg-panel { fill: var(--surface-2); stroke: var(--line); stroke-width: 1; }
+.dg .dg-band { fill: color-mix(in srgb, var(--warn) 15%, var(--surface-solid)); stroke: color-mix(in srgb, var(--warn) 50%, transparent); stroke-width: 1.2; }
+.dg .dg-dd { fill: transparent; stroke-dasharray: 5 4; }
+.dg .dg-area { fill: color-mix(in srgb, var(--primary) 24%, transparent); stroke: none; }
+.dg .dg-bar { fill: var(--primary); }
+.dg .dg-bar2 { fill: color-mix(in srgb, var(--muted) 42%, transparent); }
+.dg .dg-barneg { fill: color-mix(in srgb, var(--bad) 55%, transparent); }
+.dg .dg-barpos { fill: color-mix(in srgb, var(--good) 60%, transparent); }
+.dg .dg-lb { stroke: var(--bad); stroke-width: 2.2; fill: none; }
+.dg .dg-ahb { fill: var(--bad); }
+.dg .dg-v1 { fill: color-mix(in srgb, var(--primary) 28%, var(--surface-solid)); stroke: var(--primary); stroke-width: 1; }
+.dg .dg-v2 { fill: color-mix(in srgb, var(--warn) 30%, var(--surface-solid)); stroke: var(--warn); stroke-width: 1; }
+.dg .dg-v3 { fill: color-mix(in srgb, var(--good) 26%, var(--surface-solid)); stroke: var(--good); stroke-width: 1; }
+.dg .dg-sev0 { fill: color-mix(in srgb, var(--good) 14%, var(--surface-solid)); stroke: color-mix(in srgb, var(--good) 50%, transparent); }
+.dg .dg-sev1 { fill: color-mix(in srgb, var(--warn) 12%, var(--surface-solid)); stroke: color-mix(in srgb, var(--warn) 40%, transparent); }
+.dg .dg-sev2 { fill: color-mix(in srgb, var(--warn) 24%, var(--surface-solid)); stroke: color-mix(in srgb, var(--warn) 55%, transparent); }
+.dg .dg-sev3 { fill: color-mix(in srgb, var(--bad) 14%, var(--surface-solid)); stroke: color-mix(in srgb, var(--bad) 45%, transparent); }
+.dg .dg-sev4 { fill: color-mix(in srgb, var(--bad) 26%, var(--surface-solid)); stroke: var(--bad); }
+.dg .dg-tw-on { fill: var(--text); font-family: var(--font); font-weight: 800; font-size: 13px; }
+.dg .dg-ring { fill: none; stroke: color-mix(in srgb, var(--muted) 25%, transparent); stroke-width: 16; }
+.dg .dg-ringa { fill: none; stroke: var(--primary); stroke-width: 16; }
+.dg .dg-zone { fill: color-mix(in srgb, var(--primary) 7%, transparent); stroke: color-mix(in srgb, var(--primary) 35%, transparent); stroke-dasharray: 6 5; }
+.dg .dg-tm { fill: var(--text); font-family: var(--font); font-weight: 700; font-size: 11.5px; }
+.dg .dg-bt { fill: var(--bad); font-family: var(--font); font-weight: 700; font-size: 12px; }
+.dg .dg-big { fill: var(--text); font-family: var(--font); font-weight: 800; font-size: 24px; }
+.dg .dg-bigp { fill: var(--primary); font-family: var(--font); font-weight: 800; font-size: 24px; }
+
+@media print {
+  .lz-fig { break-inside: avoid; }
+  .lz-fig-main { box-shadow: none; }
+  details.lz-toc { display: none; }
+}

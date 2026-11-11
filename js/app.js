@@ -1356,7 +1356,7 @@
   const mdx = (x) => esc(x || "").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
   const ico = (x) => x && x.startsWith("i:") ? `<span class="ic">${window.icon ? window.icon(x.slice(2)) : ""}</span>` : esc(x || "");
   let svgSeq = 0;
-  const SVG_DEFS = `<defs><marker id="ah" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ah"/></marker><marker id="ahp" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ahp"/></marker></defs>`;
+  const SVG_DEFS = `<defs><marker id="ah" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ah"/></marker><marker id="ahp" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ahp"/></marker><marker id="ahb" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-ahb"/></marker></defs>`;
   function uniqSvg(svg) {
     const n = ++svgSeq;
     return svg.replace("{{defs}}", SVG_DEFS).replace(/id="([\w-]+)"/g, `id="$1-${n}"`).replace(/url\(#([\w-]+)\)/g, `url(#$1-${n})`);
@@ -1905,9 +1905,8 @@
   // Zu jeder Lektion entsteht automatisch ein Lernzettel aus ihren Merke-Kästen, Tabellen, Abläufen und Formeln;
   // dazu kommen handgeschriebene Lernzettel (js/lernzettel.js) für Blöcke ohne Lektion.
   function lzFromLesson(key, L, f, d) {
-    const out = [];
+    const X = (window.LZ_PLUS || {})[key] || {}, out = [];
     const add = (h, blocks) => { if (!blocks.length) return; if (h || !out.length) out.push({ h: h || "Überblick", b: blocks }); else out[out.length - 1].b.push(...blocks); };
-    if (L.goals && L.goals.length) add("Das musst du können", [{ ul: L.goals }]);
     for (const sec of L.s) {
       const H = sec.h;
       switch (sec.t) {
@@ -1915,22 +1914,20 @@
         case "text": add(H, [{ p: sec.x }]); break;
         case "ex": add(null, [{ p: `💡 ${H ? `**${H}:** ` : ""}${sec.x}` }]); break;
         case "merke": add(null, [{ merke: H && !/^merke$/i.test(H) ? `**${H}:** ${sec.x}` : sec.x }]); break;
-        case "cards": add(H, [{ ul: sec.items.map(([, t, x]) => `**${t}:** ${x}`) }]); break;
-        case "flow": add(H, [{ ol: sec.steps.map(([t, x, tag]) => `**${t}**${x ? ` – ${x}` : ""}${tag ? ` (${tag})` : ""}`) }]); break;
-        case "table": add(H, [{ table: [sec.head, ...sec.rows] }]); break;
-        case "matrix": add(H, [{ table: [[sec.corner || "", ...sec.cols], ...sec.rows.map(([lab, ...c]) => [lab, ...c.map(([t, x]) => `**${t}**${x ? ` – ${x}` : ""}`)])] }]); break;
-        case "bal": { const n = Math.max(sec.l[1].length, sec.r[1].length); add(H, [{ table: [[sec.l[0], sec.r[0]], ...Array.from({ length: n }, (_, i) => [sec.l[1][i] || "", sec.r[1][i] || ""])] }]); break; }
-        case "tree": add(H, [{ p: `**${sec.root}**` }, { ul: sec.kids.map(([t, l]) => `**${t}**${l && l.length ? `: ${l.join(" · ")}` : ""}`) }]); break;
-        case "pyr": add(H, [{ ol: sec.levels.map(([t, x]) => `**${t}**${x ? ` – ${x}` : ""}`) }]); break;
-        case "stairs": add(H, [{ ol: sec.steps.map(([t, sub, x]) => `**${t}** (${sub}) – ${x}`) }]); break;
-        case "formula": add(H, [{ f: sec.tex, fx: (sec.items || []).join(" · ") }]); break;
-        case "svg": if (sec.cap) add(H, [{ p: sec.cap }]); break;
+        case "svg": add(H, [{ fig: sec.svg, read: sec.cap }]); break;
+        case "cards": case "flow": case "table": case "matrix": case "bal": case "tree": case "pyr": case "stairs": case "formula":
+          add(H, [{ ls: sec }]); break;
         default: break;
       }
+      const more = H && X.after && X.after[H];
+      if (more && out.length) out[out.length - 1].b.push(...more);
     }
-    return { id: "l-" + key.replace("/", "-"), fid: f.id, part: `${f.short || f.name} · ${d.name}`, title: L.title, lessons: [key], auto: true, s: out };
+    if (X.top && out.length) out[0].b.push(...X.top);
+    out.push(...(X.end || []));
+    return { id: "l-" + key.replace("/", "-"), fid: f.id, part: `${f.short || f.name} · ${d.name}`, title: L.title, lessons: [key], auto: true, sum: X.sum, kurz: L.goals, kurzTitel: "Das musst du können", s: out };
   }
   let lzCache = null;
+  const lzFigs = (z) => { const n = z.s.reduce((m, x) => m + x.b.filter(b => b.fig).length, 0); return `${n} ${n === 1 ? "Schaubild" : "Schaubilder"}`; };
   function lzAll() {
     if (lzCache) return lzCache;
     const L = lessonsAll(), out = [];
@@ -1952,6 +1949,11 @@
     if (b.chips) return `<div class="lz-chips">${b.chips.map(c => `<span>${mdx(c)}</span>`).join("")}</div>`;
     if (b.flow) return `<div class="lz-flow">${b.flow.map((c, i) => `${i ? `<span class="lz-arr" aria-hidden="true">→</span>` : ""}<span class="lz-step">${mdx(c)}</span>`).join("")}</div>`;
     if (b.f) return `<div class="lz-f">$$${esc(b.f)}$$${b.fx ? `<p>${mdx(b.fx)}</p>` : ""}</div>`;
+    if (b.fig) return `<figure class="lz-fig${b.read ? " has-read" : ""}">
+        <div class="lz-fig-main">${b.t ? `<div class="lz-fig-t"><span>Schaubild</span>${mdx(b.t)}</div>` : ""}<div class="dg">${uniqSvg(b.fig)}</div></div>
+        ${b.read ? `<figcaption><b>So liest du das</b>${mdx(b.read)}</figcaption>` : ""}
+      </figure>`;
+    if (b.ls) return `<div class="lz-ls">${lessonSection({ ...b.ls, h: "" })}</div>`;
     return "";
   }
   function viewLernzettel(id) {
@@ -1969,7 +1971,7 @@
             <div class="row between"><h2 style="margin:0">${esc(f.emoji || "📁")} ${esc(f.name)}</h2>${exam}</div>
             <div class="lesson-list">${zs.map(z => {
               const seen = (state.lz || {})[z.id];
-              return `<a class="lesson-item" href="#/lernzettel/${encodeURIComponent(z.id)}"><span class="li-n">📄</span><span class="li-t"><b>${esc(z.title)}</b><span class="small muted">${esc(z.part)} · ${z.s.length} Abschnitte</span></span><span class="li-go">${seen ? `angesehen ${fmtAgo(seen)}` : "Öffnen →"}</span></a>`;
+              return `<a class="lesson-item" href="#/lernzettel/${encodeURIComponent(z.id)}"><span class="li-n">📄</span><span class="li-t"><b>${esc(z.title)}</b><span class="small muted">${esc(z.part)} · ${z.s.length} Abschnitte · ${lzFigs(z)}</span></span><span class="li-go">${seen ? `angesehen ${fmtAgo(seen)}` : "Öffnen →"}</span></a>`;
             }).join("")}</div>
           </div>`;
         }).join("") : `<div class="card empty"><div class="e">📄</div><p>Noch keine Lernzettel.</p></div>`}`;
@@ -1986,8 +1988,9 @@
     app().innerHTML = `
       <div class="row between no-print"><a href="#/lernzettel" class="small">← Alle Lernzettel</a><button type="button" class="btn-ghost small" id="lzPrint">🖨️ Als PDF</button></div>
       <article class="lz">
-        <header class="lz-head"><span>${esc(Z.part)}</span><h1>${esc(Z.title)}</h1></header>
-        <div class="lz-toc no-print">${Z.s.map((s, i) => `<button type="button" data-jump="${i + 1}"><b>${i + 1}</b> ${mdx(s.h)}</button>`).join("")}</div>
+        <header class="lz-head"><span>${esc(Z.part)}</span><h1>${esc(Z.title)}</h1><small>${Z.s.length} Abschnitte · ${lzFigs(Z)}</small></header>
+        <div class="lz-sums">${Z.sum && Z.sum.length ? `<div class="lz-sum"><b>Das Wichtigste in 30 Sekunden</b><ul>${Z.sum.map(k => `<li>${mdx(k)}</li>`).join("")}</ul></div>` : ""}${Z.kurz && Z.kurz.length ? `<div class="lz-sum${Z.sum && Z.sum.length ? " lz-goals" : ""}"><b>${esc(Z.kurzTitel || "Das Wichtigste in 30 Sekunden")}</b><ul>${Z.kurz.map(k => `<li>${mdx(k)}</li>`).join("")}</ul></div>` : ""}</div>
+        <details class="lz-toc no-print"><summary>📑 Inhalt · ${Z.s.length} Abschnitte</summary><div>${Z.s.map((s, i) => `<button type="button" data-jump="${i + 1}"><b>${i + 1}</b> ${mdx(s.h)}</button>`).join("")}</div></details>
         ${Z.s.map((s, i) => `<section class="lz-sec" id="lz-${i + 1}"><h2><span class="lz-n">${i + 1}</span><span>${mdx(s.h)}</span></h2>${s.b.map(lzBlock).join("")}</section>`).join("")}
       </article>
       <div class="card no-print">

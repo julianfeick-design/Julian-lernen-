@@ -14,6 +14,9 @@ Diese Datei liest Claude Code zu Beginn jeder Sitzung automatisch. Hier steht, w
 - `js/lessons/*.js` – Lektionen (+ `priming.js`). Zu jeder Lektion entsteht automatisch ein Lernzettel.
 - `js/lernfragen.js` – Lernfragen je Ordner: offizielle der Profs (`official: true`) + vermutete; `pts` = Kernpunkte der Musterantwort.
 - `js/lernzettel.js` – handgeschriebene Lernzettel für Blöcke ohne Lektion (Stil: Kopfband, nummerierte Abschnitte, Tabellen, gelbe Merke-Kästen – wie Julians VBL-Lernzettel).
+- `js/schaubilder.js` – Schaubild-Bausteine (`SB.matrix/tree/chain/bars/conflicts/bell/profile/hub/temple/gantt/plot`, Grundformen in `SB.u`) + fertige Schaubilder `SB.S` (Schröder), `SB.B` (Bahn), `SB.K` (KV), `SB.P` (KEP).
+- `js/lz-plus.js` – Zusatz für die Lernzettel aus Lektionen: je Lektion `sum` (30-Sekunden-Zusammenfassung) und `after["Überschrift"]` = Schaubilder `{ fig, t, read }`.
+- **Julians Wunsch (Nov. 2026):** Lernzettel mit **vielen Schaubildern + Erklärung** („So liest du das“), damit man die Sachen versteht – gilt für **alle** Lernzettel, auch neue. Jedes Schaubild bekommt einen Titel und eine Lese-Erklärung; Texte dürfen sich nicht mit Linien überschneiden (vorher per Screenshot prüfen, auch dunkel und 390 px).
 - Bei **jeder** Änderung an js/css die Cache-Version `?v=…` in `index.html` überall erhöhen.
 
 ## Regeln für Inhalte (Julian wünscht sich ausdrücklich nur prüfungsrelevante Fragen)
@@ -34,6 +37,6 @@ Diese Datei liest Claude Code zu Beginn jeder Sitzung automatisch. Hier steht, w
 Wichtige Prof-Hinweise aus Notizen: Logistik „Klausurfrage: Umsatz KEP-Bereich“, „Folie 21 nochmal angucken“ · Schröder: ABC-Analyse „verstehen, aber keine Klausurfrage“, Nutzwert-Rechenbeispiel „nicht klausurrelevant“, Folie 78 (z-Wert/Φ) „ganz wichtig“ · Bahn: Trassen, Lastgrenze, Privatgüterwagen „wichtig“, AVV/RIV „sehr wichtig“ · KEP: Quelle BIEK wichtig, Folie 21 Überschrift, Folie 41, Folie 63.
 
 ## Arbeitsweise
-- Neue Folien: Text mit `pdftotext` holen, Handschrift-Seiten als Bild ansehen, dann einarbeiten: Lernfragen → Lernzettel → Karteikarten + MC → (Lektion) → README.
+- Neue Folien: Text mit `pdftotext` holen, Handschrift-Seiten als Bild ansehen, dann einarbeiten: Lernfragen → Lernzettel (mit Schaubildern + „So liest du das“) → Karteikarten + MC → (Lektion + Einträge in `js/lz-plus.js`) → README.
 - Vor dem Push mit Playwright prüfen (iPhone 390 px, iPad 1194 px, hell/dunkel, keine JS-Fehler, kein seitliches Scrollen).
 - Commit-Nachrichten auf Deutsch; keine Modellnamen in Dateien.
