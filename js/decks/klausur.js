@@ -343,7 +343,7 @@
   add("logistik", {
     id: "klausur",
     name: "📝 Klausuraufgaben Logistik",
-    description: "Prüfungsnahe Aufgaben: Zielkonflikte, Gestaltungsprinzipien, Fälle und Begründungen.",
+    description: "Prüfungsnahe Aufgaben: Nehm (Zielkonflikte, Gestaltungsprinzipien) und Schröder (Beschaffung und Produktion – mit Rechenaufgaben).",
     cards: [
       {
         id: "k01", important: true,
@@ -493,6 +493,248 @@
           "Legal: Lenk- und Ruhezeiten, Mobilitätspaket, Mindestlohn → Planungsrestriktionen"
         ],
         a: "Je ein passender Faktor + Auswirkung für P, E, S, T, E, L."
+      },
+      {
+        id: "k13", important: true,
+        q: "Prof. Schröder – Beschaffung. Ein Großhändler macht 2 Mio. € Umsatz, die Materialkosten betragen 60 % des Umsatzes, die Umsatzrendite 4 %. Der Gewinn soll um 24.000 € steigen.\na) Um wie viel Prozent müsste der Umsatz bei gleicher Rendite steigen? (2 P.)\nb) Um wie viel Prozent müssten stattdessen die Materialkosten sinken? (2 P.)\nc) Was zeigt der Vergleich? (2 P.)",
+        hint: "Mehrumsatz bringt nur die Umsatzrendite als Gewinn – jeder im Einkauf gesparte Euro wirkt voll auf den Gewinn.",
+        steps: [
+          "Gewinn heute: 4 % von 2 Mio. € = 80.000 €",
+          "a) 24.000 € / 0,04 = 600.000 € Mehrumsatz → +30 %",
+          "b) Materialkosten 1,2 Mio. € → 24.000 € / 1.200.000 € = 2 % weniger",
+          "c) Hebelwirkung des Einkaufs: 2 % Einsparung wirken wie 30 % Mehrumsatz – je höher der Materialkostenanteil, desto stärker"
+        ],
+        a: "+30 % Umsatz oder nur −2 % Materialkosten → Hebelwirkung des Einkaufs."
+      },
+      {
+        id: "k14", important: true,
+        q: "Prof. Schröder – z-Wert (Folie 78: „ganz wichtig“). Die Wochennachfrage nach einem Ersatzteil ist normalverteilt mit µ = 400 Stück und σ = 60 Stück.\na) Wie hoch muss der Sicherheitsbestand für 95 % Lieferbereitschaft sein (z = 1,65)? (2 P.)\nb) Welche Lieferbereitschaft erreicht ein Sicherheitsbestand von 120 Stück? (2 P.)\nc) Wie wahrscheinlich ist eine Wochennachfrage unter 340 Stück? (2 P.)\nd) Warum strebt man keine 100 % an? (2 P.)",
+        hint: "z = (x − µ) / σ · Sicherheitsbestand = z · σ · z = 1 → 84,13 %, z = 2 → 97,72 %, z = −1 → 15,87 %.",
+        steps: [
+          "a) SB = 1,65 × 60 = 99 Stück",
+          "b) z = 120 / 60 = 2 → Φ(2) ≈ 97,72 % Lieferbereitschaft",
+          "c) z = (340 − 400) / 60 = −1 → Φ(−1) ≈ 15,87 %",
+          "d) Für die letzten Prozentpunkte steigen Sicherheitsbestand und Kapitalbindung asymptotisch gegen unendlich, die Nachfrage reagiert aber kaum → optimaler Servicegrad unter 100 %"
+        ],
+        a: "SB 99 Stück · 120 Stück = z 2 → 97,72 % · unter 340 Stück: 15,87 % · 100 % wäre unendlich teuer."
+      },
+      {
+        id: "k15", important: true,
+        q: "Prof. Schröder – Andler. Ein Händler verkauft jährlich 12.000 Stück eines Artikels. Jede Bestellung kostet 150 € fix, ein Stück kostet 20 €, der Lagerhaltungskostensatz beträgt 12,5 % pro Jahr.\na) Berechnen Sie die optimale Bestellmenge. (3 P.)\nb) Wie oft wird im Jahr bestellt und wie hoch sind Bestell- und Lagerhaltungskosten? (3 P.)\nc) Nennen Sie zwei Annahmen des Modells. (2 P.)",
+        hint: "q* = √(2 · B · Kf / (p · i)) – im Optimum sind Bestell- und Lagerhaltungskosten gleich hoch.",
+        steps: [
+          "a) q* = √(2 × 12.000 × 150 / (20 × 0,125)) = √(3.600.000 / 2,5) = √1.440.000 = 1.200 Stück",
+          "b) 12.000 / 1.200 = 10 Bestellungen → Bestellkosten 10 × 150 € = 1.500 €",
+          "b) Lagerhaltungskosten: 1.200 / 2 × 20 € × 0,125 = 1.500 € – gleich hoch wie die Bestellkosten",
+          "c) z. B. konstanter, bekannter Bedarf · feste Preise ohne Rabatte · keine Fehlmengen · sofortige Lieferung"
+        ],
+        a: "q* = 1.200 Stück, 10 Bestellungen, je 1.500 € Bestell- und Lagerhaltungskosten."
+      },
+      {
+        id: "k16", important: true,
+        q: "Prof. Schröder – News-Vendor. Ein Kiosk kauft Sonntagszeitungen für 1,50 € ein und verkauft sie für 6,00 €. Übrige Zeitungen nimmt der Verlag für 1,00 € zurück. Die Nachfrage ist normalverteilt mit µ = 120 und σ = 25.\na) Bestimmen Sie c_o, c_u und das kritische Verhältnis. (3 P.)\nb) Wie viele Zeitungen sollte der Kiosk bestellen (z = 1,28 für 90 %)? (2 P.)",
+        hint: "c_o = k − r (Überbestand), c_u = p − k (Unterbestand), kritisches Verhältnis = c_u / (c_u + c_o); S* = µ + z · σ.",
+        steps: [
+          "a) c_o = 1,50 − 1,00 = 0,50 € · c_u = 6,00 − 1,50 = 4,50 €",
+          "a) kritisches Verhältnis = 4,50 / (4,50 + 0,50) = 0,9",
+          "b) S* = 120 + 1,28 × 25 = 152 Zeitungen"
+        ],
+        a: "Kritisches Verhältnis 0,9 → S* = 120 + 1,28 · 25 = 152 Zeitungen."
+      },
+      {
+        id: "k17",
+        q: "Prof. Schröder – XYZ-Analyse. Zwei Artikel hatten in vier Monaten diese Verbräuche:\nArtikel 1: 100, 110, 90, 100\nArtikel 2: 20, 180, 0, 200\na) Berechnen Sie jeweils den Variationskoeffizienten und ordnen Sie X, Y oder Z zu. (4 P.)\nb) Welche Beschaffungsform passt jeweils? (2 P.)",
+        hint: "VK = σ / µ · X bis 0,25 · Y über 0,25 bis 0,5 · Z über 0,5 (Stichprobe: durch n − 1 teilen).",
+        steps: [
+          "Beide Artikel: µ = 100",
+          "Artikel 1: s = √((0² + 10² + 10² + 0²) / 3) = √66,7 ≈ 8,2 → VK ≈ 0,08 → X",
+          "Artikel 2: s = √((80² + 80² + 100² + 100²) / 3) = √10.933 ≈ 104,6 → VK ≈ 1,05 → Z",
+          "(Mit n statt n − 1: 0,07 und 0,91 – die Einordnung bleibt gleich)",
+          "b) X: gut planbar → Just-in-Time bzw. produktionssynchron · Z: sporadisch → Einzelbeschaffung im Bedarfsfall oder Vorrat mit Sicherheitsbestand"
+        ],
+        a: "Artikel 1: VK ≈ 0,08 → X (JIT) · Artikel 2: VK ≈ 1,05 → Z (Einzel- oder Vorratsbeschaffung)."
+      },
+      {
+        id: "k18",
+        q: "Prof. Schröder – Kennzahlen und Bestellpolitik. Ein Artikel hat einen Jahresverbrauch von 7.300 Stück bei einem durchschnittlichen Bestand von 730 Stück.\na) Berechnen Sie Lagerumschlag und Lagerreichweite. (2 P.)\nb) Der Disponent bestellt immer 2.000 Stück, sobald der Bestand unter 400 Stück fällt. Welche Bestellpolitik ist das? Nennen Sie je einen Vor- und Nachteil. (3 P.)",
+        hint: "LU = Jahresverbrauch / Ø-Bestand · LRW = 365 / LU · s = Meldebestand, q = feste Menge.",
+        steps: [
+          "a) LU = 7.300 / 730 = 10 → Lagerreichweite = 365 / 10 = 36,5 Tage",
+          "b) (s, q)-Politik: Bestellung beim Meldebestand s = 400, immer gleiche Menge q = 2.000",
+          "+ reagiert sofort auf den Verbrauch, einfache feste Menge (z. B. passend zur Palette)",
+          "− laufende Bestandskontrolle nötig; bei stark schwankendem Verbrauch passt die feste Menge nicht immer"
+        ],
+        a: "LU = 10, LRW = 36,5 Tage · (s, q)-Politik."
+      },
+      {
+        id: "k19", important: true,
+        q: "Prof. Schröder – Materialportfolio. Ein Fahrradhersteller beschafft: (1) Schrauben, (2) Aluminiumrohre (Weltmarktware, großes Volumen), (3) einen Spezialchip, den nur ein Hersteller liefert, (4) den kompletten E-Antrieb. Ordnen Sie die Güter ins Materialportfolio ein und empfehlen Sie je eine Beschaffungsstrategie. (8 Punkte)",
+        hint: "Achsen: Ergebnisbeitrag × Versorgungsrisiko → unkritisch, Hebel, Engpass, strategisch.",
+        steps: [
+          "(1) Schrauben: unkritisch (niedrig/niedrig) → Single Sourcing, Abläufe vereinfachen, Rahmenvertrag/Katalog (2 P.)",
+          "(2) Aluminiumrohre: Hebelprodukt (hoher Ergebnisbeitrag, geringes Risiko) → Global Sourcing, Marktmacht und Wettbewerb nutzen (2 P.)",
+          "(3) Spezialchip: Engpassgut (geringer Beitrag, hohes Risiko) → Mengen sichern, Sicherheitsbestand, Dual/Multiple Sourcing aufbauen (2 P.)",
+          "(4) E-Antrieb: strategisches Produkt (hoch/hoch) → Modular Sourcing, langfristige Partnerschaft mit dem Systemlieferanten (2 P.)"
+        ],
+        a: "Schrauben unkritisch (Single) · Alu Hebel (Global) · Chip Engpass (Dual/Multiple + Bestand) · E-Antrieb strategisch (Modular, Partnerschaft)."
+      },
+      {
+        id: "k20",
+        q: "Prof. Schröder – Anlieferung. Ein Automobilwerk möchte Sitze und Kleinteile anders beschaffen.\na) Erklären Sie das Konsignationslager und nennen Sie je einen Vorteil für Abnehmer und Lieferant. (4 P.)\nb) Warum werden Sitze Just-in-Sequence statt nur Just-in-Time geliefert? (3 P.)",
+        hint: "Konsignation: Die Ware gehört bis zur Entnahme dem Lieferanten. JIS = zusätzlich in Einbaureihenfolge.",
+        steps: [
+          "a) Der Lieferant unterhält beim Abnehmer ein Lager, die Ware bleibt bis zur Entnahme sein Eigentum, berechnet wird erst bei Entnahme (2 P.)",
+          "a) Abnehmer: keine Kapitalbindung, hohe Verfügbarkeit · Lieferant: mehr Dispositionsfreiheit, freie eigene Flächen, Kundenbindung (2 P.)",
+          "b) Sitze gibt es in sehr vielen Varianten (Farbe, Bezug, Ausstattung) (1 P.)",
+          "b) JIS liefert sie genau in der Reihenfolge der Autos am Band – kein Suchen, kein Lager am Band, weniger Fläche (2 P.)"
+        ],
+        a: "Konsignation: Eigentum bis zur Entnahme beim Lieferanten · JIS wegen der Variantenvielfalt in Einbaureihenfolge."
+      },
+      {
+        id: "k21", important: true,
+        q: "Prof. Schröder – Little’s Law. In einer Montage befinden sich durchschnittlich 180 Aufträge gleichzeitig in Arbeit, pro Tag werden 45 Aufträge fertig.\na) Berechnen Sie die durchschnittliche Durchlaufzeit. (2 P.)\nb) Die Durchlaufzeit soll bei gleichem Durchsatz auf 2,5 Tage sinken. Wie hoch darf der Bestand höchstens sein? (2 P.)\nc) Nennen Sie drei Konsequenzen aus Little’s Law für die Produktionsplanung. (3 P.)",
+        hint: "Bestand (WIP) = Durchsatz × Durchlaufzeit.",
+        steps: [
+          "a) DLZ = 180 / 45 = 4 Tage",
+          "b) WIP = 45 × 2,5 = 112,5 → höchstens rund 112 Aufträge gleichzeitig",
+          "c) Bestände begrenzen (WIP-Limit, Kanban) · Aufträge erst freigeben, wenn Kapazität frei ist · Engpass managen (Störungen zuerst beheben, Rüstzeiten senken, Qualität davor sichern)"
+        ],
+        a: "DLZ 4 Tage · WIP höchstens 112,5 · WIP-Limits, Freigabe steuern, Engpass managen."
+      },
+      {
+        id: "k22", important: true,
+        q: "Prof. Schröder – Kanban. Eine Montage verbraucht 40 Teile pro Stunde (σ = 4 Teile pro Stunde). Wartezeit 15 min, Produktionszeit 45 min, Anlieferzeit 60 min. Gewünscht sind 95 % Lieferbereitschaft (z = 1,65), ein Behälter fasst 10 Teile.\na) Wie viele Kanbans werden benötigt? (4 P.)\nb) Wie viele wären es, wenn die Anlieferzeit auf 30 min sinkt? Was folgt daraus? (3 P.)",
+        hint: "Anzahl Kanbans = [B · (ZW + ZP + ZA) + σ · z] / KLT – Minuten in Stunden umrechnen und aufrunden.",
+        steps: [
+          "a) ZW + ZP + ZA = 15 + 45 + 60 min = 2 h",
+          "a) B · 2 h = 80 Teile · σ · z = 4 × 1,65 = 6,6 Teile",
+          "a) (80 + 6,6) / 10 = 8,66 → 9 Kanbans",
+          "b) 1,5 h: (60 + 6,6) / 10 = 6,66 → 7 Kanbans",
+          "b) Kürzere Wiederbeschaffungszeiten senken die Zahl der Behälter und damit den Bestand im Regelkreis"
+        ],
+        a: "9 Kanbans · bei 30 min Anlieferzeit nur 7 Kanbans → weniger Bestand."
+      },
+      {
+        id: "k23", important: true,
+        q: "Prof. Schröder – OEE. Eine Anlage soll in einer Schicht 480 Minuten laufen. Rüsten, Störungen und Materialmangel kosten zusammen 96 Minuten. Die Soll-Taktzeit beträgt 0,24 min/Stück, produziert werden 1.440 Stück, davon 72 Ausschuss.\na) Berechnen Sie Verfügbarkeit, Leistung und Qualität. (4 P.)\nb) Berechnen und beurteilen Sie die OEE. (3 P.)\nc) Wie verbessern Sie die Verfügbarkeit? (1 P.)",
+        hint: "OEE = Verfügbarkeit × Leistung × Qualität · Leistung = Menge × Soll-Takt / Laufzeit.",
+        steps: [
+          "a) Laufzeit 480 − 96 = 384 min → Verfügbarkeit = 384 / 480 = 80 %",
+          "a) Leistung = 1.440 × 0,24 / 384 = 345,6 / 384 = 90 %",
+          "a) Qualität = (1.440 − 72) / 1.440 = 95 %",
+          "b) OEE = 0,8 × 0,9 × 0,95 = 68,4 % → besser als der typische Durchschnitt (≈ 60 %), aber unter dem Top-Wert (über 80 %)",
+          "c) TPM (geplante und autonome Instandhaltung) und Rüstzeitsenkung (SMED)"
+        ],
+        a: "80 % × 90 % × 95 % = 68,4 % · größter Hebel: Verfügbarkeit (TPM, SMED)."
+      },
+      {
+        id: "k24", important: true,
+        q: "Prof. Schröder – Prioritätsregeln. An einer Maschine warten fünf Aufträge (Belegungszeit / Fälligkeit in Stunden):\nA 5 / 9 · B 2 / 5 · C 8 / 12 · D 4 / 11 · E 6 / 21\na) Bilden Sie die Reihenfolgen nach SPT und EDD. (2 P.)\nb) Berechnen Sie jeweils die durchschnittliche Fertigstellungszeit, die maximale Verspätung und die Zahl verspäteter Aufträge. (4 P.)\nc) Welche Reihenfolge liefert Moore’s Algorithmus? (2 P.)",
+        hint: "SPT = kürzeste zuerst · EDD = früheste Fälligkeit zuerst · Moore: ab EDD den längsten Auftrag bis zur ersten Verspätung ans Ende.",
+        steps: [
+          "a) SPT: B, D, A, E, C · EDD: B, A, D, C, E",
+          "b) SPT: fertig nach 2, 6, 11, 17, 25 h → Ø 12,2 h; verspätet A (2 h) und C (13 h) → Vmax 13 h, 2 Aufträge",
+          "b) EDD: fertig nach 2, 7, 11, 19, 25 h → Ø 12,8 h; verspätet C (7 h) und E (4 h) → Vmax 7 h, 2 Aufträge",
+          "c) Moore: In der EDD-Folge ist C der erste verspätete Auftrag; der längste bis dahin ist C → ans Ende: B, A, D, E, C",
+          "c) fertig nach 2, 7, 11, 17, 25 h → nur C verspätet (13 h) → 1 verspäteter Auftrag, Ø 12,4 h"
+        ],
+        a: "SPT: kleinste Ø-Zeit (12,2 h) · EDD: kleinste maximale Verspätung (7 h) · Moore (B, A, D, E, C): nur 1 Auftrag verspätet."
+      },
+      {
+        id: "k25", important: true,
+        q: "Prof. Schröder – Wright’s Law. Die Montage des ersten Getriebes einer neuen Baureihe dauerte 200 Stunden, die Lernrate beträgt r = 0,85.\na) Wie lange dauert das 8. Getriebe? (2 P.)\nb) Berechnen Sie den Lernkurvenexponenten b und die Zeit für das 20. Getriebe. (3 P.)\nc) Nennen Sie drei Gründe für Lerneffekte. (3 P.)",
+        hint: "Jede Verdopplung der Menge → Zeit × r · kₓ = k₁ · x^b mit b = ln r / ln 2.",
+        steps: [
+          "a) 1 → 2 → 4 → 8 sind drei Verdopplungen: 200 × 0,85³ ≈ 122,8 h",
+          "b) b = ln 0,85 / ln 2 = −0,1625 / 0,6931 ≈ −0,2345",
+          "b) k₂₀ = 200 × 20^(−0,2345) ≈ 99,1 h",
+          "c) Abläufe sitzen besser · weniger Fehler · bessere Werkzeuge und Vorrichtungen · passgenauere Teile · routiniertere Planung"
+        ],
+        a: "k₈ ≈ 122,8 h · b ≈ −0,2345 · k₂₀ ≈ 99,1 h."
+      },
+      {
+        id: "k26", important: true,
+        q: "Prof. Schröder – Kostenfunktion. Für einen Betrieb gilt K(x) = 2.000 + 4x + 0,05x².\na) Geben Sie Fixkosten, Stückkosten k(x) und Grenzkosten K′(x) an. (3 P.)\nb) Berechnen Sie K, k und K′ für x = 100. (2 P.)\nc) Bei welcher Menge sind die Stückkosten minimal und wie hoch sind sie dann? (3 P.)",
+        hint: "k(x) = K(x) / x · K′(x) = erste Ableitung · das Stückkostenminimum liegt dort, wo K′ = k.",
+        steps: [
+          "a) Kf = 2.000 € · k(x) = 2.000/x + 4 + 0,05x · K′(x) = 4 + 0,1x",
+          "b) K(100) = 2.000 + 400 + 500 = 2.900 € · k = 29 € · K′ = 14 €",
+          "c) K′ = k: 4 + 0,1x = 2.000/x + 4 + 0,05x → 0,05x = 2.000/x → x² = 40.000 → x = 200",
+          "c) k(200) = 10 + 4 + 10 = 24 € = K′(200)"
+        ],
+        a: "K′ = 4 + 0,1x · bei x = 100: K = 2.900 €, k = 29 €, K′ = 14 € · Minimum bei x = 200 mit k = 24 €."
+      },
+      {
+        id: "k27",
+        q: "Prof. Schröder – Nutz- und Leerkosten. Eine Abfüllanlage verursacht 60.000 € Fixkosten im Monat und schafft höchstens 12.000 Kisten. Im März werden 9.000 Kisten abgefüllt.\na) Berechnen Sie Nutz- und Leerkosten. (3 P.)\nb) Was passiert mit den Fixkosten, wenn eine zweite Anlage nötig wird? Wie heißt dieser Kostenverlauf? (2 P.)",
+        hint: "KN = Kf · Ist-Menge / Kapazität · KL = Kf − KN.",
+        steps: [
+          "a) Auslastung 9.000 / 12.000 = 75 %",
+          "a) KN = 60.000 × 0,75 = 45.000 € · KL = 60.000 − 45.000 = 15.000 €",
+          "b) Die Fixkosten springen auf eine neue Stufe (z. B. 120.000 €) – sprungfixe Kosten; direkt nach dem Sprung sind die Leerkosten hoch"
+        ],
+        a: "KN = 45.000 €, KL = 15.000 € · zweite Anlage → sprungfixe Kosten."
+      },
+      {
+        id: "k28", important: true,
+        q: "Prof. Schröder – Largest Candidate Rule. Eine Montagelinie soll 480 Stück in 8 Stunden schaffen. Arbeitsaufgaben (Zeit in s, Vorgänger):\nA 50 (–) · B 45 (A) · C 15 (A) · D 30 (B, C) · E 40 (D) · F 25 (E)\na) Berechnen Sie Taktzeit und Mindestzahl der Stationen. (3 P.)\nb) Ordnen Sie die Aufgaben mit der Largest Candidate Rule den Stationen zu. (4 P.)\nc) Berechnen Sie die Linieneffizienz. (2 P.)",
+        hint: "T = verfügbare Zeit / Menge · Nmin = Σt / T · immer die größte zulässige Aufgabe, die noch in die Restzeit passt · E = Σt / (N · T).",
+        steps: [
+          "a) T = 28.800 s / 480 = 60 s · Σt = 205 s → Nmin = 205 / 60 = 3,42 → 4 Stationen",
+          "b) Station 1: A (50) – in 10 s passt nichts mehr",
+          "b) Station 2: B (45) + C (15) = 60 s",
+          "b) Station 3: D (30) – E (40) passt nicht mehr in 30 s",
+          "b) Station 4: E (40) – F (25) passt nicht in 20 s · Station 5: F (25)",
+          "c) E = 205 / (5 × 60) ≈ 0,68 → 95 s Leerzeit"
+        ],
+        a: "T = 60 s, Nmin = 4, Ergebnis 5 Stationen, E ≈ 0,68."
+      },
+      {
+        id: "k29",
+        q: "Prof. Schröder – Dreiecksverfahren. Für fünf Werkstätten liegen die Transportmengen pro Tag vor (beide Richtungen addiert):\n1–2: 60 · 1–3: 10 · 2–3: 90 · 2–4: 30 · 3–4: 50 · 3–5: 40 · 4–5: 70 (alle anderen 0)\nBestimmen Sie mit dem Dreiecksverfahren nach Schmigalla die Reihenfolge der Platzierung und begründen Sie jeden Schritt. (6 Punkte)",
+        hint: "Erst das Paar mit dem größten Fluss, dann jeweils die Station mit der größten Summe zu allen schon platzierten.",
+        steps: [
+          "Schritt 1: größter Fluss 2–3 (90) → 2 und 3 nebeneinander (1 P.)",
+          "Schritt 2: Summen zu {2, 3}: 1 → 60 + 10 = 70 · 4 → 30 + 50 = 80 · 5 → 0 + 40 = 40 → 4 angrenzend an 2 und 3 (2 P.)",
+          "Schritt 3: Summen zu {2, 3, 4}: 1 → 70 · 5 → 40 + 70 = 110 → 5 angrenzend an 3 und 4 (2 P.)",
+          "Schritt 4: zuletzt 1 – möglichst neben 2 (60) (1 P.)"
+        ],
+        a: "Reihenfolge der Platzierung: 2 und 3 → 4 → 5 → 1."
+      },
+      {
+        id: "k30", important: true,
+        q: "Prof. Schröder – Postponement. Ein Hersteller von Akkuschraubern beliefert 25 Länder. Die Geräte sind gleich, nur Ladestecker, Verpackung und Anleitung unterscheiden sich je Land. Bisher liegt alles fertig verpackt in Lagern in jedem Land.\na) Wo liegt der Variantenbestimmungspunkt heute? (1 P.)\nb) Schlagen Sie eine Postponement-Strategie vor und ordnen Sie sie im Postponement-Speculation-Portfolio ein. (4 P.)\nc) Nennen Sie je einen Vor- und Nachteil. (2 P.)",
+        hint: "Form-Postponement (Packaging/Labelling) und Geographic Postponement (Zentrallager) kombinieren.",
+        steps: [
+          "a) Make-to-Stock: Der OPP liegt hinter Endmontage und Verpackung – alles läuft nach Prognose (1 P.)",
+          "b) Neutrale Geräte zentral lagern, Stecker, Anleitung und Verpackung erst nach Auftragseingang (2 P.)",
+          "b) Zentrale Lagerhaltung + Fertigstellung auf Auftrag = Full Postponement (Packaging/Labelling Postponement) (2 P.)",
+          "c) + weniger Bestand und Prognoserisiko je Land, keine Restposten · − längere Lieferzeit, Endfertigung im Zentrallager nötig (2 P.)"
+        ],
+        a: "Heute MTS · neutral zentral lagern und länderspezifisch nach Auftrag verpacken = Full Postponement."
+      },
+      {
+        id: "k31",
+        q: "Prof. Schröder – Lean. (a) Ein Gabelstapler fährt Teile zweimal durch die Halle, (b) ein Monteur sucht sein Werkzeug, (c) es wird produziert, obwohl kein Auftrag da ist, (d) 5 % der Gehäuse müssen nachgearbeitet werden.\n1. Welche Verschwendungsart (TIMWOOD) ist es jeweils? (4 P.)\n2. Ordnen Sie (d) einer Leistungsart zu und nennen Sie ein Werkzeug zur Ursachensuche. (3 P.)",
+        hint: "TIMWOOD: Transport, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects.",
+        steps: [
+          "(a) Transport · (b) Motion (Bewegung) – Gegenmittel 5S · (c) Overproduction · (d) Defects (je 1 P.)",
+          "(d) ist Fehlleistung – kostet Geld und vernichtet Wert (1 P.)",
+          "Ursachen mit dem Ishikawa-Diagramm (6 M) im Team suchen, dann mit Six Sigma bzw. Kaizen abstellen (2 P.)"
+        ],
+        a: "Transport · Motion · Overproduction · Defects (= Fehlleistung, Ursachen per Ishikawa)."
+      },
+      {
+        id: "k32",
+        q: "Prof. Schröder – Fertigungsprinzipien. Beurteilen Sie, welches Fertigungsprinzip passt:\na) ein Sondermaschinenbauer, der jede Anlage nach Kundenwunsch einzeln baut,\nb) ein Getränkehersteller, der täglich Millionen gleicher Flaschen abfüllt.\nBegründen Sie mit der Produkt-Prozess-Matrix und nennen Sie je einen Nachteil. (6 Punkte)",
+        hint: "Diagonale der Matrix: Einzelfertigung ↔ Werkstatt, Massenfertigung ↔ Fließfertigung/Transferstraße.",
+        steps: [
+          "a) Werkstattfertigung: Einzelfertigung, Make-to-Order, hohe Vielfalt, unregelmäßiger Materialfluss – universelle Maschinen, flexibel (2 P.)",
+          "a) Nachteil: lange Durchlaufzeiten, Zwischenbestände, hoher Steuerungsaufwand (1 P.)",
+          "b) Fließfertigung bzw. Transferstraße: Massenfertigung, Make-to-Stock, geringe Vielfalt, kontinuierlicher Fluss – niedrige Stückkosten (2 P.)",
+          "b) Nachteil: unflexibel, störanfällig, hoher Kapitalbedarf (1 P.)"
+        ],
+        a: "Sondermaschinen → Werkstatt · Abfüllung → Fließfertigung/Transferstraße (Diagonale der Matrix)."
       }
     ],
     quiz: []

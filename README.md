@@ -20,7 +20,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
    Lernen nach dem **Leitner-System** (5 Fächer, Wiederholung nach 1/2/4/8/16 Tagen).
 5. **Multiple-Choice-Training** mit eigenem Fortschritt (sicher = 2× hintereinander richtig) und einer Erklärung nach jeder Antwort.
 6. **🎯 Lernfragen** (Lernen → Lernfragen, auch im Ordner und auf der Startseite): alle **offiziellen Lernfragen und Lernziele der Profs** und dazu **vermutete Prüfungsfragen** für Teile ohne offizielle Liste. Du antwortest aus dem Kopf, mit dem Apple Pencil oder getippt. Danach siehst du die **Musterantwort als Kernpunkte** und hakst ab, was du hattest. Alternativ prüft **Claude** deine Antwort wie ein Prüfer. Was sitzt, kommt nach 3, 7, 14 und 30 Tagen wieder.
-7. **📄 Lernzettel** (eigener Reiter): pro Block alles Wichtige auf einen Blick – oben **„Das Wichtigste in 30 Sekunden“** und **„Das musst du können“**, darunter nummerierte Abschnitte mit vielen **Schaubildern**. Neben jedem Schaubild steht **„So liest du das“** – eine kurze Erklärung, wie man das Bild liest und was man daraus lernt (auf dem iPad nebeneinander, auf dem iPhone untereinander). Insgesamt über 150 Schaubilder in 22 Lernzetteln. Zu jeder Lektion entsteht der Lernzettel automatisch und bekommt zusätzliche Schaubilder (`js/lz-plus.js`), für Blöcke ohne Lektion ist er handgeschrieben (`js/lernzettel.js`). Mit „🖨️ Als PDF“ lässt er sich drucken oder in GoodNotes importieren.
+7. **📄 Lernzettel** (eigener Reiter): pro Block alles Wichtige auf einen Blick – oben **„Das Wichtigste in 30 Sekunden“** und **„Das musst du können“**, darunter nummerierte Abschnitte mit vielen **Schaubildern**. Neben jedem Schaubild steht **„So liest du das“** – eine kurze Erklärung, wie man das Bild liest und was man daraus lernt (auf dem iPad nebeneinander, auf dem iPhone untereinander). Insgesamt über 200 Schaubilder in 27 Lernzetteln. Zu jeder Lektion entsteht der Lernzettel automatisch und bekommt zusätzliche Schaubilder (`js/lz-plus.js`), für Blöcke ohne Lektion ist er handgeschrieben (`js/lernzettel.js`). Mit „🖨️ Als PDF“ lässt er sich drucken oder in GoodNotes importieren.
 8. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
    - **⭐ Kommt dran**, wenn der Prof sagt, das ist wichtig. Die Karte kommt dann bevorzugt dran.
    - **🚫 Kommt nicht dran**: Die Karte wird nicht mehr abgefragt und lässt sich im Ordner jederzeit wieder einblenden.
@@ -35,7 +35,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 
 | Ordner | Prüfung | Lektionen | Inhalt |
 |---|---|---|---|
-| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 5 | Nehm (Grundlagen) + **Schröder (Beschaffungslogistik)**: 6 Stapel, 97 Karten, 72 Lernfragen |
+| 📦 Grundlagen & Funktionen der Logistik | 7. Januar | 11 | Nehm (Grundlagen) + **Schröder (Teil 1 Beschaffungslogistik, Teil 2 Produktionslogistik)**: 11 Stapel, 153 Karten, 119 Lernfragen, 32 Klausuraufgaben (mit Rechenaufgaben: z-Wert, Andler, Kanban, OEE, Prioritätsregeln …) |
 | 💼 Grundlagen der BWL | 11. Januar | 4 | BWL + Marketing, 100 Karten (inkl. Rechenaufgaben), 28 Quizfragen |
 | 🧮 Mathematik & Statistik | 13. Januar | 4 | **Aufgabenmodus**: 34 neue Übungsaufgaben (eigene Zahlen, gleiche Aufgabentypen wie in der Vorlesung) mit komplettem Lösungsweg – Abschreibung, Zinseszins, unterjährig/stetig und **Rentenrechnung** (vorschüssig/nachschüssig) |
 | 🚚 VBL 1 – Verkehrsbetriebslehre | 15. Januar | 6 | Nehm, Hasselberg, **Bahnverkehr, Kombinierter Verkehr, KEP** (KV/KEP vorläufig aus Notizen): 10 Stapel, 205 Karten, 57 Lernfragen |
@@ -48,7 +48,7 @@ Karten mit ⭐ sind laut Vorlesung/Prof-Hinweis prüfungsrelevant.
 
 Woran sich die Fragen orientieren, absteigend nach Gewicht:
 
-1. **Lernfragen der Profs** (Folien: Logistik Nehm 20 Lernfragen, Logistik Schröder 48 Lernziele, VBL 1 Einführung in die Spedition 21 Lernfragen). Jede hat im Bereich 🎯 Lernfragen eine Musterantwort mit Kernpunkten und ist durch ⭐-Karten abgedeckt.
+1. **Lernfragen der Profs** (Folien: Logistik Nehm 20 Lernfragen, Logistik Schröder 48 + 47 Lernziele (Beschaffung + Produktion), VBL 1 Einführung in die Spedition 21 Lernfragen). Jede hat im Bereich 🎯 Lernfragen eine Musterantwort mit Kernpunkten und ist durch ⭐-Karten abgedeckt.
 2. **Übungen und Hinweise aus der Vorlesung**: Übungsaufgaben auf den Folien (z. B. ökonomisches Prinzip, Produktionsfaktoren, Flittiflotti) und Notizen wie „Klausurfrage“ oder „Folie 21 nochmal angucken“.
 3. **Kerninhalte der Folien**: Definitionen, Abgrenzungen, Modelle, Abläufe, Vor- und Nachteile, Rechenwege und Fälle, abgefragt mit den Klausur-Operatoren (nennen, erläutern, abgrenzen, berechnen, beurteilen).
 
@@ -106,5 +106,5 @@ Lokal reicht es, `index.html` im Browser zu öffnen.
   - `js/app.js` (Logik), `js/claude.js` (Claude-Anbindung), `js/icons.js` (einfarbige Icons), `js/food.js` (Lebensmittel)
   - `js/decks/` (Karteikarten & Aufgaben), `js/mc/` (Multiple Choice + Erklärungen), `js/lessons/` (Lektionen)
   - `js/lernfragen.js` (Lernfragen mit Kernpunkten), `js/lernzettel.js` (handgeschriebene Lernzettel)
-  - `js/schaubilder.js` (Schaubild-Bausteine: Matrix, Baum, Kette, Balken, Stern, Tempel, Zeitbalken, Kurven …), `js/lz-plus.js` (zusätzliche Schaubilder mit „So liest du das“ für die Lernzettel aus den Lektionen)
+  - `js/schaubilder.js` (Schaubild-Bausteine: Matrix, Baum, Kette, Balken, Stern, Tempel, Zeitbalken, Kurven …), `js/schaubilder-pl.js` (Schaubilder Produktionslogistik), `js/lz-plus.js` (zusätzliche Schaubilder und 30-Sekunden-Zusammenfassungen für die Lernzettel aus den Lektionen)
   - `CLAUDE.md`: Gedächtnis für Claude – Fächer, Prof-Hinweise, fehlende Folien und Regeln. Wird in jeder neuen Sitzung automatisch gelesen.

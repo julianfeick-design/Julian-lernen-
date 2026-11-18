@@ -1507,3 +1507,337 @@ window.LERNFRAGEN.vbl1.items.push(
     ])
   );
 })();
+
+// =====================================================================
+// 🏭 Logistik – Teil „Funktionen“, Teil 2: Produktionslogistik (Prof. Dr. Michael Schröder)
+// Offizielle Lernziele am Ende jedes Kapitels („Sie sollen erläutern können, …“), Folien 121–266
+// =====================================================================
+(function () {
+  window.LERNFRAGEN.logistik.sources.schroeder2 = { label: "Lernziele Prof. Schröder – Produktionslogistik (Kapitel 1–5)", official: true };
+  const REF = { 1: "logistik/p-kosten", 2: "logistik/p-grundlagen", 3: "logistik/p-systeme", 4: "logistik/p-pps", 5: "logistik/p-lean" };
+  const S = (id, kap, q, pts, tip) => ({ id, src: "schroeder2", ref: REF[kap], q: `PL Kap. ${kap}: ${q}`, pts, tip });
+  window.LERNFRAGEN.logistik.items.push(
+    // ---------- Kapitel 1: Produktion als Kernfunktion der Unternehmung ----------
+    S("t101", 1, "Was sind Isoquanten?", [
+      "Eine **Isoquante** ist die Linie aller Faktorkombinationen (r₁, r₂), die **denselben Output** m erzeugen",
+      "Grundlage ist die **Produktionsfunktion** m = f(r₁, r₂) – sie enthält nur **effiziente** Kombinationen",
+      "**Ineffizient** ist eine Kombination, wenn eine andere mit weniger von mindestens einem Faktor denselben Output schafft (Folie 125: A, B, D, H effizient; C, E, F, G, I nicht)",
+      "Je weiter außen die Isoquante liegt, desto **höher ist der Output** (m = 5, 6, 7)"
+    ], "Isoquante = „Linie gleicher Menge“ – wie eine Höhenlinie auf der Landkarte."),
+    S("t102", 1, "Was unterscheidet substitutionale von limitationalen Produktionsfunktionen?", [
+      "**Substitutional:** Die Faktoren sind (in Grenzen) **gegeneinander austauschbar** – weniger r₁ lässt sich durch mehr r₂ ausgleichen",
+      "→ die Isoquanten sind **gekrümmte** Kurven",
+      "**Limitational:** Die Faktoren müssen in einem **festen Verhältnis** eingesetzt werden (Prozessgerade)",
+      "→ mehr von **nur einem** Faktor erhöht den Output nicht – die Isoquanten sind **rechtwinklig**",
+      "Beispiele: limitational = Fahrrad aus 1 Rahmen + 2 Rädern · substitutional = Arbeit ↔ Maschine"
+    ]),
+    S("t103", 1, "Wie setzt sich eine Gesamtkostenfunktion zusammen und was ist eine Kostenisoquante?", [
+      "Die Kostentheorie ergänzt das **Mengengerüst** um ein **Wertgerüst**: K = q₁ · r₁ + q₂ · r₂ + … + qₙ · rₙ (Faktorpreis × Faktormenge)",
+      "Daraus ergibt sich K = f(m) – die Kosten in Abhängigkeit vom Output",
+      "**Kostenisoquante (Isokostengerade):** alle Faktorkombinationen mit **gleichen Kosten** K⁰",
+      "Gleichung r₂ = −(q₁/q₂) · r₁ + K⁰/q₂ – Steigung = negatives **Preisverhältnis**, Achsenabschnitte K⁰/q₁ und K⁰/q₂",
+      "Budget ↑ → Parallelverschiebung nach außen · q₁ ↑ → steiler · q₂ ↑ → flacher"
+    ]),
+    S("t104", 1, "Wie ergeben sich Minimalkostenkombinationen?", [
+      "Gesucht ist die **billigste** Faktorkombination für einen bestimmten Output",
+      "Man verschiebt die Kostenisoquante so weit nach innen, bis sie die Isoquante gerade noch **berührt** (**Tangentialpunkt**)",
+      "Dort ist die Steigung der Isoquante gleich dem **Faktorpreisverhältnis** q₁/q₂",
+      "Niedrigere Kostengeraden erreichen den Output nicht, höhere sind teurer als nötig",
+      "Verbindet man die Tangentialpunkte für verschiedene Outputs → **Minimalkostenlinie** → langfristige Gesamtkostenfunktion K = f(m)"
+    ]),
+    S("t105", 1, "Was sind Bereitschafts-, Mengen-, sprungfixe und Durchschnittskosten?", [
+      "**Bereitschaftskosten** = Fixkosten Kf: fallen an, um produktionsbereit zu sein – auch bei m = 0 (Fixkostensockel)",
+      "**Mengenkosten** = variable Kosten Kv = kv · m: steigen mit der Menge · Gesamtkosten K = Kf + kv · m",
+      "**Sprungfixe Kosten:** bleiben bis zur Kapazitätsgrenze fix und **springen** dann auf eine neue Stufe (zweite Maschine, weitere Schicht)",
+      "Fixkosten teilen sich in **Nutzkosten** KN = Kf · Ist-Menge / Kapazität und **Leerkosten** KL = Kf − KN (100 kEUR, 6.000 von 8.000 Stück → 75 + 25 kEUR)",
+      "**Durchschnittskosten** = Stückkosten k = K/m = Kf/m + kv → sinken durch **Fixkostendegression**"
+    ], "Zahlenbeispiel Folie 135: Kf = 100.000 €, kv = 10 € → 2.000 Stück: k = 60 € · 4.000 Stück: k = 35 €."),
+    S("t106", 1, "Was sagen Grenzkosten aus und wie leitet man sie her?", [
+      "**Grenzkosten** = Kosten der **letzten** produzierten Einheit (Kostenzuwachs für eine Einheit mehr)",
+      "Herleitung: **erste Ableitung** der Kostenfunktion nach der Menge – K′ = ∂K/∂m",
+      "Linear K = 100 + 2x → K′ = 2 = kv (konstant); die Stückkosten sinken von 12 € (10 Brote) auf 3 € (100 Brote)",
+      "Mit quadratischem Glied K = 1.000 + 2x + 0,1x² → K′ = 2 + 0,2x steigt (50 Brote: 12 €, 150 Brote: 32 €)",
+      "Die **Stückkosten sind minimal**, wo Grenzkosten = Stückkosten (x = 100, 22 €)"
+    ]),
+    S("t107", 1, "Welche Größeneffekte der Produktion gibt es und wie kann man sie systematisieren?", [
+      "Stückkosten = (Fixkosten + variable Kosten) / Menge – Größeneffekte senken sie",
+      "**Economies of Scale** – klassische **Output-Skaleneffekte:** technisch (effizientere Technologien, größere Anlagen), **Spezialisierung** (Arbeitsteilung), **Lerneffekte** (Erfahrung bei steigendem Output)",
+      "**Economies of Density:** mehr Output pro Fläche, Route oder Netz",
+      "**Economies of Size:** größere Betriebs- bzw. Unternehmensgröße",
+      "**Economies of Scope:** gemeinsame Nutzung von Ressourcen für verschiedene Produkte – K(qA, qB) < K(qA, 0) + K(0, qB)"
+    ]),
+    S("t108", 1, "Was sagt Wright’s Law aus, wie rechnet man es und wie begründet man Lerneffekte?", [
+      "**Wright (1936):** Bei jeder **Verdopplung der kumulierten** Produktionsmenge sinken Kosten bzw. Zeit je Stück auf einen festen Anteil r – Standardwert **r = 0,8**",
+      "Formel: kₓ = k₁ · x^b mit b = ln r / ln 2 = ln 0,8 / ln 2 = **−0,3219**",
+      "Beispiel: 1. Bauteil 100 Ah → 8. Bauteil 100 · 8^(−0,3219) ≈ **51,2 Ah** (Gegenprobe 100 → 80 → 64 → 51,2)",
+      "Gründe: Arbeiter kennen die Abläufe besser, **Fehler** werden vermieden, Werkzeuge und Vorrichtungen werden verbessert, Teile passgenauer konstruiert, Planung wird routinierter",
+      "Nagy et al. (2013): für 62 Technologien bestätigt – aber nicht jede Kostensenkung bei mehr Menge ist ein Lerneffekt"
+    ], "Rechenaufgabe wahrscheinlich: das x-te Stück mit gegebener Lernrate ausrechnen."),
+
+    // ---------- Kapitel 2: Grundlagen der Produktionslogistik ----------
+    S("t201", 2, "Was stellt für die Produktionslogistik heute die raum-/zeitliche Herausforderung dar?", [
+      "Die Produktion ist **global verteilt** (z. B. Volkswagen mit über 100 Werken, iPhone mit Teilen aus aller Welt)",
+      "Statt eines **räumlich integrierten** Verbundsystems (alles an einem Ort) entsteht ein **räumlich differenziertes** Verbundsystem",
+      "Das Material wechselt zwischen **Raumeinheiten** → Transporte, Liege- und Wartezeiten",
+      "Folge: **raumzeitliche Verzögerung** – die Fertigstellung rückt nach hinten, Bestände unterwegs und Koordinationsaufwand steigen"
+    ]),
+    S("t202", 2, "Wie kann man Produktionsstandorte systematisieren und welche Beispiele gibt es jeweils?", [
+      "**Weltmarktfabrik:** ein Standort produziert für die Welt – BMW Spartanburg, Porsche Leipzig, TSMC, Novo Nordisk Kalundborg",
+      "**Standortteilung:** mehrere Standorte machen ähnliche Aufgaben (Parallelproduktion) – Tesla-Gigafactories, Coca-Cola, Airbus-A320-Endmontage",
+      "**Standortspaltung:** Wertschöpfung auf Standorte aufgeteilt, Materialflüsse dazwischen – H&M, Airbus-Komponenten, Apple iPhone",
+      "**Fokusfabrik:** spezialisiert auf ein Produkt oder eine Technologie, Leitwerk, beliefert andere Werke – Rittal Haiger, HP Herrenberg, Mercedes Gaggenau",
+      "**Lokale Fabrik:** Produktion nah am Absatzmarkt – Welde, Heidelberg Materials, Harry-Brot",
+      "**Verlängerte Werkbank:** übernimmt ausführende Fertigung oder Montage im Auftrag – Foxconn, Magna Steyr, TSMC"
+    ]),
+    S("t203", 2, "Welche typischen Zielkonflikte prägen die Produktion?", [
+      "**Große Losgrößen** → geringe Rüstkosten, hohe Auslastung, hohe Effizienz (+)",
+      "… aber → hohe Bestände, lange Durchlaufzeiten, geringe Flexibilität (−)",
+      "**Hohe Auslastung ↔ kurze Durchlaufzeit:** volle Maschinen erzeugen Warteschlangen",
+      "**Hohe Lieferbereitschaft ↔ geringe Bestände**",
+      "**Hohe Effizienz ↔ hohe Flexibilität**"
+    ]),
+    S("t204", 2, "Welche Ziele verfolgt die Produktionslogistik?", [
+      "Oberziel: **effizienter Materialfluss** bei ergonomischer Umsetzung",
+      "Hohe **Flächen- und Raumnutzung**, kurze **Durchlaufzeiten**, hohe **Termintreue**",
+      "Hohe **Kapazitätsauslastung**, niedrige **Bestände**, minimale **Gesamttransportentfernungen**",
+      "Hohe **Flexibilität** (Bauten, Anlagen, Organisation)",
+      "Am Ende: **niedrige Kosten**"
+    ]),
+    S("t205", 2, "Welche Maßnahmen und Instrumente werden bei der Planung der Produktionslogistik genutzt?", [
+      "**Logistikorientierte Produktgeometrien** (stapelbar, gut handhabbar)",
+      "Berücksichtigung von **Demontage und Recycling**",
+      "**Layout- und Ablaufoptimierung**, **Total Quality Management**",
+      "**Rüstarme Prozesse**, Optimierung von **Zwischenbeständen**",
+      "**Modularisieren** von (Halb-)Erzeugnissen und **Make-or-Buy**-Rechnungen",
+      "Die Reihenfolge folgt der **Chronologie der Planung** – vom Produkt bis zur Make-or-Buy-Entscheidung"
+    ]),
+    S("t206", 2, "Wie funktioniert der Planungsprozess innerbetrieblicher Materialflüsse?", [
+      "Input 1 – **Produktkonstruktion:** Volumen, Tonnage, Konturen",
+      "Input 2 – **Fertigungsverfahren:** Fertigungs- und Verfahrenstechnik",
+      "Input 3 – **Produktionsprogramm:** alle Produkte nach Art und Menge, Ort, Zeitpunkt/Zeitraum",
+      "→ ergibt **Struktur und Stärke der Materialflüsse** [ME je ZE]",
+      "+ **Layoutplanung** (Entfernungen) → **erforderliche Transportleistung** [(ME × EE) je ZE]"
+    ]),
+    S("t207", 2, "Wie unterscheiden sich die drei verkehrswissenschaftlichen Kennzahlen voneinander?", [
+      "**Transportaufkommen (Total Load):** transportierte **Menge** – z. B. 1 t",
+      "**Transportleistung (Total Load-Distance):** Menge × Entfernung – z. B. 1 t × 200 m = **200 tm** (bzw. tkm)",
+      "**Fahrleistung (Mileage):** zurückgelegter **Weg der Fahrzeuge** – unabhängig von der Ladung, inklusive **Leerfahrten** (hin und leer zurück = 400 m)",
+      "Kurz: Aufkommen = „wie viel“, Transportleistung = „wie viel wie weit“, Fahrleistung = „wie weit fährt das Fahrzeug“"
+    ], "Gern als Rechenaufgabe – Leerfahrten zählen nur bei der Fahrleistung."),
+    S("t208", 2, "Welche Instrumente zur Materialflussanalyse gibt es und was sagen sie aus?", [
+      "**Materialflussmatrix (Von-nach-Matrix):** Zeilen = von, Spalten = nach, Zellen = Mengen je Zeiteinheit zwischen den Bereichen, mit Summen",
+      "Sie zeigt die **Intensität der Beziehungen** – Grundlage für das Layout (z. B. Dreiecksverfahren)",
+      "**Sankey-Diagramm:** Pfeile, deren **Breite proportional zur Menge** ist",
+      "Es zeigt **Flussrichtung, Hauptströme und Verluste** (Ausschuss, Schrott) auf einen Blick"
+    ]),
+    S("t209", 2, "Warum wird oft die U-Form als Fertigungslayout präferiert?", [
+      "**Übersichtlichkeit und Kompaktheit**",
+      "Einfachere **Handhabung** von Material und Werkzeugen, **kürzere Transportwege**",
+      "**Flexibler Personaleinsatz** (Mehrfachmaschinenbedienung): Ein- und Ausgang liegen nebeneinander – ein Mitarbeiter kann die erste und die letzte Station bedienen",
+      "**Räumliche Nähe** der Mitarbeiter → Teamwork",
+      "**Sofortige Korrektur** durch unmittelbare Nacharbeit"
+    ]),
+
+    // ---------- Kapitel 3: Produktionssysteme und innerbetrieblicher Materialfluss ----------
+    S("t301", 3, "Welche Fertigungstypen gibt es und wie lassen sich diese systematisieren?", [
+      "Nach der Auftragsgröße: **Einzel-, Serien-/Sorten- und Massenfertigung**",
+      "Nach der Organisation: **Funktionsprinzip** → **Werkstattfertigung** (gleichartige Maschinen zusammen)",
+      "**Objektprinzip** mit einheitlichem Materialfluss: ohne zeitliche Bindung → **Reihenfertigung**; mit zeitlicher Bindung → **Fließfertigung** (nicht gekoppelt) bzw. **Transferstraße** (verkettete Maschinen)",
+      "**Zentrenfertigung:** automatisiert → **flexibles Fertigungssystem**, nicht automatisiert → **Fertigungsinsel**"
+    ]),
+    S("t302", 3, "Wie verortet man die Fertigungsprinzipien in einer Produkt-Prozess-Matrix?", [
+      "Waagerecht: **Auftragsgröße** (Einzel- → Serien-/Sorten- → Massenfertigung) bzw. Beziehung zum Absatzmarkt (**Make-to-Order → Make-to-Stock**)",
+      "Senkrecht: **Materialfluss** (unregelmäßig → kontinuierlich) und **Produktvielfalt** (hoch → niedrig)",
+      "Wirtschaftlich ist die **Diagonale:** Werkstattfertigung (Einzel, hohe Vielfalt) → Fertigungsinsel → Reihenfertigung → Fließfertigung → Transferstraße (Masse, kontinuierlich)",
+      "Abseits der Diagonale wird es zu starr (viele Varianten am Fließband) oder zu teuer (Massenware in der Werkstatt)"
+    ]),
+    S("t303", 3, "Wann sind jeweils Werkstatt-, Reihen-, Fließfertigung oder Transferstraße zweckmäßig?", [
+      "**Werkstatt:** Einzel- und Kleinserien, hohe Teilevielfalt, viele Arbeitsgänge, häufiges Umrüsten, keine Lagerfertigung – flexibel, aber lange Durchlaufzeiten, Zwischenbestände, hoher Steuerungsaufwand",
+      "**Reihenfertigung:** Maschinen in der Reihenfolge des Ablaufs, zwingende Reihenfolge, möglichst unterbrechungsfrei – aber **ohne festen Takt**",
+      "**Fließfertigung:** abhängige Prozesszeiten, **fester Takt**, Förderband – für **Sorten- und Serienproduktion**, braucht eine belastbare Marktanalyse",
+      "**Transferstraße:** automatisch verkettete Maschinen – **Massenfertigung** mit wenigen Varianten",
+      "Reihe/Fließ: + Flächennutzung, kurze Wege, niedrige Stückkosten · − unflexibel, störanfällig, hoher Kapitalbedarf, Monotonie"
+    ]),
+    S("t304", 3, "Wie funktioniert das Dreiecksverfahren von Schmigalla?", [
+      "Heuristik für die **Layoutplanung bei Werkstattfertigung:** Stationen mit starken Flüssen sollen **benachbart** liegen",
+      "1. **Materialflussmatrix** aufstellen (Flüsse in beide Richtungen addiert)",
+      "2. Das Paar mit der **größten Intensität** auf zwei benachbarte Punkte eines **Dreiecksrasters** setzen (Beispiel 4–5: 210)",
+      "3. Die Station mit der **größten Summe** der Flüsse zu allen bereits platzierten wählen (3: 180 + 100 = 280) und angrenzend setzen",
+      "4. Wiederholen (1: 140 + 0 + 170 = 310 …), bis alle Stationen platziert sind"
+    ], "Rechne die Summen in der Klausur Schritt für Schritt vor – wie auf Folie 174."),
+    S("t305", 3, "Was ist ein NP-schweres Problem?", [
+      "Ein Optimierungsproblem, dessen **Rechenaufwand mit der Problemgröße explodiert** (z. B. faktoriell)",
+      "Beispiel Tourenplanung: k Kunden → **k!** Reihenfolgen (symmetrisch k!/2): 10 Kunden ≈ 3,6 Mio., 20 Kunden ≈ 2,4 Trillionen",
+      "Für große Fälle ist die **exakte** Lösung praktisch unmöglich",
+      "→ Man nutzt **Heuristiken**, die schnell gute, aber nicht garantiert optimale Lösungen liefern",
+      "Auch **Linienbalancierung** und Layoutplanung sind NP-schwer"
+    ]),
+    S("t306", 3, "Wie wendet man das Verfahren Largest Candidate Rule an?", [
+      "1. **Taktzeit** T = verfügbare Zeit / Produktionsmenge (27.000 s / 450 = 60 s)",
+      "2. **Mindestzahl** der Stationen Nmin = Σt / T, aufrunden (335 / 60 = 5,58 → 6)",
+      "3. Aufgaben nach Bearbeitungszeit **absteigend** sortieren",
+      "4. Stationen nacheinander füllen: immer die **größte zulässige** Aufgabe (Vorgänger erledigt), die noch in die **Restzeit** passt; passt nichts mehr → neue Station",
+      "5. **Linieneffizienz** E = Σt / (N · T): Vorlesung 9 Stationen → 335 / 540 ≈ 0,62, also 205 s (38 %) Leerzeit"
+    ], "In der Vorlesung zählt eine Aufgabe als zulässig, wenn ihre Vorgänger in einer früheren Station liegen – schreib deine Regel in der Klausur dazu."),
+    S("t307", 3, "Welche Ansätze des Line Balancing zur Optimierung von Leerzeiten gibt es?", [
+      "1. **Neuverteilung der Arbeitsinhalte:** Teilaufgaben von überlasteten auf Stationen mit Leerzeit verschieben, Arbeitsplätze zusammenlegen, U-Form, **Nachfrageglättung** (Taktzeit = verfügbare Zeit / Output)",
+      "2. **Flexibilisierung des Personals:** Springer an der Engpass-Station, Training für den Wechsel zwischen Stationen, Ablaufoptimierung mit 5S",
+      "3. **Optimierung technischer Verfügbarkeiten:** TPM, Rüstzeitminimierung (SMED – internes in externes Rüsten umwandeln)",
+      "4. **Neugestaltung des Materialflusses:** Kanban (Pull) gegen Stau und Leerlauf, **Pufferzonen** vor Stationen mit hoher Varianz"
+    ]),
+    S("t308", 3, "Was besagt die „Fabrik in der Fabrik“?", [
+      "Bild der **Fraktale:** selbstähnliche Einheiten – wie ein Farnblatt aus vielen kleinen, gleich aufgebauten Blättchen",
+      "Das große Werk wird in **kleine, weitgehend selbstständige Einheiten** zerlegt",
+      "Jede Einheit arbeitet wie eine **eigene Fabrik** – mit eigenem Materialfluss, eigener Verantwortung und Steuerung",
+      "Grundidee der **Fertigungssegmentierung** (umgesetzt z. B. als Zentrenfertigung)"
+    ]),
+    S("t309", 3, "Was ist Fertigungssegmentierung und wie wird diese als Zentrenfertigung umgesetzt?", [
+      "**Fertigungssegmentierung:** Produktion in Segmente nach **Produkt, Kunde, Region oder Technik** gliedern – statt gleichartige Maschinen zusammenzufassen",
+      "Jedes Segment hat alle nötigen Maschinen in **Flussrichtung** (kurze Wege)",
+      "**Zentrenfertigung** = konkrete Umsetzung: kombiniert die Vorteile von Werkstatt- und Reihen-/Fließfertigung",
+      "Zusammengehörige Schritte in einem Zentrum: **Komplettbearbeitung**, innen nach dem **Fließprinzip**, hohe **Kostenverantwortung** – v. a. bei Variantenfertigung und mittleren Stückzahlen",
+      "Motive: **Durchlaufzeiten** verkürzen, **Taylor-Prinzip** überwinden (keine starre Arbeitsteilung, Selbststeuerung, Eigenverantwortung → Motivation), optional teilautonome Gruppen"
+    ]),
+    S("t310", 3, "Welchen Zusammenhang gibt es zwischen Layout, Kapazitätsquerschnitt, Losgröße und Durchlaufzeit?", [
+      "Ausgangslage **Werkstattlayout:** gleichartige Maschinen gebündelt, große Lose, lange, verschlungene Wege",
+      "Mit **Fertigungssegmentierung** (flussorientiertes Layout) bekommt jedes Segment nur die Maschinen, die es braucht → **Kapazitätsquerschnitt ↓**",
+      "Im Segment werden **kleinere Lose** gefertigt → **Losgröße ↓**",
+      "Kurze Wege, weniger Warten und kleinere Lose → **Durchlaufzeit ↓** (passt zu Little’s Law: weniger Bestand → kürzere Durchlaufzeit)"
+    ]),
+    S("t311", 3, "Wie kann man Fördersysteme planen und klassifizieren?", [
+      "**Planungskaskade:** Transportgut → Transportaufkommen → Transportentfernung → Transportfrequenz → Transportzeiten",
+      "**Stetigförderer:** stetiger Fördergutstrom auf fester Strecke – Rollen-, Band-, Kettenförderer, Kreis- und Power-and-Free-Förderer, Paternoster, Schwerkraftförderer (Rutschen), Strömungsförderer (Rohrpost, Pipeline)",
+      "**Unstetigförderer:** einzelne Fahrten – flurgebunden gleislos (Hubwagen, Stapler, FTS), gleisgebunden (Regalbediengerät, Schienenkran), flurfrei (Brücken-/Portalkran, Elektrohängebahn), stationär (Aufzug)",
+      "Merkmale der Klassifikation: Art des Fördergutstroms, **Förderebene** (flurgebunden, flurfrei, stationär), **Beweglichkeit** (gleislos, gleisgebunden), **Antrieb** (manuell, mechanisiert, automatisiert)"
+    ]),
+
+    // ---------- Kapitel 4: Produktionsplanung und -steuerung ----------
+    S("t401", 4, "Was besagt das Gesetz von Little und welche Konsequenzen sind daraus zu ziehen?", [
+      "**Bestand (WIP) = Durchsatz × Durchlaufzeit** (225 St. = 90 St./h × 2,5 h) → DLZ = WIP / Durchsatz",
+      "DLZ senken durch (a) **WIP reduzieren** oder (b) **Durchsatz steigern**",
+      "1. **Bestände aktiv begrenzen:** WIP-Limits, nicht beliebig viele Aufträge freigeben, Engpässe nicht überfluten, Kanban",
+      "2. **Auftragsfreigabe steuern:** erst freigeben, wenn Kapazität frei ist, nach Belastung planen, Warteschlangen überwachen – „den Fertigungsbereich nicht zumüllen“",
+      "3. **Engpässe aktiv managen:** identifizieren, Störungen priorisiert beheben, Rüstzeiten senken, Qualität **vor** dem Engpass sichern – der Engpass bestimmt den Systemdurchsatz"
+    ]),
+    S("t402", 4, "Wie unterscheidet sich Steuerung von Regelung?", [
+      "**Steuerung:** Die obere Planungsebene gibt **Top-down-Vorgaben** an die untere Ebene – **ohne Rückmeldung**",
+      "Störgrößen wirken unten, werden aber nicht automatisch erkannt und ausgeglichen (offener Ablauf)",
+      "**Regelung:** zusätzlich **Bottom-up-Rückkopplung (Feedback)** von unten nach oben",
+      "Soll und Ist werden verglichen, Abweichungen durch Störgrößen werden **korrigiert** (geschlossener Regelkreis); die Vorgaben heißen Feedforward"
+    ]),
+    S("t403", 4, "Wie lassen sich Systeme der Produktionsplanung und -steuerung systematisieren?", [
+      "**Steuerung ↔ Regelung**",
+      "**Bring-Prinzip (Push) ↔ Hol-Prinzip (Pull)**",
+      "**Programmorientiert** (nach Plan/Prognose) **↔ verbrauchsorientiert** (nach tatsächlichem Verbrauch)",
+      "**Zentrale Planung** (Beispiel **MRP II**) **↔ dezentrale Umsetzung** (Beispiel **Kanban**)"
+    ]),
+    S("t404", 4, "Was bedeutet MRP II und aus welchen Bestandteilen besteht die Planungslogik?", [
+      "**Manufacturing Resources Planning** – zentrale, hierarchische PPS nach dem **Push-Prinzip** (MRP = Material Requirements Planning, erweitert um Kapazitäten und Ressourcen)",
+      "Stufen: **Geschäftsplanung → aggregierte Planung → Produktionsprogrammplanung (MPS) → Materialbedarfsplanung (MRP) → Ablaufplanung**",
+      "MPS liefert den **Primärbedarf**, MRP den **Sekundärbedarf**, die Ablaufplanung die **Feinterminierung**",
+      "Von Stufe zu Stufe **abnehmende Aggregation:** zeitlich Jahre → Stunden, räumlich Unternehmen → Maschine, sachlich monetär → Arbeitsgang",
+      "Rückkopplungen zwischen den Stufen"
+    ]),
+    S("t405", 4, "Was ist die Kanban-Steuerung und welche Regeln und Voraussetzungen sind zu beachten?", [
+      "**Dezentrale Umsetzung des Pull-Prinzips:** selbststeuernde Regelkreise zwischen Stationen mit **Pufferlager (Supermarkt)** und **Kanban-Board**; Transport z. B. per Routenzug",
+      "Entnimmt die verbrauchende Stelle Material, geht die **Kanban-Karte** zurück – die vorgelagerte Stelle produziert genau diese Menge nach",
+      "**Regeln:** Trigger ist der aktuelle Bedarf an der Verbrauchsstelle; weder vorzeitig noch mehr bestellen; nicht mehr als benötigt erzeugen; keine fehlerhaften Erzeugnisse liefern",
+      "**Voraussetzungen:** harmonisiertes Produktionsprogramm, materialflussorientierte Organisation, **geringe Umrüstzeiten**, hohe **Disziplin** der Mitarbeiter"
+    ]),
+    S("t406", 4, "Wie berechnet man die Anzahl von Kanbans?", [
+      "Anzahl Kanbans = **[B · (ZW + ZP + ZA) + σ · z] / KLT**",
+      "B = Bedarf je Zeiteinheit · ZW = Wartezeit (Abgabe des Kanbans bis Produktionsstart) · ZP = Produktionszeit · ZA = Anlieferzeit",
+      "σ = Standardabweichung des Bedarfs · z = z-Wert der Standardnormalverteilung (99 % → 2,33) · KLT = Kapazität des Ladungsträgers",
+      "Beispiel: B = 5 St./h, ZW + ZP + ZA = 0,5 + 1 + 1,5 = 3 h, σ = 1, z = 2,33, KLT = 3 → (15 + 2,33) / 3 = 5,78 → **6 Kanbans**",
+      "Wichtig: **Zeiteinheiten angleichen** (Minuten → Stunden) und **aufrunden**"
+    ], "Auf Folie 211 stehen nur die Zahlen – das Ergebnis 6 Kanbans rechnest du selbst."),
+    S("t407", 4, "Wie leitet Andler die optimale Losgröße her?", [
+      "Gesamtkosten K = **B · k** (unmittelbare Kosten: Jahresmenge × variable Stückkosten) + **Kf · B/q** (mittelbare Kosten: Rüstkosten × Anzahl Rüstvorgänge) + **(q/2) · k · i** (Lagerhaltungskosten: Ø-Bestandswert × Lagerhaltungskostensatz)",
+      "Nur Rüst- und Lagerhaltungskosten hängen von q ab – sie laufen gegenläufig",
+      "Nach q ableiten und null setzen: ∂K/∂q = −Kf · B / q² + k · i / 2 = 0",
+      "Umstellen: q² = 2 · B · Kf / (k · i) → **q* = √(2 · B · Kf / (k · i))**",
+      "Im Optimum sind **Rüstkosten = Lagerhaltungskosten** (Schnittpunkt im EOQ-Diagramm); die Losgröße ist zugleich ein Kompromiss zwischen Rüstkosten und **Variabilität** im Fluss"
+    ]),
+    S("t408", 4, "Was ist der Variantenbestimmungspunkt und wo platziert man ihn?", [
+      "**Variantenbestimmungspunkt = Order Penetration Point (OPP):** ab hier wird **kundenauftragsbezogen** (reaktiv) gearbeitet, davor nach **Prognose** (antizipativ)",
+      "Kette: Beschaffung → Fertigung → Vormontage → Endmontage → Distribution (ZL, RL, AL) → Kunde",
+      "Optionen: **Make-to-Order** (OPP nach der Beschaffung), **Assemble-to-Order** (vor der Montage), **Make-to-Stock** (nach der Endmontage, vor der Distribution)",
+      "Platzierung: so, dass die **reaktiven Prozesse in die vom Markt geforderte Lieferzeit** passen – je weiter vorne, desto weniger Prognosefehler und Bestand, aber längere Lieferzeit"
+    ]),
+    S("t409", 4, "Was besagt die Strategie des Postponements und wie systematisiert man es in einer Matrix?", [
+      "**Postponement = gezielte Verzögerung der Variantenbildung**, bis der Kundenauftrag vorliegt → mehr reaktive, weniger antizipative Prozesse",
+      "**Zeitgewinn durch Prozessbeschleunigung:** mehr Schritte passen in die Lieferzeit; zusätzlich weniger Lagerstufen (z. B. ZL → AL statt ZL → RL → AL)",
+      "Matrix nach Pagh/Cooper und Zinn/Bowersox: **Form** (Speculation = Build-to-stock · Postponement = Build-to-order) × **Geographic** (Speculation = dezentrale Lagerhaltung · Postponement = zentrale Lagerhaltung)",
+      "Felder: **Full Speculation** · **Form Postponement** (Manufacturing, Assembly, Packaging, Labelling) · **Geographic Postponement** · **Full Postponement**"
+    ]),
+    S("t410", 4, "Welche Prioritätsregeln gibt es, wie funktionieren sie und welche Ziele werden mit welcher Regel verfolgt?", [
+      "**FCFS** (First come first served): Reihenfolge nach Ankunft – keine Optimierung",
+      "**SPT** (Shortest Processing Time): kurze vor langen Aufträgen → minimiert die **durchschnittliche Fertigstellungs-/Durchlaufzeit** (Beispiel: 9,6 h statt 13,2 h)",
+      "**EDD** (Earliest Due Date): frühe vor späten Fälligkeiten → minimiert die **maximale Verspätung** (Vmax 7 h)",
+      "**Moore’s Algorithmus** (Ansatz EDD): beim ersten verspäteten Auftrag den **längsten** bisherigen Auftrag ans Ende → minimiert die **Anzahl verspäteter Aufträge** (verärgerte Kunden; v = 1)",
+      "Keine Regel ist in allen Zielen die beste – Auswahl nach dem **Optimierungsziel**"
+    ], "Übe die Tabellen mit Ci und Vi für FCFS, SPT, EDD und Moore (Folien 226–229)."),
+    S("t411", 4, "Was besagt die Gesamtanlageneffektivität (OEE) und wie berechnet man diese?", [
+      "**OEE = Verfügbarkeit × Leistung × Qualität**",
+      "**Verfügbarkeit (Nutzungsgrad)** = tatsächliche Betriebszeit / geplante Produktionszeit – Verluste: Pannen, Werkzeugwechsel, Rüsten, Materialmangel",
+      "**Leistung (Geschwindigkeitsgrad)** = produzierte Menge × Soll-Taktzeit / Betriebszeit – Verluste: kleine Stopps, gedrosselte Geschwindigkeit, Engpässe im Materialfluss",
+      "**Qualität** = fehlerfreie Teile / alle Teile – Verluste: Verschleiß, Bedienfehler, Materialqualität, Anfahrverluste",
+      "Beispiel: 336/480 = 70 % · 268,8/336 = 80 % · 1.512/1.680 = 90 % → **50,4 %** · über 80 % Top, um 60 % typisch, unter 40 % starker Handlungsbedarf"
+    ]),
+
+    // ---------- Kapitel 5: Lean Production als Managementkonzept ----------
+    S("t501", 5, "Welche Leistungsarten der Produktion gibt es und was sagen diese aus?", [
+      "**Nutzleistung:** Wert steigt mit den Kosten – wertschöpfend (Konstruktion, PPS, Fertigung/Montage)",
+      "**Scheinleistung:** verursacht Kosten ohne Wertzuwachs, ist aber (derzeit) nötig (Transport, Wareneingang, Rüsten, Maschinen bestücken)",
+      "**Blindleistung:** Kosten ohne Wert, vermeidbar (Sicherheitsbestände, Zwischenläger, Konstruktionsänderungen)",
+      "**Fehlleistung:** Kosten und **Wertvernichtung** (Ausschuss, Nacharbeit, Fehlerfolgen, Garantien)",
+      "Ziel: Nutzleistung ausbauen, Schein- und Blindleistung minimieren, Fehlleistung vermeiden"
+    ]),
+    S("t502", 5, "Wie unterscheiden sich Effektivität, Effizienz und Lean voneinander?", [
+      "**Effektivität:** „die richtigen Dinge tun“ – Wirksamkeit, Zielerreichung",
+      "**Effizienz:** „die Dinge richtig tun“ = Output / Input – Maximalprinzip (Output max. bei festem Input) oder Minimalprinzip (geplanter Output mit min. Input)",
+      "**Lean:** weniger Ressourcen – Personal, Material, Maschinenstunden, Fläche/Raum, Zeit → am Ende Kosten",
+      "Traditionelle Effizienz optimiert oft **lokal** (Maschine, Abteilung), **Lean** optimiert das **Gesamtsystem**"
+    ]),
+    S("t503", 5, "Wie kann man Verschwendung in der Produktion systematisieren?", [
+      "**Muda = Verschwendung:** alle Aktivitäten, die Ressourcen (Zeit, Fläche, Material → Kosten) verbrauchen, ohne Mehrwert für Kunden oder Endprodukt",
+      "Sieben Arten nach **TIMWOOD:**",
+      "**T**ransport (unnötige Wege) · **I**nventory (übermäßige Bestände) · **M**otion (unnötige Bewegungen)",
+      "**W**aiting (Warten) · **O**verproduction (über den Bedarf hinaus) · **O**verprocessing (Überdimensionierung) · **D**efects (Fehler, Nacharbeit)",
+      "Je Art Ursachen erkennen und vermeiden – z. B. Überproduktion → an der Nachfrage ausrichten, Pull/Kanban"
+    ]),
+    S("t504", 5, "Was besagt Six Sigma in der Prozessverbesserung?", [
+      "**Baukasten zur Prozessverbesserung:** systematische Reduzierung von **Fehlern, Verschwendung und Schwankungen**",
+      "Alle Analysen und Entscheidungen beruhen auf **statistischen Methoden** (Normalverteilung)",
+      "Ziel: **3,4 Fehler pro 1 Million Möglichkeiten (DPMO)** = 99,99966 % aller Werte innerhalb der Toleranzgrenzen",
+      "Umsetzung in **Six-Sigma-Projekten** mit speziell geschulten Personen („**Belts**“: White, Yellow, Green, Black)"
+    ]),
+    S("t505", 5, "Was sind die Prinzipien von Lean Production?", [
+      "**Kundenorientierung:** Kundenwert maximieren – nur Aktivitäten, für die der Kunde zahlt (Ist das Füllmaterial wirklich nötig?)",
+      "**Prozessorientierung:** alle Prozesse der Lieferkette analysieren und sichtbar machen (**Wertstromanalyse**) – nahtlos, ohne Engpässe",
+      "**Flussorientierung:** fließende Prozesse ohne Warteschlangen, Ausfälle und Rückflüsse – **Pull-System**",
+      "**Kontinuierliche Verbesserung (Kaizen/KVP):** kleine Schritte, Mitarbeiterbeteiligung, Vorschlagswesen, Qualitätszirkel",
+      "**Kennzahlenorientierung:** „Was man nicht messen kann, kann man nicht steuern“ – Benchmarking, Dashboards"
+    ]),
+    S("t506", 5, "Wie und wofür nutzt man das Ishikawa-Diagramm?", [
+      "**Ursache-Wirkungs-Diagramm** (Fischgräten-Diagramm) zur **Visualisierung von Ursache und Wirkung**",
+      "Am Kopf steht das **Problem bzw. die Wirkung**, die Gräten sind **Ursachenkategorien**",
+      "Kategorien (**6 M**): Mensch/Mitarbeiter, Material, Maschine, Methode, Milieu (Umwelt), Messung (im Beispiel auch Money)",
+      "Vorgehen: im **Team** mögliche Ursachen je Kategorie sammeln, ordnen und die wichtigsten prüfen",
+      "Nutzen: **echte Ursachen** statt Symptome finden – Grundlage für Verbesserungsmaßnahmen"
+    ]),
+    S("t507", 5, "Was ist Total Productive Maintenance und welche Prinzipien gelten dabei?", [
+      "**TPM** (Japan Institute of Plant Maintenance): Verluste an Anlagen erkennen – Stillstände, Störungen, Geschwindigkeitsrückgang, Ressourcenengpässe – und beseitigen",
+      "Ziel: **Steigerung der Maschinen- und Anlageneffektivität (OEE)**",
+      "Prinzipien 1–4: **Continuous Improvement** (kleine Schritte) · **Autonomous Maintenance** (Bediener reinigen, inspizieren, warten selbst) · **Planned Maintenance** (geplante Wartung senkt Stillstände) · **Training** und Schulung",
+      "Prinzipien 5–8: **Überwachung der Hochlaufphase** (steiler Anlauf, digitaler Zwilling) · **Quality Management** (Null-Fehler) · **TPM in der Administration** · **Null-Unfälle-Anforderung** (Arbeits-, Gesundheits-, Umweltschutz)"
+    ]),
+    S("t508", 5, "Was besagt die 5S-Methodik und welche Ziele werden mit ihr verfolgt?", [
+      "**Seiri – Sortieren:** Überflüssiges vom Arbeitsplatz entfernen → keine Suchzeiten, immer das richtige Werkzeug",
+      "**Seiton – Aufräumen:** sichtbare Ordnung, Arbeitsmittel an festen, standardisierten Orten → Fehlendes fällt sofort auf",
+      "**Seiso – Sauber halten:** Fehler und Verschleiß schneller erkennen → weniger ungeplante Stillstände, zufriedenere Mitarbeiter",
+      "**Seiketsu – Standardisieren:** einheitliche Abläufe, **visuelles Management** (Farbcodes, Bodenmarkierungen) → Ordnung wird zur Gewohnheit",
+      "**Shitsuke – Disziplin/stetige Verbesserung:** Standards einhalten, KVP → die 4S dauerhaft verankern, **Muda** beseitigen"
+    ])
+  );
+})();

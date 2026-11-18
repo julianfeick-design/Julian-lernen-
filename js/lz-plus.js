@@ -1134,5 +1134,45 @@
     },
   };
 
+  // =================================================================
+  // 🏭 Logistik – Produktionslogistik (Prof. Schröder, Teil 2)
+  // Die Schaubilder stehen schon in den Lektionen (js/lessons/logistik-s.js) – hier die 30-Sekunden-Zusammenfassung.
+  // =================================================================
+  X["logistik/p-kosten"] = { sum: [
+    "Eine **Isoquante** verbindet alle effizienten Faktorkombinationen mit **gleichem Output** – gekrümmt bei **substitutionalen**, rechtwinklig bei **limitationalen** Produktionsfunktionen.",
+    "**K = Σ q · r**; die **Kostenisoquante** verbindet alle Kombinationen mit gleichen Kosten. Wo sie die Isoquante **berührt**, liegt die **Minimalkostenkombination**.",
+    "Fixkosten = **Bereitschaftskosten**, variable = **Mengenkosten**, **sprungfix** = Stufen an der Kapazitätsgrenze; Fixkosten teilen sich in **Nutz- und Leerkosten**.",
+    "**Grenzkosten** K′ = erste Ableitung von K; die Stückkosten sind minimal, wo **K′ = k**.",
+    "**Economies of Scale** (Menge) und **Scope** (Verbund) · **Wright’s Law:** jede Verdopplung der Menge → Kosten × 0,8."
+  ] };
+  X["logistik/p-grundlagen"] = { sum: [
+    "Verteilte Produktion (**räumlich differenziert**) bringt **raumzeitliche Verzögerung** durch Transporte zwischen den Standorten.",
+    "Sechs **Standorttypen:** Weltmarktfabrik, Standortteilung, Standortspaltung, Fokusfabrik, lokale Fabrik, verlängerte Werkbank.",
+    "Ziele: kurze **Durchlaufzeit**, **Termintreue**, **Auslastung**, wenig **Bestand**, kurze Wege → niedrige **Kosten** – große Lose erzeugen **Zielkonflikte**.",
+    "Materialfluss planen: Produkt + Verfahren + Programm → **Materialflüsse [ME/ZE]** → mit dem Layout → **Transportleistung [(ME × EE)/ZE]**.",
+    "**Aufkommen** [t] · **Transportleistung** [tkm] · **Fahrleistung** [km, auch leer] – analysieren mit **Materialflussmatrix** und **Sankey**, Layout gern als **U-Form**."
+  ] };
+  X["logistik/p-systeme"] = { sum: [
+    "**Funktionsprinzip** → Werkstatt · **Objektprinzip** → Reihe, Fließ, Transferstraße oder Zentren (Fertigungsinsel, flexibles Fertigungssystem).",
+    "**Produkt-Prozess-Matrix:** wirtschaftlich ist die Diagonale von der Werkstatt (Einzelfertigung) bis zur Transferstraße (Massenfertigung).",
+    "**Dreiecksverfahren:** größter Fluss zuerst nebeneinander, dann jeweils die größte Summe anbauen – eine **Heuristik**, weil Layoutplanung **NP-schwer** ist.",
+    "**Largest Candidate Rule:** T = Zeit / Menge, Nmin = Σt / T, größte zulässige Aufgabe zuerst, E = Σt / (N · T) – Vorlesung: 9 Stationen, E ≈ 0,62.",
+    "**Segmentierung** (Fabrik in der Fabrik, Zentrenfertigung): Losgröße, Durchlaufzeit und Kapazitätsquerschnitt **sinken** · Fördermittel: **stetig** oder **unstetig**."
+  ] };
+  X["logistik/p-pps"] = { sum: [
+    "**Little’s Law:** Bestand = Durchsatz × Durchlaufzeit → WIP begrenzen, Freigabe steuern, Engpass managen.",
+    "**Steuerung** (nur Vorgaben, Push, zentral: MRP II) vs. **Regelung** (mit Rückmeldung, Pull, dezentral: Kanban).",
+    "**Anzahl Kanbans** = [B · (ZW + ZP + ZA) + σ · z] / KLT – immer aufrunden (Vorlesung: 6).",
+    "**Andler:** q* = √(2 · B · Kf / (k · i)) – im Optimum sind Rüstkosten = Lagerhaltungskosten.",
+    "**OPP:** MTO, ATO, MTS · **Postponement** verzögert die Variantenbildung · **SPT** → Ø-Zeit, **EDD** → max. Verspätung, **Moore** → Anzahl · **OEE** = V × L × Q."
+  ] };
+  X["logistik/p-lean"] = { sum: [
+    "Vier **Leistungsarten:** Nutz-, Schein-, Blind- und Fehlleistung – nur die Nutzleistung schafft Wert.",
+    "**Effektiv** = die richtigen Dinge tun, **effizient** = die Dinge richtig tun – **Lean** optimiert das Gesamtsystem.",
+    "**Muda** nach **TIMWOOD:** Transport, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects.",
+    "**Six Sigma:** statistisch, 3,4 Fehler pro Million · Lean-Prinzipien: Kunde, Prozess, Fluss, Kaizen, Kennzahlen.",
+    "Werkzeuge: **Ishikawa** (6 M), **TPM** (8 Prinzipien, OEE ↑), **5S** (vom Sortieren bis zur Disziplin)."
+  ] };
+
   window.LZ_PLUS = X;
 })();

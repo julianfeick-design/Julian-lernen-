@@ -50,7 +50,7 @@
   window.MC_DATA = window.MC_DATA || {};
   Object.assign(window.MC_DATA, {
     "logistik/s-beschaffung/sb01": ["Transport, Lagern, Umschlag", "Einkauf, Verkauf, Marketing", "Planung, Steuerung, Kontrolle", "Verpacken, Etikettieren, Prüfen"],
-    "logistik/s-beschaffung/sb02": ["Material, Dienstleistungen, Betriebsmittel, Personal, Infos, Kapital", "Nur Rohstoffe und Handelswaren", "Nur Maschinen und Anlagen", "Nur Dienstleistungen und Personal"],
+    "logistik/s-beschaffung/sb02": ["Material, Dienstleistungen, Betriebsmittel, Personal, Infos, Kapital", "Material, Handelswaren und Ersatzteile – sonst nichts", "Rohstoffe, Maschinen, Gebäude, Grundstücke, Fahrzeuge", "Material und Dienstleistungen, aber nie Personal"],
     "logistik/s-beschaffung/sb03": ["Einkauf, Disposition, Lagerhaltung", "Vertrieb, Marketing, Service", "Produktion, Montage, Prüfung", "Finanzierung, Investition, Controlling"],
     "logistik/s-beschaffung/sb04": ["Materialkosten −3 % statt Umsatz +30 %", "Materialkosten −30 % statt Umsatz +3 %", "Umsatz +3 % statt Materialkosten −30 %", "Preise +30 % statt Materialkosten −3 %"],
     "logistik/s-beschaffung/sb05": ["Fundamental = Selbstzweck · Instrumental = dient anderem Ziel", "Fundamental = dient anderem Ziel · Instrumental = Selbstzweck", "Fundamental = kurzfristig · Instrumental = langfristig", "Fundamental = messbar · Instrumental = nicht messbar"],
@@ -65,21 +65,21 @@
     "logistik/s-beschaffung/sb14": ["Global, Modular, Single/Sole, Dual/Multiple", "Push, Pull, JIT, JIS", "Lokal, Regional, National, Global", "Einzel, Vorrat, Konsignation, JIT"],
     "logistik/s-beschaffung/sb15": ["Single: Rabatte · Dual: Stillstand vermeiden", "Single: Stillstand vermeiden · Dual: Rabatte", "Single: mehr Wettbewerb · Dual: weniger Kosten", "Single: Wechsel leicht · Dual: Abhängigkeit"],
     "logistik/s-beschaffung/sb16": ["Variantenvielfalt → Module vom Systemlieferanten", "Weniger Varianten → mehr Einzelteile", "Mehr Eigenfertigung → weniger Lieferanten", "Billigere Teile → mehr Lagerbestand"],
-    "logistik/s-beschaffung/sb17": ["Einzel-, Vorrats-, produktionssynchrone Beschaffung", "Global, Local, Nearshoring", "Kauf, Miete, Leasing", "Direkt, indirekt, gemischt"],
+    "logistik/s-beschaffung/sb17": ["Einzel-, Vorrats-, produktionssynchrone Beschaffung", "Global-, Local-, Modular-Beschaffung", "Push-, Pull-, Hybrid-Beschaffung", "Direkt-, Lager-, Streckenbeschaffung"],
     "logistik/s-beschaffung/sb18": ["Lieferantenlager beim Kunden, Zahlung bei Entnahme", "Kundenlager beim Lieferanten, Zahlung vorab", "Gemeinsames Lager, Zahlung bei Einlagerung", "Zolllager, Zahlung bei Auslieferung"],
-    "logistik/s-beschaffung/sb19": ["Zusätzlich in Einbaureihenfolge", "Ohne feste Zeitfenster", "Nur artrein verpackt", "Nur einmal im Monat"],
-    "logistik/s-beschaffung/sb20": ["Feinabruf ohne erlaubte Abweichung", "Rahmenvertrag mit ±30 %", "Lager für Tiefkühlware", "Zeitraum ohne Lieferungen"],
+    "logistik/s-beschaffung/sb19": ["Zusätzlich in Einbaureihenfolge", "Zusätzlich vom Kunden abgeholt", "Ohne festes Lieferzeitfenster", "Artrein statt sequenziert"],
+    "logistik/s-beschaffung/sb20": ["Feinabruf ohne erlaubte Abweichung", "Rahmenvereinbarung mit ±30 % Abweichung", "Lieferabruf mit ±2 % Abweichung", "Rahmenauftrag mit ±10 % Abweichung"],
     "logistik/s-beschaffung/sb21": ["LRW = Bestand / Ø-Verbrauch · LU = Jahresverbrauch / Ø-Bestand", "LRW = Jahresverbrauch / Ø-Bestand · LU = Bestand / Ø-Verbrauch", "LRW = Bestand × Verbrauch · LU = 365 × Bestand", "LRW = Verbrauch / Bestand · LU = Bestand / 365"],
     "logistik/s-beschaffung/sb22": ["Variable/fixe Bestellkosten, Lagerhaltung, Fehlmengen", "Personal, Miete, Energie, Steuern", "Transport, Zoll, Versicherung, Maut", "Fixkosten, Gemeinkosten, Einzelkosten, Sondereinzelkosten"],
     "logistik/s-beschaffung/sb23": ["Lagerkosten + kalk. Zins + kalk. Wagnis", "Lagerkosten + Transport + Zoll", "Kalk. Zins + Gewinnzuschlag", "Personal + Energie + Miete"],
     "logistik/s-beschaffung/sb24": ["z × σ", "µ × σ", "z × µ", "σ / µ"],
     "logistik/s-beschaffung/sb25": ["2 σ unter dem Mittel, 2,28 % darunter", "2 σ über dem Mittel, 2,28 % darüber", "2 % unter dem Mittel", "Genau der Mittelwert"],
-    "logistik/s-beschaffung/sb26": ["Kosten steigen asymptotisch, Nachfrage reagiert begrenzt", "Kosten sinken gegen 100 %", "Kunden wollen keinen guten Service", "Lieferanten verbieten 100 %"],
+    "logistik/s-beschaffung/sb26": ["Kosten steigen asymptotisch, Nachfrage reagiert begrenzt", "Kosten sinken gegen 100 %, Nachfrage steigt unbegrenzt", "Kosten bleiben konstant, Nachfrage sinkt ab 90 %", "Kosten steigen linear, Nachfrage reagiert gar nicht"],
     "logistik/s-beschaffung/sb27": ["t = Rhythmus, s = Meldebestand · q = fix, S = auffüllen", "t = Menge, s = Rhythmus · q = Ziel, S = fix", "t = Transport, s = Sicherheit · q = Qualität, S = Service", "t = Termin, s = Sortiment · q = Quote, S = Summe"],
     "logistik/s-beschaffung/sb28": ["√(2·B·K_f / (p·i)), konstanter Bedarf", "2·B·K_f / (p·i), schwankender Bedarf", "√(B·p / (2·K_f·i)), mit Fehlmengen", "B / q · K_f, mit Rabatten"],
-    "logistik/s-beschaffung/sb29": ["c_u / (c_u + c_o) = 0,8", "c_o / (c_u + c_o) = 0,2 → optimal", "c_u − c_o = 1,5", "c_o / c_u = 0,25 → bestellen"],
+    "logistik/s-beschaffung/sb29": ["c_u / (c_u + c_o) = 0,8", "c_o / (c_u + c_o) = 0,2", "c_u / c_o = 4,0", "(c_u − c_o) / c_u = 0,75"],
     "logistik/s-beschaffung/sb30": ["HGB: FIFO, LIFO, Ø · IFRS: ohne LIFO", "HGB: nur FIFO · IFRS: FIFO, LIFO", "Beide: alle sechs Verfahren", "HGB: HIFO, LOFO · IFRS: FEFO"],
-    "logistik/s-beschaffung/sb31": ["Festplatz: kleine Läger · chaotisch: große Läger mit LVS", "Festplatz: E-Commerce · chaotisch: Ersatzteillager", "Festplatz: hohe Raumnutzung · chaotisch: wenig", "Beide nur mit Papierlisten"],
-    "logistik/s-beschaffung/sb32": ["Behälter im Raster, Roboter von oben, Ware zur Person", "Breite Gänge, Stapler, Person zur Ware", "Bodenlager in Blöcken ohne Technik", "Hängelager für Textilien"]
+    "logistik/s-beschaffung/sb31": ["Festplatz: kleine Läger · chaotisch: große Läger mit LVS", "Festplatz: E-Commerce · chaotisch: Ersatzteillager", "Festplatz: hohe Raumnutzung · chaotisch: wenig", "Festplatz: braucht LVS · chaotisch: ohne Software"],
+    "logistik/s-beschaffung/sb32": ["Behälter im Raster, Roboter von oben, Ware zur Person", "Breite Gänge, Stapler, Person zur Ware", "Paletten im Regal, Kran von der Seite, Person zur Ware", "Behälter auf dem Band, Roboter am Boden, Person zum Band"]
   });
 })();

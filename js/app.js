@@ -1931,8 +1931,10 @@
   function lzAll() {
     if (lzCache) return lzCache;
     const L = lessonsAll(), out = [];
+    // Hat eine Lektion schon einen handgeschriebenen Lernzettel (lessons: [key]), entsteht kein zweiter automatischer.
+    const own = new Set((window.LERNZETTEL || []).flatMap(z => z.lessons || []));
     for (const f of getFolders()) {
-      for (const d of f.decks) { const k = lessonKey(f.id, d.id); if (L[k]) out.push(lzFromLesson(k, L[k], f, d)); }
+      for (const d of f.decks) { const k = lessonKey(f.id, d.id); if (L[k] && !own.has(k)) out.push(lzFromLesson(k, L[k], f, d)); }
       out.push(...(window.LERNZETTEL || []).filter(z => z.fid === f.id));
     }
     return (lzCache = out);
