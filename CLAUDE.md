@@ -21,6 +21,7 @@ Diese Datei liest Claude Code zu Beginn jeder Sitzung automatisch. Hier steht, w
 
 ## Regeln für Inhalte (Julian wünscht sich ausdrücklich nur prüfungsrelevante Fragen)
 1. **Lernfragen/Lernziele der Profs haben oberste Priorität** – der Prof sagt: wer sie sicher beantworten kann, ist perfekt vorbereitet. Jede offizielle Lernfrage bekommt eine Musterantwort mit Kernpunkten. Julian (Nov. 2026): Genau diese Lernziele soll die App ihm beibringen – je Lernziel eine Lernfrage mit Musterantwort, mindestens eine ⭐-Karte und eine Erklärung in der Lektion.
+   **Keine vagen Aufgaben** (Julian war enttäuscht von „Erklär: Der Einkauf als Hebel“ – „Was willst du denn hören?“): Jede Aufgabe/Frage in der App muss konkret sagen, was gefragt ist und was in die Antwort gehört (Teile der Frage, Operator, Anzahl Kernpunkte). Der Erklär-Schritt (Feynman) nutzt deshalb die Lernfragen der Lektion (`ref` = Lektion) samt „So sieht eine gute Antwort aus“ (`fyGuide` in app.js); neue Lektionen brauchen also immer passende Lernfragen mit `ref`.
 2. Danach Übungen auf den Folien und Julians Notizen („wichtig“, „Klausurfrage“, „Folie X nochmal angucken“).
 3. Keine Fragen zu Zitaten, Autoren/Literaturlisten, Jahreszahlen, Verordnungsnummern, Farben, Organisatorischem oder Zahlen-Trivia – außer der Prof hebt es hervor.
 4. Fragen konkret und prüfungsnah stellen (Operatoren nennen, erläutern, abgrenzen, berechnen, beurteilen).

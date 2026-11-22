@@ -1783,9 +1783,9 @@
   ];
   function feynmanSystem(L, f, topic, lvl, material) {
     const lv = FY_LEVELS.find(x => x[0] === lvl) || FY_LEVELS[1];
-    return `MODUS: FEYNMAN-METHODE. ${state.profile.name} erklärt das Unterthema „${topic}“ aus der Lektion „${L.title}“ (${f.name}) auf dem Niveau „${lv[1].replace(/^\S+\s/, "")}“: ${lv[2]}.\n` +
-      `Deine Rolle: aufmerksamer, etwas naiver Zuhörer und Coach. Er denkt – du deckst Lücken auf.\n` +
-      `So gehst du vor:\n1. Seine erste Nachricht ist seine Erklärung. Antworte mit kurzem, ehrlichem Feedback: ✓ was korrekt ist, ✗ welche Lücken oder Fehler es gibt – klar benennen, nicht schönreden, aber freundlich. Typische Lücken: Floskeln ohne Inhalt („ist halt so“), Fachbegriffe ohne Erklärung, behauptete Zusammenhänge ohne Begründung, fehlende oder falsche Teile.\n` +
+    return `MODUS: FEYNMAN-METHODE. ${state.profile.name} beantwortet die Prüfungsfrage bzw. Aufgabe „${topic}“ aus der Lektion „${L.title}“ (${f.name}) in eigenen Worten, auf dem Niveau „${lv[1].replace(/^\S+\s/, "")}“: ${lv[2]}.\n` +
+      `Deine Rolle: aufmerksamer, etwas naiver Zuhörer und Coach. Er denkt – du deckst Lücken auf. Er hat ausdrücklich gesagt, dass ihm vage Aufgaben nichts bringen: Sei immer konkret – sag genau, welcher Teil der Frage fehlt und was dort erwartet wird.\n` +
+      `So gehst du vor:\n1. Seine erste Nachricht ist seine Antwort. Prüfe sie Punkt für Punkt gegen die Musterantwort unten (falls vorhanden): ✓ welche Kernpunkte drin sind, ✗ welche fehlen oder falsch sind – klar benennen, nicht schönreden, aber freundlich. Verrate fehlende Punkte nicht wörtlich, sondern gib einen konkreten Hinweis, worüber er nachdenken soll (z. B. „Was passiert mit den Beständen?“). Bei Rechenfragen prüfe Formel, Einsetzen und Ergebnis. Typische Lücken: Floskeln ohne Inhalt („ist halt so“), Fachbegriffe ohne Erklärung, behauptete Zusammenhänge ohne Begründung, fehlende Teile der Frage.\n` +
       `2. Stelle dann EINE gezielte Vertiefungsfrage (z. B. einen Begriff ohne Fachwort erklären lassen, „Was passiert, wenn …?“, ein Alltagsbeispiel). Immer nur eine Frage pro Nachricht.\n` +
       `3. Bei einer Lücke: Sag genau, welche Stelle er in der Lektion nachlesen soll, und lass ihn dann nur diesen Punkt neu erklären. Verrate die Antwort nicht vorher.\n` +
       `4. Wenn die Erklärung steht: Bitte um eine Analogie oder ein Bild aus dem Alltag.\n` +
@@ -2221,8 +2221,31 @@
   const hasInk = (id) => !!(window.Ink && Ink.has(id));
 
   // Punkte eines Unterthemas, die in eine gute Erklärung gehören
+  // Was gehört in die Antwort? – aus dem Fragewort (Operator) abgeleitet, ohne die Lösung zu verraten
+  const FY_OPS = [
+    [/berechn|rechnet man|wie hoch|ermittel|wie viele/i, ["die **Formel** bzw. die Rechenschritte", "was **jede Größe** bedeutet", "ein **Rechenbeispiel** mit Zahlen"]],
+    [/unterscheid|abgrenz|vergleich|gegenüber|\bvs\./i, ["**beide** Begriffe kurz erklären", "die **Unterschiede** gegenüberstellen (mindestens zwei)", "je ein **Beispiel**"]],
+    [/zusammenhang|zusammenhäng/i, ["wie die Größen **zusammenhängen** („wenn …, dann …“)", "die **Wirkungskette** Schritt für Schritt", "ein **Beispiel**"]],
+    [/warum|wieso|weshalb|begründ/i, ["die **Gründe** – jeweils mit „weil …“", "ein **Beispiel** oder eine kleine Rechnung, die es zeigt"]],
+    [/\bwann\b|zweckmäßig|geeignet|eignet/i, ["für **welche Situation** es passt (Merkmale)", "**Vor- und Nachteile**", "ein **Beispiel**"]],
+    [/wie funktioniert|wie läuft|wie wendet|wie geht|vorgeh|ablauf|herleit|wie ergeben|wie ergibt|wie setzt sich|wie plant|wie kann man|wie lassen sich|wie verortet|wie entwickelt|wie hat sich/i, ["die **Schritte** bzw. Bestandteile in sinnvoller Reihenfolge", "was am Ende **herauskommt**", "ein kurzes **Beispiel**"]],
+    [/welche|nennen|aufzähl|arten|typen/i, ["**alle** gefragten Punkte nennen", "jeden Punkt in **einem Satz** erklären", "wenn möglich je ein **Beispiel**"]],
+    [/was ist|was sind|was besagt|was bedeutet|was versteht|was sagt|was stellt|definier|erklär|erläuter|beschreib/i, ["eine klare **Definition** in eigenen Worten", "die wichtigsten **Merkmale** bzw. Bestandteile", "ein **Beispiel** aus der Praxis"]]
+  ];
+  const FY_W = "was|wie|welche[mnrs]?|warum|wann|wo|woraus|wodurch|weshalb|wieso|inwiefern";
+  function fyGuide(q) {
+    const t = plainTxt(q).replace(/^(PL )?Kap\.\s*\d+:\s*/, "").trim();
+    const raw = t.split(new RegExp(`,\\s*(?:und\\s+)?(?=(?:${FY_W})\\b)|\\s+und\\s+(?=(?:${FY_W})\\b)`, "i")).map(s => s.trim()).filter(Boolean);
+    const parts = [];
+    raw.forEach(p => { if (parts.length && parts[parts.length - 1].split(/\s+/).length < 3) parts[parts.length - 1] += ", " + p; else parts.push(p); });
+    return parts.map(p => {
+      const hit = FY_OPS.find(([re]) => re.test(p));
+      return { part: p.charAt(0).toUpperCase() + p.slice(1).replace(/[?.!]*$/, "") + "?", guide: hit ? hit[1] : ["die **Kernaussage** in eigenen Worten", "die wichtigsten **Punkte** mit Begründung", "ein **Beispiel**"] };
+    });
+  }
   function topicPoints(L, sel) {
-    if (sel.i < 0) return lessonNet(L).map(n => n.h).slice(0, 10);
+    if (sel.pts) return sel.pts.slice();
+    if (sel.i < 0) return (L.goals || []).map(plainTxt).slice(0, 10);
     const sec = L.s[sel.i];
     let pts = sec.t === "bal" ? [sec.l[0], sec.r[0], ...sec.l[1].slice(0, 3), ...sec.r[1].slice(0, 3)]
       : ((lessonNet(L).find(n => n.i === sel.i) || { terms: [] }).terms || []).slice();
@@ -2251,42 +2274,46 @@
     if (!state.feynmanDraft) state.feynmanDraft = {};
     const math = f.type === "math";
     const F = fyOf(key) || { topics: {} };
-    const net = lessonNet(L);
-    const topics = [...net.map(n => ({ id: String(n.i), h: n.h, i: n.i })), { id: "all", h: "Die ganze Lektion im Überblick", i: -1 }];
+    // Erklärt wird anhand der Prüfungsfragen der Lektion: offizielle Lernfragen der Profs zuerst, dann typische Klausurfragen
+    const LQ = lqItems(fid).filter(q => q.ref === key).sort((a, b) => (b.official ? 1 : 0) - (a.official ? 1 : 0));
+    const topics = [...LQ.map(q => ({ id: "q:" + q.id, h: plainTxt(q.q), full: q.q, pts: q.pts || [], tip: q.tip, official: q.official, src: q.srcLabel, i: -2 })),
+      { id: "all", h: `Überblick: die ganze Lektion „${plainTxt(L.title)}“`, i: -1 }];
     const tp = F.topics || {};
     let sel = (pick && topics.find(t => t.id === pick)) || topics.find(t => !tp[t.h]) || topics.slice().sort((a, b) => (tp[a.h].r - tp[b.h].r) || tp[a.h].d.localeCompare(tp[b.h].d))[0];
     let lvl = F.lvl || "mittel";
     const due = feynDue(key);
     const doneCount = topics.filter(t => tp[t.h]).length;
     const inkId = () => `fy:${key}|${sel.h}`, anaId = () => `fya:${key}|${sel.h}`;
-    window.chatContext = `Ich übe gerade die Feynman-Methode zur Lektion „${L.title}“ (${f.name}): Ich erkläre ein Unterthema in eigenen Worten. Nimm mir die Antworten nicht vorweg.`;
+    window.chatContext = `Ich beantworte gerade Prüfungsfragen zur Lektion „${L.title}“ (${f.name}) in eigenen Worten (Feynman-Methode). Nimm mir die Antworten nicht vorweg.`;
     app().innerHTML = `
       <div class="row between"><a href="${lessonHref(key, 1)}" class="small">← Zur Lektion</a><span class="small muted">${esc(f.emoji || "📁")} ${esc(f.short || f.name)} · ${esc(d.name)}</span></div>
       <div class="card ls-hero">
         <span class="tag">🗣️ Schritt 3 von 5 · Erklären</span>
         <h1>${esc(L.title)}</h1>
-        <p class="ls-meta">⏱ 5 Min pro Unterthema · Feynman-Methode${due ? " · 🔁 Wiederholung ist heute dran" : ""}</p>
+        <p class="ls-meta">⏱ 5 Min pro Frage · Feynman-Methode${due ? " · 🔁 Wiederholung ist heute dran" : ""}</p>
         <div style="margin-top:6px">${pathStrip(2, math)}</div>
       </div>
-      <details class="card fy-how" ${doneCount ? "" : "open"}><summary><b>So funktioniert’s</b> <span class="small muted">– ein Unterthema nach dem anderen</span></summary>
+      <details class="card fy-how" ${doneCount ? "" : "open"}><summary><b>So funktioniert’s</b> <span class="small muted">– eine Prüfungsfrage nach der anderen</span></summary>
         <ol class="fy-steps">
-          <li><b>Unterthema wählen</b> – klein und konkret</li>
-          <li><b>Erklären</b> – ohne nachzuschauen, als würdest du es einem Freund beibringen</li>
-          <li><b>Vergleichen</b> – das Material aufklappen und abhaken, welche Punkte du drin hattest</li>
-          <li><b>Lücken schließen</b> – fehlende Punkte nachlesen, dann nochmal kurz mit einer Analogie erklären</li>
-          <li><b>Bewerten</b> – danach geht’s mit dem nächsten Unterthema weiter</li>
+          <li><b>Frage wählen</b> – das sind die Lernfragen deiner Profs (⭐) und typische Klausurfragen</li>
+          <li><b>Beantworten</b> – ohne nachzuschauen, in Stichpunkten oder Sätzen. Über dem Schreibfeld steht, <b>was in die Antwort gehört</b></li>
+          <li><b>Vergleichen</b> – mit der Musterantwort abhaken, welche Kernpunkte du drin hattest</li>
+          <li><b>Lücken schließen</b> – fehlende Punkte nachlesen und nochmal kurz in eigenen Worten erklären</li>
+          <li><b>Bewerten</b> – dann kommt die nächste Frage</li>
         </ol>
       </details>
       <section class="card fy">
-        <div class="row between" style="align-items:baseline"><h2><span class="pr-n">1</span>Unterthema</h2><span class="small muted">${doneCount} von ${topics.length} erklärt</span></div>
-        <div class="bar" style="margin:4px 0 12px"><div style="width:${doneCount / topics.length * 100}%"></div></div>
-        <div class="chips" id="fyTopics">${topics.map(t => `<button type="button" class="chip tchip ${t.id === sel.id ? "active" : ""} ${tp[t.h] ? "done" : ""}" data-t="${t.id}">${tp[t.h] ? "✓ " : ""}${mdx(t.h)}</button>`).join("")}</div>
+        <div class="row between" style="align-items:baseline"><h2><span class="pr-n">1</span>Prüfungsfrage wählen</h2><span class="small muted">${doneCount} von ${topics.length} beantwortet</span></div>
+        <div class="bar" style="margin:4px 0 10px"><div style="width:${doneCount / topics.length * 100}%"></div></div>
+        <p class="small muted" style="margin:0 0 10px">⭐ = offizielle Lernfrage deiner Profs – genau so kann sie in der Klausur kommen. ✓ = schon beantwortet.</p>
+        <div class="fy-qlist" id="fyTopics">${topics.map(t => `<button type="button" class="fy-pt fy-qb ${t.id === sel.id ? "active" : ""} ${tp[t.h] ? "ok" : ""}" data-t="${t.id}"><span class="fy-box"></span><span>${t.official ? "⭐ " : ""}${mdx(t.h)}</span></button>`).join("")}</div>
         <h2 style="margin-top:18px"><span class="pr-n">2</span>Niveau</h2>
         <div class="chips" id="fyLvls">${FY_LEVELS.map(([id, n]) => `<button type="button" class="chip ${id === lvl ? "active" : ""}" data-l="${id}">${n}</button>`).join("")}</div>
         <p class="small muted" id="fyLvlTxt" style="margin:8px 0 0"></p>
       </section>
       <section class="card fy" id="fyWriteCard">
         <div class="row between" style="align-items:center;gap:10px"><h2 style="margin:0"><span class="pr-n">3</span><span id="fyTopicH"></span></h2>${modeSwitch()}</div>
+        <div class="fy-task" id="fyTask"></div>
         <p class="small muted" style="margin:8px 0 10px" id="fyHint"></p>
         <div id="fyWrite"></div>
         <p class="small muted" id="fyCount" style="margin:6px 0 0"></p>
@@ -2299,8 +2326,8 @@
       <section class="card fy hidden" id="fyCheck">
         <h2><span class="pr-n">4</span>Vergleichen &amp; abhaken</h2>
         <details class="fy-mat" open><summary>📖 Material zu „<span id="fyMatH"></span>“</summary><div id="fyMat"></div></details>
-        <p style="margin:16px 0 4px"><b>Welche Punkte hattest du in deiner Erklärung?</b></p>
-        <p class="small muted" style="margin:0 0 10px">Antippen = drin. Was fehlt, wird im Material oben markiert.</p>
+        <p style="margin:16px 0 4px"><b id="fyPtsH">Welche Punkte hattest du in deiner Erklärung?</b></p>
+        <p class="small muted" style="margin:0 0 10px" id="fyPtsHint">Antippen = drin. Was fehlt, wird im Material oben markiert.</p>
         <div class="fy-points" id="fyPoints"></div>
         <p style="margin:16px 0 8px"><b>Und wie hast du erklärt?</b></p>
         <div class="fy-points" id="fyQual">${FY_QUALITY.map((q, i) => `<button type="button" class="fy-pt" data-q="${i}"><span class="fy-box"></span><span>${q}</span></button>`).join("")}</div>
@@ -2332,7 +2359,30 @@
       const n = words();
       $("#fyCount").textContent = inputMode() === "ink" ? "" : (n ? `${n} Wörter` : "");
     };
-    const showMaterial = () => { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); markMissing(); };
+    const isQ = () => sel.i === -2;
+    const showMaterial = () => {
+      $(".fy-mat").classList.toggle("hidden", isQ());
+      if (!isQ()) { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); }
+      $("#fyPtsH").textContent = isQ() ? "Musterantwort: Welche Kernpunkte hattest du drin?" : "Welche Lernziele hast du in deinem Überblick erklärt?";
+      $("#fyPtsHint").textContent = isQ() ? "Antippen = hattest du (sinngemäß reicht). Was fehlt, liest du in der Lektion oder im Lernzettel nach." : "Antippen = drin. Was fehlt, wird im Material oben markiert.";
+      markMissing();
+    };
+    // Die Aufgabe über dem Schreibfeld: Frage + was in eine gute Antwort gehört (ohne die Lösung zu verraten)
+    const taskHtml = (t) => {
+      if (!isQ()) {
+        const n = (L.goals || []).length;
+        return `<div class="fy-src">Überblick</div><div class="fy-q">Erkläre die ganze Lektion „${esc(L.title)}“ im Überblick.</div>
+          <b>So sieht eine gute Antwort aus:</b><ul><li>zu <b>jedem der ${n} Lernziele</b> der Lektion ein bis zwei Sätze</li><li>wie die Teile <b>zusammenhängen</b> („weil …, dadurch …“)</li><li>wo es passt, ein <b>Beispiel</b></li></ul>`;
+      }
+      const G = fyGuide(t.full);
+      const guide = G.length > 1
+        ? `<b>Die Frage hat ${G.length} Teile – beantworte jeden:</b><ol>${G.map(g => `<li><b>${mdx(g.part)}</b><br><span class="small">→ ${g.guide.map(mdx).join(" · ")}</span></li>`).join("")}</ol>`
+        : `<b>So sieht eine gute Antwort aus:</b><ul>${G[0].guide.map(x => `<li>${mdx(x)}</li>`).join("")}</ul>`;
+      return `<div class="fy-src">${t.official ? "⭐ Offizielle Lernfrage – genau so kann sie in der Klausur kommen" : "🎯 Typische Klausurfrage"}</div>
+        <div class="fy-q">${mdx(t.h)}</div>${guide}
+        <p class="fy-meta">📝 Eine vollständige Antwort hat etwa <b>${t.pts.length} Kernpunkte</b> – Stichpunkte reichen.</p>
+        ${t.tip ? `<details class="fy-tip"><summary>💡 Tipp anzeigen</summary><p>${mdx(t.tip)}</p></details>` : ""}`;
+    };
     const norm = (t) => plainTxt(t).toLowerCase().replace(/\$/g, "").replace(/\s+/g, " ").trim();
     function markMissing() {
       $$("#fyMat .fy-miss").forEach(x => x.classList.remove("fy-miss"));
@@ -2350,10 +2400,12 @@
       const missing = pts.filter((p, i) => !okPts.has(i));
       const pct = N ? Math.round(n / N * 100) : 100;
       let msg, sug;
+      const openTxt = isQ() ? `<b>${missing.length} ${missing.length === 1 ? "Kernpunkt" : "Kernpunkte"}</b> (oben ohne Haken)` : `<b>${missing.map(m => esc(m)).join("</b>, <b>")}</b>`;
+      const where = isQ() ? "in der Lektion oder im Lernzettel" : "oben im Material (markiert)";
       if (N && n === N && q === FY_QUALITY.length) { msg = "💪 <b>Alles drin!</b> Erklär es unten noch einmal ganz kurz mit einer Analogie – dann bewerten."; sug = 2; }
       else if (N && n === N) { msg = `Inhaltlich vollständig 👍 Achte beim nächsten Mal noch auf: ${FY_QUALITY.filter((x, i) => !okQ.has(i)).map(x => x.replace(/<\/?b>/g, "")).join(" · ")}.`; sug = 1; }
-      else if (n >= N / 2) { msg = `Fast! Noch offen: <b>${missing.map(m => esc(m)).join("</b>, <b>")}</b>. Lies genau diese Punkte oben im Material nach (markiert) und erklär sie unten nochmal kurz.`; sug = 1; }
-      else { msg = `Noch Lücken bei: <b>${missing.map(m => esc(m)).join("</b>, <b>")}</b>. Kein Problem – genau dafür ist die Methode da. Lies die markierten Stellen nach und erklär sie unten nochmal.`; sug = 0; }
+      else if (n >= N / 2) { msg = `Fast! Noch offen: ${openTxt}. Lies genau diese Punkte ${where} nach und schreib sie unten nochmal kurz in eigenen Worten.`; sug = 1; }
+      else { msg = `Noch Lücken bei: ${openTxt}. Kein Problem – genau dafür ist die Methode da. Lies sie ${where} nach und schreib sie unten nochmal in eigenen Worten.`; sug = 0; }
       $("#fyResult").innerHTML = `<div class="row between"><b>${n} von ${N} Punkten erklärt</b><span class="small muted">${pct} %</span></div><div class="bar"><div style="width:${pct}%"></div></div><p>${msg}</p>`;
       renderMath($("#fyResult"));
       $$("#fyRate [data-r]").forEach(b => b.classList.toggle("suggested", +b.dataset.r === sug && !b.disabled));
@@ -2375,15 +2427,16 @@
     const setTopic = () => {
       pts = topicPoints(L, sel); okPts = new Set(); okQ = new Set();
       $$("#fyQual .fy-pt").forEach(b => b.classList.remove("ok"));
-      $("#fyTopicH").innerHTML = sel.i < 0 ? "Erklär die ganze Lektion" : `Erklär: ${mdx(sel.h)}`;
+      $("#fyTopicH").textContent = isQ() ? "Deine Antwort" : "Dein Überblick";
+      $("#fyTask").innerHTML = taskHtml(sel);
       $("#fyMatH").innerHTML = mdx(sel.h); $("#fyRateH").innerHTML = mdx(sel.h);
       $("#fyHint").innerHTML = inputMode() === "ink"
         ? "✍️ Schreib mit dem Apple Pencil – Stichpunkte, Pfeile und kleine Skizzen sind ausdrücklich erlaubt. Nicht nachschauen!"
         : "🎤 Tipp: Tippe auf das Mikrofon deiner Tastatur und erkläre laut – das trainiert gleich fürs Mündliche. Nicht nachschauen!";
       $("#fyWrite").innerHTML = writeField(inkId(), state.feynmanDraft[key + "|" + sel.h] || "", {
         rows: 7,
-        ph: sel.i < 0 ? `Erklär die ganze Lektion „${L.title}“ im Überblick – worum geht es, und wie hängt alles zusammen?` : `Erklär „${plainTxt(sel.h)}“ in deinen eigenen Worten …`,
-        inkPh: `Erklär „${plainTxt(sel.h)}“ – schreib einfach los …`
+        ph: isQ() ? "Deine Antwort auf die Frage oben – in Stichpunkten oder ganzen Sätzen …" : `Dein Überblick über „${L.title}“ – ein, zwei Sätze je Lernziel …`,
+        inkPh: isQ() ? "Deine Antwort – Stichpunkte reichen …" : "Dein Überblick – ein, zwei Sätze je Lernziel …"
       });
       $("#fyAna").innerHTML = writeField(anaId(), "", { rows: 3, ph: "„… ist wie …, weil …“", inkPh: "Analogie oder fehlende Punkte – kurz und einfach …" });
       $("#fyWrite .wf-text").addEventListener("input", () => { state.feynmanDraft[key + "|" + sel.h] = txt().value; saveSoon(); updCount(); });
@@ -2399,7 +2452,7 @@
     setTopic(); setLvl();
     $$("#fyTopics [data-t]").forEach(b => b.addEventListener("click", () => {
       sel = topics.find(t => t.id === b.dataset.t);
-      $$("#fyTopics .chip").forEach(x => x.classList.toggle("active", x === b));
+      $$("#fyTopics .fy-qb").forEach(x => x.classList.toggle("active", x === b));
       setTopic();
       $("#fyWriteCard").scrollIntoView({ behavior: "smooth", block: "start" });
     }));
@@ -2424,12 +2477,14 @@
       if (!state.settings.apiKey) { toast("🔑 Für Claude brauchst du einen API-Key (⚙️ Mehr). Ohne Key: „Fertig – jetzt vergleichen“."); return; }
       if (!enough()) return;
       const lv = FY_LEVELS.find(x => x[0] === lvl);
-      const material = [`Lernziele der Lektion: ${L.goals.map(plainTxt).join("; ")}`, ...topicMaterial(L, sel.i).map(secPlain)].join("\n\n");
+      const material = isQ()
+        ? [`Prüfungsfrage: ${plainTxt(sel.full)}`, `Musterantwort (Kernpunkte):\n${sel.pts.map(p => "- " + plainTxt(p)).join("\n")}`, sel.tip ? `Hinweis zur Frage: ${plainTxt(sel.tip)}` : ""].filter(Boolean).join("\n\n")
+        : [`Lernziele der Lektion: ${L.goals.map(plainTxt).join("; ")}`, ...topicMaterial(L, sel.i).map(secPlain)].join("\n\n");
       const typed = words() ? txt().value.trim() : "";
       const img = hasInk(inkId()) ? Ink.image(inkId()) : null;
-      const msg = `Unterthema: ${plainTxt(sel.h)}\nNiveau: ${lv[1].replace(/^\S+\s/, "")}\n\n` +
+      const msg = `${isQ() ? "Prüfungsfrage" : "Aufgabe"}: ${isQ() ? plainTxt(sel.h) : "Überblick über die ganze Lektion"}\nNiveau: ${lv[1].replace(/^\S+\s/, "")}\n\n` +
         (img ? `Meine Erklärung habe ich mit dem Apple Pencil geschrieben – sie ist als Bild angehängt.${typed ? `\nGetippt habe ich noch:\n${typed}` : ""}` : `Meine Erklärung:\n${typed}`);
-      startMethodChat(`🗣️ Feynman · ${plainTxt(sel.h)}`, feynmanSystem(L, f, plainTxt(sel.h), lvl, material) + (img ? "\nWichtig: Seine Erklärung ist handschriftlich als Bild angehängt. Lies sie sorgfältig; wenn ein Wort unleserlich ist, frag kurz nach, statt zu raten." : ""), msg, img);
+      startMethodChat(`🗣️ Feynman · ${plainTxt(sel.h).slice(0, 70)}`, feynmanSystem(L, f, plainTxt(isQ() ? sel.full : sel.h), lvl, material) + (img ? "\nWichtig: Seine Erklärung ist handschriftlich als Bild angehängt. Lies sie sorgfältig; wenn ein Wort unleserlich ist, frag kurz nach, statt zu raten." : ""), msg, img);
       $("#fyRate").classList.remove("hidden");
     });
     $$("#fyRate [data-r]").forEach(b => b.addEventListener("click", e => {

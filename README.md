@@ -11,7 +11,7 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
 3. **Lernweg pro Thema – 5 Schritte**:
    1. 🧲 **Primen** (5–10 Min, vor dem Lesen): drei **konkrete Einstiegsfragen pro Lektion** aus dem Kopf beantworten (Schätzfragen, kleine Praxisfälle, „Was vermutest du?“ – raten erlaubt), dann nur die Überschriften scannen, neue Begriffe antippen und offene Fragen notieren. In der Lektion sind die neuen Begriffe markiert, und am Ende siehst du die **Auflösung** neben deiner eigenen Antwort (auch handschriftlich).
    2. 📖 **Verstehen**: die Lektion lesen.
-   3. 🗣️ **Erklären (Feynman-Methode)** – Unterthema für Unterthema, auf Wunsch **mit dem Apple Pencil** (Schreibfeld mit Stift, Radierer, Farben, Rückgängig; Finger scrollt weiter). Beim Vergleichen hakst du die konkreten Punkte des Unterthemas ab, fehlende werden im Material markiert: Unterthema und Niveau wählen, in eigenen Worten erklären (gern per Diktierfunktion), dann **selbst prüfen** (Material zum Vergleich + Lücken-Check + Analogie) oder **Claude** prüfen lassen, der gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
+   3. 🗣️ **Erklären (Feynman-Methode)** – du beantwortest die **konkreten Prüfungsfragen** der Lektion (zuerst die offiziellen ⭐-Lernfragen der Profs), auf Wunsch **mit dem Apple Pencil** (Schreibfeld mit Stift, Radierer, Farben, Rückgängig; Finger scrollt weiter). Über dem Schreibfeld steht, **was in eine gute Antwort gehört**: aus wie vielen Teilen die Frage besteht, was je Teil erwartet wird (z. B. Definition + Beispiel, Formel + Rechenbeispiel) und wie viele Kernpunkte die Musterantwort hat – ohne die Lösung zu verraten. Danach **selbst prüfen** (Kernpunkte der Musterantwort abhaken + Lücken schließen) oder **Claude** prüfen lassen, der die Antwort Punkt für Punkt mit der Musterantwort vergleicht und gezielt nachfragt. Danach wird automatisch eine **Wiederholung in wachsenden Abständen** geplant (1, 3, 7, 14, 30 Tage).
    4. 🧩 **Abrufen**: Multiple Choice und Karteikarten (bei Mathe: Aufgaben rechnen).
    5. 📝 **Anwenden**: Klausuraufgaben.
 
@@ -68,7 +68,7 @@ Punkte: Priming +10 ⭐, Lektion +20 ⭐, erste Erklärung +15 ⭐ (Wiederholung
 
 Die Priming-Fragen mit Auflösung stehen in `js/lessons/priming.js` (Schlüssel `ordner/stapel`, je Frage `q` = Frage, `ph` = Denkanstoß, `a` = Auflösung).
 
-Zu jeder Lektion gibt es außerdem eine **Priming-Seite** (`#/primen/ordner/stapel`) und eine **Erklär-Seite** (`#/erklaeren/ordner/stapel`). Die Begriffe für den Überblick werden automatisch aus den Überschriften und Schaubildern der Lektion gebaut.
+Zu jeder Lektion gibt es außerdem eine **Priming-Seite** (`#/primen/ordner/stapel`) und eine **Erklär-Seite** (`#/erklaeren/ordner/stapel`). Die Fragen der Erklär-Seite sind die Lernfragen aus `js/lernfragen.js`, deren `ref` auf die Lektion zeigt (plus eine Überblicksaufgabe zu den Lernzielen).
 Mit Claude laufen Priming und Feynman als eigener **Modus im Chat** (oben im Chat zu sehen, mit ✕ beendbar) – Claude stellt dann Fragen, statt den Stoff vorwegzunehmen.
 
 Die Methoden Priming und Feynman sind angelehnt an die öffentlichen „Lernskills“ von Studyacademy (github.com/study-academy/lernskills) und hier in eigenen Worten umgesetzt.
