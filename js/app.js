@@ -2121,6 +2121,7 @@
           <p class="small muted" style="margin:8px 0 10px">Tippe alle Punkte an, die in deiner Antwort vorkommen – ehrlich, wie ein Prüfer.</p>
           <div class="fy-gaps">${q.pts.map((p, k) => `<label class="fy-gap"><input type="checkbox" data-pt="${k}"><span>${mdx(p)}</span></label>`).join("")}</div>
           <p class="lq-score" id="lqScore"></p>
+          ${window.Folien ? Folien.box(q.key) : ""}
           ${lqRefLink(q.ref)}
           <p class="center small muted" style="margin:14px 0 8px">Wie gut konntest du die Frage beantworten?</p>
           <div class="rate">
@@ -2144,6 +2145,7 @@
         if (!answered()) { toast("✍️ Erst selbst antworten – auch Stichpunkte oder laut reichen. Dann vergleichen."); }
         $("#lqSol").classList.remove("hidden");
         e.currentTarget.textContent = "✓ Musterantwort unten";
+        if (window.Folien) Folien.mount($("#lqSol"), { toast });
         score();
         $("#lqSol").scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -2276,7 +2278,7 @@
     const F = fyOf(key) || { topics: {} };
     // Erklärt wird anhand der Prüfungsfragen der Lektion: offizielle Lernfragen der Profs zuerst, dann typische Klausurfragen
     const LQ = lqItems(fid).filter(q => q.ref === key).sort((a, b) => (b.official ? 1 : 0) - (a.official ? 1 : 0));
-    const topics = [...LQ.map(q => ({ id: "q:" + q.id, h: plainTxt(q.q), full: q.q, pts: q.pts || [], tip: q.tip, official: q.official, src: q.srcLabel, i: -2 })),
+    const topics = [...LQ.map(q => ({ id: "q:" + q.id, key: q.key, h: plainTxt(q.q), full: q.q, pts: q.pts || [], tip: q.tip, official: q.official, src: q.srcLabel, i: -2 })),
       { id: "all", h: `Überblick: die ganze Lektion „${plainTxt(L.title)}“`, i: -1 }];
     const tp = F.topics || {};
     let sel = (pick && topics.find(t => t.id === pick)) || topics.find(t => !tp[t.h]) || topics.slice().sort((a, b) => (tp[a.h].r - tp[b.h].r) || tp[a.h].d.localeCompare(tp[b.h].d))[0];
@@ -2329,6 +2331,7 @@
         <p style="margin:16px 0 4px"><b id="fyPtsH">Welche Punkte hattest du in deiner Erklärung?</b></p>
         <p class="small muted" style="margin:0 0 10px" id="fyPtsHint">Antippen = drin. Was fehlt, wird im Material oben markiert.</p>
         <div class="fy-points" id="fyPoints"></div>
+        <div id="fyFol"></div>
         <p style="margin:16px 0 8px"><b>Und wie hast du erklärt?</b></p>
         <div class="fy-points" id="fyQual">${FY_QUALITY.map((q, i) => `<button type="button" class="fy-pt" data-q="${i}"><span class="fy-box"></span><span>${q}</span></button>`).join("")}</div>
         <div class="fy-result" id="fyResult"></div>
@@ -2364,7 +2367,9 @@
       $(".fy-mat").classList.toggle("hidden", isQ());
       if (!isQ()) { $("#fyMat").innerHTML = topicMaterial(L, sel.i).map(lessonSection).join(""); renderMath($("#fyMat")); }
       $("#fyPtsH").textContent = isQ() ? "Musterantwort: Welche Kernpunkte hattest du drin?" : "Welche Lernziele hast du in deinem Überblick erklärt?";
-      $("#fyPtsHint").textContent = isQ() ? "Antippen = hattest du (sinngemäß reicht). Was fehlt, liest du in der Lektion oder im Lernzettel nach." : "Antippen = drin. Was fehlt, wird im Material oben markiert.";
+      $("#fyPtsHint").textContent = isQ() ? "Antippen = hattest du (sinngemäß reicht). Was fehlt, liest du auf der Folie unten oder in der Lektion nach." : "Antippen = drin. Was fehlt, wird im Material oben markiert.";
+      $("#fyFol").innerHTML = isQ() && window.Folien ? Folien.box(sel.key) : "";
+      if (window.Folien) Folien.mount($("#fyFol"), { toast });
       markMissing();
     };
     // Die Aufgabe über dem Schreibfeld: Frage + was in eine gute Antwort gehört (ohne die Lösung zu verraten)
@@ -2829,6 +2834,7 @@
         <button class="btn secondary small" id="testKey">Verbindung testen</button>
       </div>
       <button class="btn block" id="sSave">💾 Speichern</button>
+      ${window.Folien ? Folien.settingsCard() : ""}
       <div class="card" style="margin-top:16px">
         <h2>💾 Backup</h2>
         <p class="small muted">Alles (Check-ins, Fortschritt, eigene Karten) wird in diesem Browser gespeichert. Mach ab und zu ein Backup – oder um es auf ein anderes Gerät zu übertragen.</p>
@@ -2839,6 +2845,7 @@
           <button class="btn-ghost small" id="reset" style="color:var(--bad)">Alles zurücksetzen</button>
         </div>
       </div>`;
+    if (window.Folien) Folien.fillSettings($("#folCard"), { toast });
     const collect = () => {
       state.profile.name = $("#sName").value.trim() || "Julian";
       s.sessionSize = clamp(Number($("#sSize").value) || 20, 5, 100);

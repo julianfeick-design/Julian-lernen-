@@ -20,16 +20,17 @@ Deine persönliche Lern-Website: erst ein kurzer Tages-Check-in, dann lernen in 
    Lernen nach dem **Leitner-System** (5 Fächer, Wiederholung nach 1/2/4/8/16 Tagen).
 5. **Multiple-Choice-Training** mit eigenem Fortschritt (sicher = 2× hintereinander richtig) und einer Erklärung nach jeder Antwort.
 6. **🎯 Lernfragen** (Lernen → Lernfragen, auch im Ordner und auf der Startseite): alle **offiziellen Lernfragen und Lernziele der Profs** und dazu **vermutete Prüfungsfragen** für Teile ohne offizielle Liste. Du antwortest aus dem Kopf, mit dem Apple Pencil oder getippt. Danach siehst du die **Musterantwort als Kernpunkte** und hakst ab, was du hattest. Alternativ prüft **Claude** deine Antwort wie ein Prüfer. Was sitzt, kommt nach 3, 7, 14 und 30 Tagen wieder.
-7. **📄 Lernzettel** (eigener Reiter): pro Block alles Wichtige auf einen Blick – oben **„Das Wichtigste in 30 Sekunden“** und **„Das musst du können“**, darunter nummerierte Abschnitte mit vielen **Schaubildern**. Neben jedem Schaubild steht **„So liest du das“** – eine kurze Erklärung, wie man das Bild liest und was man daraus lernt (auf dem iPad nebeneinander, auf dem iPhone untereinander). Insgesamt über 200 Schaubilder in 27 Lernzetteln. Zu jeder Lektion entsteht der Lernzettel automatisch und bekommt zusätzliche Schaubilder (`js/lz-plus.js`), für Blöcke ohne Lektion ist er handgeschrieben (`js/lernzettel.js`). Mit „🖨️ Als PDF“ lässt er sich drucken oder in GoodNotes importieren.
-8. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
+7. **📑 Originalfolie zum Vergleichen**: Beim Vergleichen (🗣️ Erklären und 🎯 Lernfragen) zeigt die App unter **„So steht es auf der Folie“** die passende Folie aus deinen eigenen PDFs – mit deinen Notizen. Gibt es mehrere Folien, wechselst du über Reiter (z. B. „Folie 200 … Folie 203“). So kannst du die Musterantwort direkt mit dem Original abgleichen – passt etwas nicht zusammen, gilt die Folie. Alle 208 Lernfragen haben ihre Folien zugeordnet. Die PDFs liegen **nur auf deinem Gerät** (siehe „Folien zum Vergleichen“ unten).
+8. **📄 Lernzettel** (eigener Reiter): pro Block alles Wichtige auf einen Blick – oben **„Das Wichtigste in 30 Sekunden“** und **„Das musst du können“**, darunter nummerierte Abschnitte mit vielen **Schaubildern**. Neben jedem Schaubild steht **„So liest du das“** – eine kurze Erklärung, wie man das Bild liest und was man daraus lernt (auf dem iPad nebeneinander, auf dem iPhone untereinander). Insgesamt über 200 Schaubilder in 27 Lernzetteln. Zu jeder Lektion entsteht der Lernzettel automatisch und bekommt zusätzliche Schaubilder (`js/lz-plus.js`), für Blöcke ohne Lektion ist er handgeschrieben (`js/lernzettel.js`). Mit „🖨️ Als PDF“ lässt er sich drucken oder in GoodNotes importieren.
+9. **Prüfungsfokus**: ⭐ markiert alles, was laut Lernfragen der Profs, Übungen und Prof-Hinweisen klausurrelevant ist. Im Ordner startest du mit **⭐ Prüfungsfokus** nur diese Fragen (MC oder Karten). Auf der Startseite gibt es jeden Tag eine **⭐ Prüfungsfrage des Tages**. In jeder Karte kannst du selbst markieren:
    - **⭐ Kommt dran**, wenn der Prof sagt, das ist wichtig. Die Karte kommt dann bevorzugt dran.
    - **🚫 Kommt nicht dran**: Die Karte wird nicht mehr abgefragt und lässt sich im Ordner jederzeit wieder einblenden.
-9. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
-10. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
-11. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
-12. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
-13. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
-14. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
+10. **Punkte & Motivation**: ⭐ Punkte pro Karte und Lektion, Combo-Bonus, Level, 🔥 Streak, Erfolge, Konfetti.
+11. **Essen-Tracker** (🍽️ oben rechts): jederzeit Essen mit Kalorien eintragen – auch mitten in einer Lernsession.
+12. **Claude-Chat** unten rechts, auf jeder Seite. Claude kennt deinen Check-in und die Karte oder Lektion, die du gerade lernst.
+13. **Karten erstellen**: Unter 🗂️ **Ordner → ➕ Neu** PDFs, Fotos oder Text hochladen → Claude baut Karten + Quizfragen. Oder selbst schreiben bzw. per Schnell-Import (`Frage ; Antwort`).
+14. **13 Designs** (⚙️ Mehr → Design): Mint, Aurora, Clean, Ozean, Sunset, Lavendel, Glass, Salbei, Espresso, Bubble, Brutal, Neon, Midnight – jeweils mit eigener Schrift, die meisten hell und dunkel. Wechsel sofort per Antippen (`css/designs.css`).
+15. **Verlauf**: die letzten 14 Tage (Schlaf, Training, Wasser, Stimmung, gelernte Karten) und alle Erfolge.
 
 ## Aktuelle Inhalte
 
@@ -85,6 +86,32 @@ Schick mir deine Lernzettel/Folien hier im Chat und sag mir, in welches Fach sie
 **Variante B: direkt auf der Website**
 Unter 🗂️ **Ordner → ➕ Neu** Dateien hochladen. Dafür brauchst du einen API-Key (siehe unten). Diese Karten werden in deinem Browser gespeichert.
 
+## Folien zum Vergleichen (nur auf deinem Gerät)
+
+Die Folien der Profs liegen **nicht** in der App: Das Repo und die Website sind öffentlich, die Folien dürfen nicht ins Internet. Deshalb wählst du deine PDFs **einmal pro Gerät** aus (iPad und iPhone getrennt):
+
+1. ⚙️ **Mehr → 📑 Folien auf diesem Gerät → „PDFs auswählen (mehrere auf einmal)“** und die Original-PDFs aus der Dateien-App wählen (z. B. aus GoodNotes exportiert). Alternativ direkt bei einer Frage auf **„PDF auswählen“** tippen.
+2. Die App erkennt jede PDF an der **Seitenzahl** und am Dateinamen und speichert sie **nur in diesem Browser** (IndexedDB `julian-folien`). Es wird nichts hochgeladen.
+3. Angezeigt wird mit pdf.js (`vendor/pdfjs`, Apache-2.0) – es wird erst geladen, wenn eine Folie gebraucht wird.
+
+Es müssen **dieselben PDFs** sein, aus denen die Zuordnung erstellt wurde (gleiche Seitenzahl) – sonst warnt die App.
+
+| Fach | Foliensatz | Datei | Seiten | Lernfragen |
+|---|---|---|---|---|
+| Logistik | Schröder · Teil 1 Beschaffungslogistik | `Logistik_Schroeder_klein.pdf` | 124 | 48 |
+| Logistik | Schröder · Teil 2 Produktionslogistik | `WSTL_26_PL_FOLIEN.pdf` | 147 | 47 |
+| Logistik | Nehm · Grundlagen der Logistik | `Nehm ,Folien Und Notizen.pdf` | 75 | 24 |
+| VBL 1 | Nehm · Einführung in die Spedition | `Einführung In Die Spedition.pdf` | 58 | 21 |
+| VBL 1 | Hasselberg · Lkw-Verkehre | `LKW-Verkehre.pdf` | 66 | 11 |
+| VBL 1 | Bahnverkehr | `Bahnverkehr.pdf` | 101 | 15 |
+| VBL 1 | KEP-Dienste (deine Notizen) | `KEP_Dienste.pdf` | 4 | 7 |
+| VBL 1 | Kombinierter Verkehr (deine Notizen) | `Kombinierter_Verkehr.pdf` | 2 | 3 |
+| BWL | von Medem · Grundlagen der BWL | `BWL Folien Und Notizen.pdf` | 66 | 12 |
+| BWL | Stenger · Marketing | `Folien Und Notizen.pdf` (Marketing) | 80 | 11 |
+| Mathe | Mathe-Mitschrift | `Mathematik.pdf` | 21 | 9 |
+
+Die Zuordnung steht in `js/folien.js`: `sets` (Foliensätze mit Dateiname, Seitenzahl und Foliennummer je Seite) und `map` (`"ordner/lernfrage": "satz:seite,seite"` – gemeint sind PDF-Seiten, nicht Foliennummern).
+
 ## Claude auf der Website nutzen
 
 1. Auf <https://console.anthropic.com/settings/keys> einen API-Key erstellen (kostet pro Anfrage ein paar Cent).
@@ -106,5 +133,6 @@ Lokal reicht es, `index.html` im Browser zu öffnen.
   - `js/app.js` (Logik), `js/claude.js` (Claude-Anbindung), `js/icons.js` (einfarbige Icons), `js/food.js` (Lebensmittel)
   - `js/decks/` (Karteikarten & Aufgaben), `js/mc/` (Multiple Choice + Erklärungen), `js/lessons/` (Lektionen)
   - `js/lernfragen.js` (Lernfragen mit Kernpunkten), `js/lernzettel.js` (handgeschriebene Lernzettel)
+  - `js/folien.js` (Zuordnung Lernfrage → Folienseiten), `js/folien-view.js` (zeigt die lokal gespeicherten PDFs an), `vendor/pdfjs` (PDF-Anzeige)
   - `js/schaubilder.js` (Schaubild-Bausteine: Matrix, Baum, Kette, Balken, Stern, Tempel, Zeitbalken, Kurven …), `js/schaubilder-pl.js` (Schaubilder Produktionslogistik), `js/lz-plus.js` (zusätzliche Schaubilder und 30-Sekunden-Zusammenfassungen für die Lernzettel aus den Lektionen)
   - `CLAUDE.md`: Gedächtnis für Claude – Fächer, Prof-Hinweise, fehlende Folien und Regeln. Wird in jeder neuen Sitzung automatisch gelesen.

@@ -1221,3 +1221,22 @@ details.lz-toc > div { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px
   .lz-fig-main { box-shadow: none; }
   details.lz-toc { display: none; }
 }
+
+/* 📑 Folien-Ansicht (PDF nur auf dem Gerät) */
+.fol { margin: 16px 0 4px; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface-2); }
+.fol-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; }
+.fol-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.fol-tabs .chip { padding: 5px 11px; font-size: .82rem; }
+.fol-view { border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid var(--line); min-height: 60px; }
+.fol-view canvas { display: block; width: 100%; height: auto; }
+.fol-msg { padding: 18px 14px; background: var(--surface-solid); }
+.fol-miss { padding: 14px; background: var(--surface-solid); color: var(--text); }
+.fol-miss p { margin: 0 0 10px; line-height: 1.5; }
+.fol-note { margin: 8px 0 0; }
+.fol-grp { margin: 10px 0 0; }
+.fol-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.fol-row:last-child { border-bottom: none; }
+.fol-st { flex: none; width: 1.7em; display: flex; justify-content: center; }
+.fol-nm { flex: 1; min-width: 0; display: grid; }
+.fol-nm b { font-size: .9rem; }
+.fol-nm small { color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }

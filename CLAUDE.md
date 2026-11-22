@@ -17,6 +17,9 @@ Diese Datei liest Claude Code zu Beginn jeder Sitzung automatisch. Hier steht, w
 - `js/schaubilder.js` – Schaubild-Bausteine (`SB.matrix/tree/chain/bars/conflicts/bell/profile/hub/temple/gantt/plot`, Grundformen in `SB.u`) + fertige Schaubilder `SB.S` (Schröder Teil 1), `SB.B` (Bahn), `SB.K` (KV), `SB.P` (KEP); `js/schaubilder-pl.js` = `SB.PL` (Schröder Teil 2 Produktionslogistik, 45 Schaubilder).
 - `js/lz-plus.js` – Zusatz für die Lernzettel aus Lektionen: je Lektion `sum` (30-Sekunden-Zusammenfassung) und `after["Überschrift"]` = Schaubilder `{ fig, t, read }`.
 - **Julians Wunsch (Nov. 2026):** Lernzettel mit **vielen Schaubildern + Erklärung** („So liest du das“), damit man die Sachen versteht – gilt für **alle** Lernzettel, auch neue. Jedes Schaubild bekommt einen Titel und eine Lese-Erklärung; Texte dürfen sich nicht mit Linien überschneiden (vorher per Screenshot prüfen, auch dunkel und 390 px).
+- **Originalfolie beim Vergleichen (Julians Wunsch, Nov. 2026):** Zu jeder Lernfrage zeigt die App beim Vergleichen (Erklären + Lernfragen) „📑 So steht es auf der Folie“. `js/folien.js` = nur die Zuordnung: `sets` (Foliensatz → Ordner, Name, Dateiname, Seitenzahl, `fol` = Foliennummer je PDF-Seite) und `map` (`"ordner/lernfrage": "satz:seite,seite"`, PDF-Seiten). `js/folien-view.js` zeigt die PDFs mit pdf.js (`vendor/pdfjs`, Legacy-Build 3.11, wird erst bei Bedarf geladen).
+  **Die Folien der Profs NIE ins Repo legen** – es ist öffentlich. Julian wählt die PDFs einmal pro Gerät aus (⚙️ Mehr → 📑 Folien), sie liegen nur in IndexedDB `julian-folien`; erkannt werden sie an Seitenzahl + Dateiname.
+  **Jede neue Lernfrage braucht einen Eintrag in `map`**, jeder neue Foliensatz ein Set (Dateiname + Seitenzahl genau wie Julians PDF). Seiten per `pdftotext` je Seite suchen und von Hand prüfen; die erste Seite ist die, mit der die Erklärung beginnt.
 - Bei **jeder** Änderung an js/css die Cache-Version `?v=…` in `index.html` überall erhöhen.
 
 ## Regeln für Inhalte (Julian wünscht sich ausdrücklich nur prüfungsrelevante Fragen)
@@ -40,6 +43,6 @@ Schröder Largest Candidate Rule: In der Vorlesung zählt eine Aufgabe als zulä
 Wichtige Prof-Hinweise aus Notizen: Logistik „Klausurfrage: Umsatz KEP-Bereich“, „Folie 21 nochmal angucken“ · Schröder: ABC-Analyse „verstehen, aber keine Klausurfrage“, Nutzwert-Rechenbeispiel „nicht klausurrelevant“, Folie 78 (z-Wert/Φ) „ganz wichtig“ · Bahn: Trassen, Lastgrenze, Privatgüterwagen „wichtig“, AVV/RIV „sehr wichtig“ · KEP: Quelle BIEK wichtig, Folie 21 Überschrift, Folie 41, Folie 63. · Mathe: Bankvergleich „Endbetrag der besseren Bank dreimal so groß – allgemeine Formel für n“ = **„Klausur!“**
 
 ## Arbeitsweise
-- Neue Folien: Text mit `pdftotext` holen, Handschrift-Seiten als Bild ansehen, dann einarbeiten: Lernfragen → Lernzettel (mit Schaubildern + „So liest du das“) → Karteikarten + MC → (Lektion + Einträge in `js/lz-plus.js`) → README.
+- Neue Folien: Text mit `pdftotext` holen, Handschrift-Seiten als Bild ansehen, dann einarbeiten: Lernfragen → Lernzettel (mit Schaubildern + „So liest du das“) → Karteikarten + MC → (Lektion + Einträge in `js/lz-plus.js`) → Folien-Zuordnung in `js/folien.js` → README.
 - Vor dem Push mit Playwright prüfen (iPhone 390 px, iPad 1194 px, hell/dunkel, keine JS-Fehler, kein seitliches Scrollen).
 - Commit-Nachrichten auf Deutsch; keine Modellnamen in Dateien.
